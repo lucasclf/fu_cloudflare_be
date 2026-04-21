@@ -1,20 +1,29 @@
-import { SessionService } from "./application/session-service";
-import { D1SessionRepository } from "./infrastructure/d1-session-repository";
-import { isAuthorized } from "./presentation/auth";
-import { unauthorized } from "./presentation/http";
-import { SessionHandler } from "./presentation/session-handler";
-import { Env } from "./types/env";
+import { Hono } from "hono";
+import type { Env } from "./types/env";
+import { createSessionService } from "./composition/create-session-service";
+import { corsMiddleware } from "./middleware/cors-middleware";
+import { createAdminSessionsRoutes } from "./presentation/routes/admin-sessions-routes";
+import { createPublicSessionsRoutes } from "./presentation/routes/public-sessions-routes";
+import { internalServerError, notFound, ok } from "./presentation/http";
 
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    if (!isAuthorized(request, env)) {
-      return unauthorized();
-    }
+const app = new Hono<{ Bindings: Env }>();
 
-    const repository = new D1SessionRepository(env.fabula_ultima_db);
-    const service = new SessionService(repository);
-    const handler = new SessionHandler(service);
+app.use("*", corsMiddleware);
 
-    return handler.handle(request);
-  },
-};
+app.get("/", (c) => {
+  return ok(c, { message: "API is running" });
+});
+
+app.route("/public", createPublicSessionsRoutes(createSessionService));
+app.route("/admin", createAdminSessionsRoutes(createSessionService));
+
+app.notFound((c) => {
+  return notFound(c, "Route not found");
+});
+
+app.onError((error, c) => {
+  console.error(error);
+  return internalServerError(c);
+});
+
+export default app;
