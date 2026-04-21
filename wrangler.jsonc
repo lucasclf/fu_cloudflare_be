@@ -13,6 +13,13 @@
 	"upload_source_maps": true,
 	"compatibility_flags": [
 		"nodejs_compat"
+	],
+	"d1_databases": [
+		{
+			"binding": "fabula_ultima_db",
+			"database_name": "fabula-ultima-db",
+			"database_id": "a1497976-1c57-4a50-920a-552257ce8f11"
+		}
 	]
 	/**
 	 * Smart Placement
