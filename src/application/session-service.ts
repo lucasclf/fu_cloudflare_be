@@ -1,4 +1,4 @@
-import { CreateSessionInput, Session, UpdateSessionInput } from "../domain/session";
+import { CreateSessionInput, Session, UpdateSessionInput } from "../domain/sessions/session";
 import { D1SessionRepository } from "../infrastructure/d1-session-repository";
 
 export class SessionService {

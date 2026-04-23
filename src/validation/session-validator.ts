@@ -1,5 +1,5 @@
-import { CreateSessionInput, UpdateSessionInput } from "../domain/session";
-import { ValidationError } from "../domain/session-errors";
+import { CreateSessionInput, UpdateSessionInput } from "../domain/sessions/session";
+import { ValidationError } from "../domain/domain-errors";
 
 type RawSessionInput = {
   session_number?: unknown;

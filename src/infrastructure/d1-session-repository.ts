@@ -1,5 +1,5 @@
-import { CreateSessionInput, Session, UpdateSessionInput } from "../domain/session";
-import { SessionAlreadyExistsError, SessionNotFoundError } from "../domain/session-errors";
+import { CreateSessionInput, Session, UpdateSessionInput } from "../domain/sessions/session";
+import { SessionAlreadyExistsError, SessionNotFoundError } from "../domain/sessions/session-errors";
 
 export class D1SessionRepository {
   constructor(private readonly db: D1Database) {}

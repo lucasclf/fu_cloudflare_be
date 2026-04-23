@@ -1,16 +1,18 @@
 import { Hono } from "hono";
-import type { SessionService } from "../../application/session-service";
-import type { Env } from "../../types/env";
+import type { SessionService } from "../../../application/session-service";
+import type { Env } from "../../../types/env";
 import {
   SessionAlreadyExistsError,
   SessionNotFoundError,
+} from "../../../domain/sessions/session-errors";
+import {
   ValidationError,
-} from "../../domain/session-errors";
+} from "../../../domain/domain-errors";
 import {
   validateCreateSessionInput,
   validateUpdateSessionInput,
-} from "../../validation/session-validator";
-import { adminAuthMiddleware } from "../../middleware/admin-auth-middleware";
+} from "../../../validation/session-validator";
+import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
 import {
   badRequest,
   conflict,
@@ -18,7 +20,7 @@ import {
   noContent,
   notFound,
   ok,
-} from "../http";
+} from "../../http";
 
 type SessionServiceFactory = (env: Env) => SessionService;
 
