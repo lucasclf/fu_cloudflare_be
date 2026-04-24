@@ -1,12 +1,19 @@
-import { CreateSessionInput, Session, UpdateSessionInput } from "../domain/sessions/session";
-import { SessionAlreadyExistsError, SessionNotFoundError } from "../domain/sessions/session-errors";
+import type {
+	CreateSessionInput,
+	Session,
+	UpdateSessionInput,
+} from "../domain/sessions/session";
+import {
+	SessionAlreadyExistsError,
+	SessionNotFoundError,
+} from "../domain/sessions/session-errors";
 
 export class D1SessionRepository {
-  constructor(private readonly db: D1Database) {}
+	constructor(private readonly db: D1Database) {}
 
-  async findAll(): Promise<Session[]> {
-    const { results } = await this.db
-      .prepare(`
+	async findAll(): Promise<Session[]> {
+		const { results } = await this.db
+			.prepare(`
         SELECT
           id,
           session_number,
@@ -19,14 +26,14 @@ export class D1SessionRepository {
         FROM sessions
         ORDER BY session_number ASC
       `)
-      .all<Session>();
+			.all<Session>();
 
-    return results;
-  }
+		return results;
+	}
 
-  async findBySessionNumber(sessionNumber: number): Promise<Session | null> {
-    const result = await this.db
-      .prepare(`
+	async findBySessionNumber(sessionNumber: number): Promise<Session | null> {
+		const result = await this.db
+			.prepare(`
         SELECT
           id,
           session_number,
@@ -40,16 +47,16 @@ export class D1SessionRepository {
         WHERE session_number = ?
         LIMIT 1
       `)
-      .bind(sessionNumber)
-      .first<Session>();
+			.bind(sessionNumber)
+			.first<Session>();
 
-    return result ?? null;
-  }
+		return result ?? null;
+	}
 
-  async create(input: CreateSessionInput): Promise<void> {
-    try {
-      await this.db
-        .prepare(`
+	async create(input: CreateSessionInput): Promise<void> {
+		try {
+			await this.db
+				.prepare(`
           INSERT INTO sessions (
             session_number,
             title,
@@ -59,34 +66,37 @@ export class D1SessionRepository {
           )
           VALUES (?, ?, ?, ?, ?)
         `)
-        .bind(
-          input.session_number,
-          input.title,
-          input.summary,
-          input.notes,
-          input.played_at
-        )
-        .run();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "";
+				.bind(
+					input.session_number,
+					input.title,
+					input.summary,
+					input.notes,
+					input.played_at,
+				)
+				.run();
+		} catch (error) {
+			const message = error instanceof Error ? error.message : "";
 
-      if (message.includes("UNIQUE constraint failed")) {
-        throw new SessionAlreadyExistsError(input.session_number);
-      }
+			if (message.includes("UNIQUE constraint failed")) {
+				throw new SessionAlreadyExistsError(input.session_number);
+			}
 
-      throw error;
-    }
-  }
+			throw error;
+		}
+	}
 
-   async updateBySessionNumber(sessionNumber: number, input: UpdateSessionInput): Promise<void> {
-    const existing = await this.findBySessionNumber(sessionNumber);
+	async updateBySessionNumber(
+		sessionNumber: number,
+		input: UpdateSessionInput,
+	): Promise<void> {
+		const existing = await this.findBySessionNumber(sessionNumber);
 
-    if (!existing) {
-      throw new SessionNotFoundError(sessionNumber);
-    }
+		if (!existing) {
+			throw new SessionNotFoundError(sessionNumber);
+		}
 
-    await this.db
-      .prepare(`
+		await this.db
+			.prepare(`
         UPDATE sessions
         SET
           title = ?,
@@ -96,29 +106,29 @@ export class D1SessionRepository {
           updated_at = CURRENT_TIMESTAMP
         WHERE session_number = ?
       `)
-      .bind(
-        input.title,
-        input.summary,
-        input.notes,
-        input.played_at,
-        sessionNumber
-      )
-      .run();
-  }
+			.bind(
+				input.title,
+				input.summary,
+				input.notes,
+				input.played_at,
+				sessionNumber,
+			)
+			.run();
+	}
 
-  async deleteBySessionNumber(sessionNumber: number): Promise<void> {
-    const existing = await this.findBySessionNumber(sessionNumber);
+	async deleteBySessionNumber(sessionNumber: number): Promise<void> {
+		const existing = await this.findBySessionNumber(sessionNumber);
 
-    if (!existing) {
-      throw new SessionNotFoundError(sessionNumber);
-    }
+		if (!existing) {
+			throw new SessionNotFoundError(sessionNumber);
+		}
 
-    await this.db
-      .prepare(`
+		await this.db
+			.prepare(`
         DELETE FROM sessions
         WHERE session_number = ?
       `)
-      .bind(sessionNumber)
-      .run();
-  }
+			.bind(sessionNumber)
+			.run();
+	}
 }

@@ -1,10 +1,9 @@
-
 export class D1JobRepository {
-    constructor(private readonly db: D1Database) {}
+	constructor(private readonly db: D1Database) {}
 
-    async findAll(): Promise<Job[]> {
-        const { results } = await this.db
-          .prepare(`
+	async findAll(): Promise<Job[]> {
+		const { results } = await this.db
+			.prepare(`
             SELECT
               id,
               name,
@@ -29,14 +28,14 @@ export class D1JobRepository {
               weapon_category ASC,
               name ASC
           `)
-          .all<Job>();
-    
-        return results;
-    }
+			.all<Job>();
 
-    async findByJobName(jobName: string): Promise<Job | null> {
-      const result  = await this.db
-            .prepare(`
+		return results;
+	}
+
+	async findByJobName(jobName: string): Promise<Job | null> {
+		const result = await this.db
+			.prepare(`
               SELECT
                 id,
                 name,
@@ -59,15 +58,15 @@ export class D1JobRepository {
               WHERE name = ?
               LIMIT 1
             `)
-            .bind(jobName)
-            .first<Job>();
-      
-          return result;
-    }
+			.bind(jobName)
+			.first<Job>();
 
-    async findByJobId(jobId: string): Promise<Job | null> {
-      const result  = await this.db
-            .prepare(`
+		return result;
+	}
+
+	async findByJobId(jobId: string): Promise<Job | null> {
+		const result = await this.db
+			.prepare(`
               SELECT
                 id,
                 name,
@@ -90,16 +89,16 @@ export class D1JobRepository {
               WHERE id = ?
               LIMIT 1
             `)
-            .bind(jobId)
-            .first<Job>();
-      
-        return result;
-    }
+			.bind(jobId)
+			.first<Job>();
 
-    async create(input: CreateJobInput): Promise<void> {
-            try {
-              await this.db
-                .prepare(`
+		return result;
+	}
+
+	async create(input: CreateJobInput): Promise<void> {
+		try {
+			await this.db
+				.prepare(`
                 INSERT INTO jobs (
                     name,
                     tagline,
@@ -118,31 +117,31 @@ export class D1JobRepository {
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `)
-                .bind(
-                    input.name,
-                    input.tagline,
-                    input.description,
-                    input.img_key,
-                    input.hp_bonus,
-                    input.mp_bonus,
-                    input.ip_bonus,
-                    input.allows_martial_armor,
-                    input.allows_martial_shield,
-                    input.allows_martial_ranged_weapon,
-                    input.allows_martial_melee_weapon,
-                    input.allows_arcane,
-                    input.allows_rituals,
-                    input.can_start_projects
-                )
-                .run();
-            } catch (error) {
-              const message = error instanceof Error ? error.message : "";
-        
-              if (message.includes("UNIQUE constraint failed")) {
-                throw new JobAlreadyExistsError(input.name);
-              }
-        
-              throw error;
-            }
-          }
+				.bind(
+					input.name,
+					input.tagline,
+					input.description,
+					input.img_key,
+					input.hp_bonus,
+					input.mp_bonus,
+					input.ip_bonus,
+					input.allows_martial_armor,
+					input.allows_martial_shield,
+					input.allows_martial_ranged_weapon,
+					input.allows_martial_melee_weapon,
+					input.allows_arcane,
+					input.allows_rituals,
+					input.can_start_projects,
+				)
+				.run();
+		} catch (error) {
+			const message = error instanceof Error ? error.message : "";
+
+			if (message.includes("UNIQUE constraint failed")) {
+				throw new JobAlreadyExistsError(input.name);
+			}
+
+			throw error;
+		}
+	}
 }
