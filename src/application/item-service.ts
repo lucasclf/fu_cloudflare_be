@@ -1,4 +1,4 @@
-import { CreateItemInput, Item, UpdateItemInput } from "../domain/items/item";
+import { CreateItemInput, Item } from "../domain/items/item";
 import { D1ItemRepository } from "../infrastructure/d1-item-repository";
 
 export class ItemService {

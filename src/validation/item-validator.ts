@@ -12,7 +12,7 @@ type RawItemInput = {
   name?: unknown;
   item_type?: unknown;
   description?: unknown;
-  url_key?: unknown;
+  img_key?: unknown;
   cost?: unknown;
 
   weapon_category?: unknown;
@@ -177,7 +177,7 @@ function parseBaseItemInput(raw: unknown) {
       "description",
       MAX_DESCRIPTION_LENGTH
     ),
-    url_key: normalizeOptionalString(input.url_key, "url_key", MAX_URL_LENGTH),
+    img_key: normalizeOptionalString(input.img_key, "img_key", MAX_URL_LENGTH),
     cost: normalizeOptionalInteger(input.cost, "cost"),
 
     weapon_category: normalizeWeaponCategory(itemType, input.weapon_category),

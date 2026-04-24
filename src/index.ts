@@ -8,6 +8,9 @@ import { createPublicSessionsRoutes } from "./presentation/routes/sessions/publi
 import { createAdminItemsRoutes } from "./presentation/routes/items/admin-items-routes";
 import { internalServerError, notFound, ok } from "./presentation/http";
 import { createPublicItemsRoutes } from "./presentation/routes/items/public-items-routes";
+import { createJobService } from "./composition/create-job-service";
+import { createAdminJobsRoutes } from "./presentation/routes/jobs/admin-jobs-routes";
+import { createPublicJobsRoutes } from "./presentation/routes/jobs/public-jobs-routes";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -23,7 +26,8 @@ app.route("/admin", createAdminSessionsRoutes(createSessionService));
 app.route("/admin", createAdminItemsRoutes(createItemService));
 app.route("/public", createPublicItemsRoutes(createItemService));
 
-
+app.route("/admin", createAdminJobsRoutes(createJobService));
+app.route("/public", createPublicJobsRoutes(createJobService));
 
 app.notFound((c) => {
   return notFound(c, "Route not found");

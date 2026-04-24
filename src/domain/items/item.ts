@@ -29,7 +29,7 @@ export interface Item {
   name: string;
   item_type: ItemType;
   description: string | null;
-  url_key: string | null;
+  img_key: string | null;
   cost: number | null;
 
   weapon_category: WeaponCategory | null;
@@ -53,7 +53,7 @@ export interface CreateItemInput {
   name: string;
   item_type: ItemType;
   description: string | null;
-  url_key: string | null;
+  img_key: string | null;
   cost: number | null;
 
   weapon_category: WeaponCategory | null;
@@ -74,7 +74,7 @@ export interface UpdateItemInput {
   name: string;
   item_type: ItemType;
   description: string | null;
-  url_key: string | null;
+  img_key: string | null;
   cost: number | null;
 
   weapon_category: WeaponCategory | null;
