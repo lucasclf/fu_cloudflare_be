@@ -12,7 +12,7 @@ export class D1ItemRepository {
               name,
               item_type,
               description,
-              url_img,
+              url_key,
               cost,
               weapon_category,
               accuracy,
@@ -27,7 +27,10 @@ export class D1ItemRepository {
               created_at,
               updated_at
             FROM items
-            ORDER BY item_type DESC
+            ORDER BY
+              item_type ASC,
+              weapon_category ASC,
+              name ASC
           `)
           .all<Item>();
     
@@ -42,7 +45,7 @@ export class D1ItemRepository {
               name,
               item_type,
               description,
-              url_img,
+              url_key,
               cost,
               weapon_category,
               accuracy,
@@ -74,7 +77,7 @@ export class D1ItemRepository {
               name,
               item_type,
               description,
-              url_img,
+              url_key,
               cost,
               weapon_category,
               accuracy,
@@ -105,7 +108,7 @@ export class D1ItemRepository {
               name,
               item_type,
               description,
-              url_img,
+              url_key,
               cost,
               weapon_category,
               accuracy,
@@ -136,7 +139,7 @@ export class D1ItemRepository {
                 name,
                 item_type,
                 description,
-                url_img,
+                url_key,
                 cost,
                 weapon_category,
                 accuracy,
@@ -155,7 +158,7 @@ export class D1ItemRepository {
                 input.name,
                 input.item_type,
                 input.description,
-                input.url_img,
+                input.url_key,
                 input.cost,
                 input.weapon_category,
                 input.accuracy,

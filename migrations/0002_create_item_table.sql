@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS items (
         item_type IN ('arma', 'armadura', 'escudo', 'acessorio', 'artefato', 'outros')
     ),
     description TEXT,
-    url_img TEXT,
+    url_key TEXT,
     cost INTEGER,
 
     weapon_category TEXT CHECK (

@@ -17,7 +17,7 @@ export class D1SessionRepository {
           created_at,
           updated_at
         FROM sessions
-        ORDER BY session_number DESC
+        ORDER BY session_number ASC
       `)
       .all<Session>();
 

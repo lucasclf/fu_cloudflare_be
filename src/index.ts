@@ -7,6 +7,7 @@ import { createAdminSessionsRoutes } from "./presentation/routes/sessions/admin-
 import { createPublicSessionsRoutes } from "./presentation/routes/sessions/public-sessions-routes";
 import { createAdminItemsRoutes } from "./presentation/routes/items/admin-items-routes";
 import { internalServerError, notFound, ok } from "./presentation/http";
+import { createPublicItemsRoutes } from "./presentation/routes/items/public-items-routes";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -20,6 +21,8 @@ app.route("/public", createPublicSessionsRoutes(createSessionService));
 app.route("/admin", createAdminSessionsRoutes(createSessionService));
 
 app.route("/admin", createAdminItemsRoutes(createItemService));
+app.route("/public", createPublicItemsRoutes(createItemService));
+
 
 
 app.notFound((c) => {
