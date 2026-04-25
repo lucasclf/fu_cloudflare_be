@@ -10,17 +10,20 @@ export function createPublicJobsRoutes(jobServiceFactory: JobServiceFactory) {
 	const routes = new Hono<{ Bindings: Env }>();
 
 	routes.get("/jobs", async (c) => {
-		const service = jobServiceFactory(c.env);
-		const jobs = await service.listJobs();
+		const include = c.req.query("include");
 
+		const service = jobServiceFactory(c.env);
+
+		const jobs = await service.listJobs(include)
 		return ok(c, jobs);
 	});
 
 	routes.get("/jobs/:id", async (c) => {
 		const jobId = c.req.param("id");
+		const include = c.req.query("include");
 
 		const service = jobServiceFactory(c.env);
-		const job = await service.getJobById(jobId);
+		const job = await service.getJobById(jobId, include);
 
 		if (!job) {
 			return notFound(c, "Job not found");
