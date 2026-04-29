@@ -7,6 +7,7 @@ import {
 	type UpdateItemInput,
 	type WeaponCategory,
 } from "../domain/items/item";
+import { validateStringEnum } from "./generic-validator";
 
 type RawItemInput = {
 	name?: unknown;
@@ -36,28 +37,6 @@ const MAX_TEXT_FIELD_LENGTH = 255;
 
 function isObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
-}
-
-function validateStringEnum<T extends string>(
-	value: unknown,
-	fieldName: string,
-	allowedValues: readonly T[],
-): T {
-	if (typeof value !== "string") {
-		throw new ValidationError(`${fieldName} must be a string`);
-	}
-
-	const normalized = value.trim();
-
-	if (normalized.length === 0) {
-		throw new ValidationError(`${fieldName} is required`);
-	}
-
-	if (!allowedValues.includes(normalized as T)) {
-		throw new ValidationError(`${fieldName} is invalid`);
-	}
-
-	return normalized as T;
 }
 
 function normalizeRequiredString(
