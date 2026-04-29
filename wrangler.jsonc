@@ -11,12 +11,14 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
-	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"d1_databases": [
 		{
 			"binding": "fabula_ultima_db",
 			"database_name": "fabula-ultima-db",
-			"database_id": "00659760-d467-4c4e-9688-108be142b3d9",
+			"database_id": "ed7ef7c0-1cff-454c-a926-7f5acdf254c4",
 			"remote": true
 		}
 	]

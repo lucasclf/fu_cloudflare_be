@@ -41,7 +41,17 @@ export class D1JobRepository {
               id,
               name,
               tagline,
-              img_key
+              img_key,
+              hp_bonus,
+              mp_bonus,
+              ip_bonus,
+              allows_martial_armor,
+              allows_martial_shield,
+              allows_martial_ranged_weapon,
+              allows_martial_melee_weapon,
+              allows_arcane,
+              allows_rituals,
+              can_start_projects
             FROM jobs
             ORDER BY
               name ASC

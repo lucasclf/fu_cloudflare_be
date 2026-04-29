@@ -1,4 +1,3 @@
-import { ValidationError } from "../domain/domain-errors";
 import {
 	ALLOWED_POWER_TYPE,
 	CreateJobAliasInput,

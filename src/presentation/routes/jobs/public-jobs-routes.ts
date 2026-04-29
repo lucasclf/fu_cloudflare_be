@@ -45,7 +45,7 @@ export function createPublicJobsRoutes(jobServiceFactory: JobServiceFactory) {
 
 	routes.get("/jobs/:id", async (c) => {
 		const jobId = c.req.param("id");
-		const include = c.req.query("include");
+		const include = parseJobIncludes(c.req.query("include"));
 
 		const service = jobServiceFactory(c.env);
 		const job = await service.getJobById(jobId, include);

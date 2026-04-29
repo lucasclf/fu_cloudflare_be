@@ -50,3 +50,7 @@ ON job_aliases(job_id);
 
 CREATE INDEX IF NOT EXISTS idx_job_aliases_alias
 ON job_aliases(alias);
+
+
+
+

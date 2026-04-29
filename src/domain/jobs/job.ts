@@ -30,6 +30,16 @@ export interface ResumeJob {
 	name: string;
 	tagline: string;
 	img_key: string | null;
+	allows_martial_armor: boolean;
+	allows_martial_shield: boolean;
+	allows_martial_ranged_weapon: boolean;
+	allows_martial_melee_weapon: boolean;
+	allows_arcane: boolean;
+	allows_rituals: boolean;
+	can_start_projects: boolean;
+	hp_bonus: number;
+	mp_bonus: number;
+	ip_bonus: number;
 }
 
 export interface JobQuestion {
