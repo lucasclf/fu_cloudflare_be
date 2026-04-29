@@ -75,6 +75,10 @@ export interface JobSpell {
 	duration: string;
 }
 
+export interface JobSpellWithJob extends JobSpell {
+	job_name: string;
+}
+
 export interface JobFull extends Job {
 	questions?: JobQuestion[];
 	aliases?: JobAlias[];

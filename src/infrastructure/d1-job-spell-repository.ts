@@ -1,6 +1,7 @@
 import {
 	CreateJobSpellInput,
 	JobSpell,
+	JobSpellWithJob,
 } from "../domain/jobs/job";
 import {
 	JobSpellAlreadyExistsError,
@@ -44,6 +45,29 @@ export class D1JobSpellRepository {
 			throw error;
 		}
 	}
+
+    async listSpells(): Promise<JobSpellWithJob[]> {
+        const { results } = await this.db
+            .prepare(`
+                SELECT
+				js.id,
+				js.job_id,
+				j.name AS job_name,
+				js.name,
+				js.description,
+				js.is_offensive,
+				js.cost,
+				js.target,
+				js.duration
+			FROM job_spells js
+			INNER JOIN jobs j
+				ON js.job_id = j.id
+			ORDER BY js.id ASC
+			`)
+            .all<JobSpellWithJob>();
+
+        return results;
+    }
 
 	async findSpellsByJobIds(
 			jobIds: number[],

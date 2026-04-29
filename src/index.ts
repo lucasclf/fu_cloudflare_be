@@ -11,6 +11,9 @@ import { createPublicJobsRoutes } from "./presentation/routes/jobs/public-jobs-r
 import { createAdminSessionsRoutes } from "./presentation/routes/sessions/admin-sessions-routes";
 import { createPublicSessionsRoutes } from "./presentation/routes/sessions/public-sessions-routes";
 import type { Env } from "./types/env";
+import { createPublicSpellsRoutes } from "./presentation/routes/spells/public.spells.routes";
+import { createAdminSpellsRoutes } from "./presentation/routes/spells/admin-spells-routes";
+import { createSpellService } from "./composition/create-spell-service";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -28,6 +31,9 @@ app.route("/public", createPublicItemsRoutes(createItemService));
 
 app.route("/admin", createAdminJobsRoutes(createJobService));
 app.route("/public", createPublicJobsRoutes(createJobService));
+
+app.route("/public", createPublicSpellsRoutes(createSpellService));
+app.route("/admin", createAdminSpellsRoutes(createSpellService));
 
 app.notFound((c) => {
 	return notFound(c, "Route not found");

@@ -117,16 +117,4 @@ export class JobService {
 	async createJobPower(input: CreateJobPowerInput): Promise<void> {
 		await this.jobPowerRepository.createJobPower(input);
 	}
-
-	async createJobSpell(input: CreateJobSpellInput): Promise<void> {
-		await this.jobSpellRepository.createJobSpell(input);
-	}
-
-	/* async updateJob(jobId: number, input: UpdateJobInput): Promise<void> {
-    await this.repository.updateByJobId(jobId, input);
-  }
-
-  async deleteJob(jobId: number): Promise<void> {
-    await this.repository.deleteByJobId(jobId);
-  } */
 }

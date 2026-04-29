@@ -7,14 +7,15 @@ import {
 } from "../../../domain/jobs/job-errors";
 import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
 import type { Env } from "../../../types/env";
-import { badRequest, conflict, created, notFound, ok } from "../../http";
+import { badRequest, conflict, created, notFound } from "../../http";
 import {
     validateCreateJobSpellsInput,
 } from "../../../validation/job-validator";
+import { SpellService } from "../../../application/spell-service";
 
-type JobServiceFactory = (env: Env) => JobService;
+type SpellServiceFactory = (env: Env) => SpellService;
 
-export function createAdminJobsRoutes(jobServiceFactory: JobServiceFactory) {
+export function createAdminSpellsRoutes(spellServiceFactory: SpellServiceFactory) {
     const routes = new Hono<{ Bindings: Env }>();
 
     routes.use("*", adminAuthMiddleware);
@@ -24,7 +25,7 @@ export function createAdminJobsRoutes(jobServiceFactory: JobServiceFactory) {
             const rawBody = await c.req.json();
             const input = validateCreateJobSpellsInput(rawBody);
 
-            const service = jobServiceFactory(c.env);
+            const service = spellServiceFactory(c.env);
             await service.createJobSpell(input);
 
             return created(c, { message: "Job spell created successfully" });
