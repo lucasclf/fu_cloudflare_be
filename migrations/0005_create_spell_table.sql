@@ -1,4 +1,4 @@
--- Migration number: 0004  2026-04-25T11:51:48.132Z
+-- Migration number: 0005  2026-04-25T11:51:48.132Z
 
 CREATE TABLE IF NOT EXISTS job_spells (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

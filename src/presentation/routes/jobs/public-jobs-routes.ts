@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import type { JobService } from "../../../application/job-service";
-import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
 import type { Env } from "../../../types/env";
 import { notFound, ok } from "../../http";
 import { JobInclude } from "../../../domain/jobs/job";

@@ -64,6 +64,10 @@ export interface JobPower {
 	is_global: boolean;
 }
 
+export interface JobPowerWithJob extends JobPower {
+	job_name: string[];
+}
+
 export interface JobSpell {
 	id: number;
 	job_id: number;

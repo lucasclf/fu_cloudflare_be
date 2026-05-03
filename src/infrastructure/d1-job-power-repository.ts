@@ -1,8 +1,18 @@
-import { CreateJobPowerInput, JobPower } from "../domain/jobs/job";
+import { CreateJobPowerInput, JobPower, JobPowerWithJob } from "../domain/jobs/job";
 import { JobPowerAlreadyExistsError } from "../domain/jobs/job-errors";
 
 type JobPowerRow = JobPower & {
 	job_id: number;
+};
+
+type JobPowerWithJobRow = {
+	id: number;
+	name: string;
+	description: string;
+	type: "common" | "heroic";
+	max_level: number;
+	is_global: number;
+	job_name: string; // vem como JSON string do banco
 };
 
 export class D1JobPowerRepository {
@@ -151,4 +161,45 @@ export class D1JobPowerRepository {
 			throw error;
 		}
 	}
+
+    async listPowers(): Promise<JobPowerWithJob[]> {
+        const { results } = await this.db
+            .prepare(`
+                SELECT
+                    jp.id,
+                    jp.name,
+                    jp.description,
+                    jp.type,
+                    jp.max_level,
+                    jp.is_global,
+                    COALESCE(
+                        json_group_array(j.name) FILTER (WHERE j.name IS NOT NULL),
+                        '[]'
+                    ) AS job_name
+                FROM job_powers jp
+                LEFT JOIN job_power_jobs jpj
+                    ON jpj.power_id = jp.id
+                LEFT JOIN jobs j
+                    ON j.id = jpj.job_id
+                GROUP BY
+                    jp.id,
+                    jp.name,
+                    jp.description,
+                    jp.type,
+                    jp.max_level,
+                    jp.is_global
+                ORDER BY jp.id ASC
+            `)
+            .all<JobPowerWithJobRow>();
+
+        return results.map((power) => ({
+            id: power.id,
+            name: power.name,
+            description: power.description,
+            type: power.type,
+            max_level: power.max_level,
+            is_global: Boolean(power.is_global),
+            job_name: JSON.parse(power.job_name),
+        }));
+    }
 }

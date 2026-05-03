@@ -5,9 +5,7 @@ import {
 	JobAliasAlreadyExistsError,
 	JobAlreadyExistsError,
 	JobNotFoundError,
-	JobPowerAlreadyExistsError,
 	JobQuestionAlreadyExistsError,
-	JobSpellAlreadyExistsError,
 } from "../../../domain/jobs/job-errors";
 import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
 import type { Env } from "../../../types/env";
@@ -15,10 +13,9 @@ import { badRequest, conflict, created, notFound, ok } from "../../http";
 import {
 	validateCreateJobAliasesInput,
 	validateCreateJobInput,
-	validateCreateJobPowersInput,
 	validateCreateJobQuestionsInput,
-	validateCreateJobSpellsInput,
 } from "../../../validation/job-validator";
+
 
 type JobServiceFactory = (env: Env) => JobService;
 
@@ -94,32 +91,6 @@ export function createAdminJobsRoutes(jobServiceFactory: JobServiceFactory) {
 			}
 
 			if (error instanceof JobAliasAlreadyExistsError) {
-				return conflict(c, error.message);
-			}
-
-			throw error;
-		}
-	});
-
-	routes.post("/jobs/powers", async (c) => {
-		try {
-			const rawBody = await c.req.json();
-			const input = validateCreateJobPowersInput(rawBody);
-
-			const service = jobServiceFactory(c.env);
-			await service.createJobPower(input);
-
-			return created(c, { message: "Job power created successfully" });
-		} catch (error) {
-			if (error instanceof ValidationError) {
-				return badRequest(c, error.message);
-			}
-
-			if (error instanceof JobNotFoundError) {
-				return notFound(c, error.message);
-			}
-
-			if (error instanceof JobPowerAlreadyExistsError) {
 				return conflict(c, error.message);
 			}
 
