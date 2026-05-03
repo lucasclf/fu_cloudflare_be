@@ -1,10 +1,11 @@
 import { Hono } from "hono";
-import { ValidationError } from "../../domain/domain-errors";
-import { adminAuthMiddleware } from "../../middleware/admin-auth-middleware";
-import type { Env } from "../../types/env";
-import { badRequest, conflict, created, notFound } from "../http";
-import { FactionAlreadyExistsError, FactionNotFoundError } from "../../domain/factions/faction-errors";
-import { validateCreateFactionsInput } from "../../validation/faction-validator";
+import { ValidationError } from "../../../domain/domain-errors";
+import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
+import type { Env } from "../../../types/env";
+import { badRequest, conflict, created, notFound } from "../../http";
+import { FactionAlreadyExistsError, FactionNotFoundError } from "../../../domain/factions/faction-errors";
+import { validateCreateFactionsInput } from "../../../validation/faction-validator";
+import { FactionService } from "../../../application/faction-service";
 
 type FactionServiceFactory = (env: Env) => FactionService;
 

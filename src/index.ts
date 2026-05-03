@@ -20,6 +20,9 @@ import { createPublicPowersRoutes } from "./presentation/routes/powers/public-po
 import { createLocationService } from "./composition/create-location-service";
 import { createAdminLocationsRoutes } from "./presentation/routes/locations/admin-locations-routes";
 import { createPublicLocationsRoutes } from "./presentation/routes/locations/public-locations-routes";
+import { createAdminFactionsRoutes } from "./presentation/routes/factions/admin-factions-routes";
+import { createFactionService } from "./composition/create-faction-service";
+import { createPublicFactionsRoutes } from "./presentation/routes/factions/public-factions-routes";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -46,6 +49,9 @@ app.route("/public", createPublicPowersRoutes(createPowerService));
 
 app.route("/admin", createAdminLocationsRoutes(createLocationService));
 app.route("/public", createPublicLocationsRoutes(createLocationService));
+
+app.route("/admin", createAdminFactionsRoutes(createFactionService));
+app.route("/public", createPublicFactionsRoutes(createFactionService));
 
 app.notFound((c) => {
 	return notFound(c, "Route not found");

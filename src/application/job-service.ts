@@ -3,7 +3,6 @@ import {
 	CreateJobInput,
 	CreateJobPowerInput,
 	CreateJobQuestionInput,
-	CreateJobSpellInput,
 	Job,
 	JobFull,
 	ResumeJob,
