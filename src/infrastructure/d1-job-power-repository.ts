@@ -109,58 +109,69 @@ export class D1JobPowerRepository {
 	}
 
 	async createJobPower(input: CreateJobPowerInput): Promise<void> {
-		try {
-			const statements = [
-				this.db
-					.prepare(`
-                    INSERT INTO job_powers (
-                        name,
-                        description,
-                        type,
-                        max_level,
-                        is_global
-                    )
-                    VALUES (?, ?, ?, ?, ?)
-                    `)
-					.bind(
-						input.name,
-						input.description,
-						input.type,
-						input.max_level,
-						input.is_global,
-					),
-			];
-
-			if (
-				input.job_id !== undefined &&
-				input.job_id !== null &&
-				input.job_id.length > 0
-			) {
-				for (const jobId of input.job_id) {
-					statements.push(
-						this.db
-							.prepare(`
-                        INSERT INTO job_power_jobs (
-                            job_id,
-                            power_id
+        try {
+            const statements = [
+                this.db
+                    .prepare(`
+                        INSERT INTO job_powers (
+                            name,
+                            description,
+                            type,
+                            max_level,
+                            is_global
                         )
-                        VALUES (?, last_insert_rowid())
-                        `)
-							.bind(jobId),
-					);
-				}
-			}
+                        VALUES (?, ?, ?, ?, ?)
+                    `)
+                    .bind(
+                        input.name,
+                        input.description,
+                        input.type,
+                        input.max_level,
+                        input.is_global ? 1 : 0,
+                    ),
+            ];
 
-			await this.db.batch(statements);
-		} catch (error) {
-			const message = error instanceof Error ? error.message : "";
+            if (
+                input.job_id !== undefined &&
+                input.job_id !== null &&
+                input.job_id.length > 0
+            ) {
+                for (const jobId of input.job_id) {
+                    statements.push(
+                        this.db
+                            .prepare(`
+                                INSERT INTO job_power_jobs (
+                                    job_id,
+                                    power_id
+                                )
+                                VALUES (
+                                    ?,
+                                    (
+                                        SELECT id
+                                        FROM job_powers
+                                        WHERE name = ?
+                                    )
+                                )
+                            `)
+                            .bind(
+                                jobId,
+                                input.name,
+                            ),
+                    );
+                }
+            }
 
-			if (message.includes("UNIQUE constraint failed")) {
-				throw new JobPowerAlreadyExistsError(input.name);
-			}
-			throw error;
-		}
-	}
+            await this.db.batch(statements);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "";
+
+            if (message.includes("UNIQUE constraint failed")) {
+                throw new JobPowerAlreadyExistsError(input.name);
+            }
+
+            throw error;
+        }
+    }
 
     async listPowers(): Promise<JobPowerWithJob[]> {
         const { results } = await this.db
