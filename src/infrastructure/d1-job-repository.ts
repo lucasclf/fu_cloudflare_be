@@ -23,6 +23,7 @@ export class D1JobRepository {
               allows_arcane,
               allows_rituals,
               can_start_projects,
+              allows_monster_spells,
               created_at,
               updated_at
             FROM jobs
@@ -51,6 +52,7 @@ export class D1JobRepository {
               allows_martial_melee_weapon,
               allows_arcane,
               allows_rituals,
+              allows_monster_spells,
               can_start_projects
             FROM jobs
             ORDER BY
@@ -79,6 +81,7 @@ export class D1JobRepository {
                 allows_martial_melee_weapon,
                 allows_arcane,
                 allows_rituals,
+                allows_monster_spells,
                 can_start_projects,
                 created_at,
                 updated_at
@@ -110,9 +113,10 @@ export class D1JobRepository {
                     allows_martial_melee_weapon,
                     allows_arcane,
                     allows_rituals,
+                    allows_monster_spells,
                     can_start_projects
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `)
 				.bind(
 					input.name,
@@ -128,6 +132,7 @@ export class D1JobRepository {
 					input.allows_martial_melee_weapon,
 					input.allows_arcane,
 					input.allows_rituals,
+					input.allows_monster_spells,
 					input.can_start_projects,
 				)
 				.run();

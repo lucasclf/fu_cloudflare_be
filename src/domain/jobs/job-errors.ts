@@ -26,13 +26,6 @@ export class JobPowerAlreadyExistsError extends Error {
 	}
 }
 
-export class JobSpellAlreadyExistsError extends Error {
-	constructor(SpellName: string) {
-		super(`Spell ${SpellName} already exists`);
-		this.name = "JobSpellAlreadyExistsError";
-	}
-}
-
 export class JobNotFoundError extends Error {
 	constructor(jobNumber: string) {
 		super(`Job ${jobNumber} not found`);

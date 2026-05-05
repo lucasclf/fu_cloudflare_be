@@ -1,11 +1,6 @@
-import {
-	CreateJobSpellInput,
-	JobSpell,
-	JobSpellWithJob,
-} from "../domain/jobs/job";
-import {
-	JobSpellAlreadyExistsError,
-} from "../domain/jobs/job-errors";
+
+import { SpellAlreadyExistsError } from "../domain/spells/spell-errors";
+import { CreateJobSpellInput, JobSpell, JobSpellWithJob } from "../domain/spells/spells";
 
 export class D1JobSpellRepository {
 	constructor(private readonly db: D1Database) {}
@@ -39,7 +34,7 @@ export class D1JobSpellRepository {
 			const message = error instanceof Error ? error.message : "";
 
 			if (message.includes("UNIQUE constraint failed")) {
-				throw new JobSpellAlreadyExistsError(input.name);
+				throw new SpellAlreadyExistsError(input.name);
 			}
 
 			throw error;
@@ -66,7 +61,10 @@ export class D1JobSpellRepository {
 			`)
             .all<JobSpellWithJob>();
 
-        return results;
+        return results.map((spell) => ({
+			...spell,
+			nature: "job",
+		}));
     }
 
 	async findSpellsByJobIds(

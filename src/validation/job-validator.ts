@@ -52,6 +52,11 @@ export function validateCreateJobInput(input: unknown): CreateJobInput {
 		),
 		allows_arcane: readBooleanWithDefault(raw, "allows_arcane", false),
 		allows_rituals: readBooleanWithDefault(raw, "allows_rituals", false),
+		allows_monster_spells: readBooleanWithDefault(
+			raw,
+			"allows_monster_spells",
+			false,
+		),
 		can_start_projects: readBooleanWithDefault(
 			raw,
 			"can_start_projects",
@@ -95,21 +100,5 @@ export function validateCreateJobPowersInput(
 		type: validateStringEnum(raw.type, "type", ALLOWED_POWER_TYPE),
 		max_level: readRequiredNumber(raw, "max_level"),
 		is_global: readBooleanWithDefault(raw, "is_global", false),
-	};
-}
-
-export function validateCreateJobSpellsInput(
-	input: unknown,
-): CreateJobSpellInput {
-	const raw = ensureObject(input);
-
-	return {
-		job_id: readRequiredNumber(raw, "job_id"),
-		name: readRequiredString(raw, "name"),
-		description: readRequiredString(raw, "description"),
-		is_offensive: readBooleanWithDefault(raw, "is_offensive", false),
-		cost: readRequiredString(raw, "cost"),
-		target: readRequiredString(raw, "target"),
-		duration: readRequiredString(raw, "duration"),
 	};
 }

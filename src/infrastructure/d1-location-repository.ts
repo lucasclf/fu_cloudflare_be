@@ -45,6 +45,7 @@ export class D1LocationRepository {
                     description,
                     tagline,
                     img_key,
+                    location_type,
                     created_at,
                     updated_at
                 FROM locations
@@ -64,6 +65,7 @@ export class D1LocationRepository {
               description,
               tagline,
               img_key,
+              location_type,
               created_at,
               updated_at
             FROM locations

@@ -23,6 +23,11 @@ import { createPublicLocationsRoutes } from "./presentation/routes/locations/pub
 import { createAdminFactionsRoutes } from "./presentation/routes/factions/admin-factions-routes";
 import { createFactionService } from "./composition/create-faction-service";
 import { createPublicFactionsRoutes } from "./presentation/routes/factions/public-factions-routes";
+import { createPublicScenarioRoutes } from "./presentation/routes/scenario/public-scenario-routes";
+import { createScenarioService } from "./composition/create-scenario-service";
+import { createAdminMonstersRoutes } from "./presentation/routes/monsters/admin-monsters-route";
+import { createMonsterService } from "./composition/create-monster-service";
+import { createPublicMonstersRoutes } from "./presentation/routes/monsters/public-monsters-route";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -52,6 +57,12 @@ app.route("/public", createPublicLocationsRoutes(createLocationService));
 
 app.route("/admin", createAdminFactionsRoutes(createFactionService));
 app.route("/public", createPublicFactionsRoutes(createFactionService));
+
+app.route("/public", createPublicScenarioRoutes(createScenarioService));
+
+app.route("/admin", createAdminMonstersRoutes(createMonsterService));
+app.route("/public", createPublicMonstersRoutes(createMonsterService));
+
 
 app.notFound((c) => {
 	return notFound(c, "Route not found");

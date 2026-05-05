@@ -2,6 +2,7 @@ import { FactionLocationRelation, FactionLocationRelationType } from "../domain/
 
 type FactionLocationRelationRow = {
 	faction_id: number;
+	location_id: number;
 	location_name: string;
 	relation_type: FactionLocationRelationType;
 };
@@ -16,6 +17,7 @@ export class D1FactionLocationRepository {
 			.prepare(`
 				SELECT
 					fl.faction_id,
+					fl.location_id,
 					l.name AS location_name,
 					fl.relation_type
 				FROM faction_locations fl
@@ -28,6 +30,7 @@ export class D1FactionLocationRepository {
 			.all<FactionLocationRelationRow>();
 
 		return results.map((relation) => ({
+			location_id: relation.location_id,
 			location_name: relation.location_name,
 			relation_type: relation.relation_type,
 		}));
@@ -46,6 +49,7 @@ export class D1FactionLocationRepository {
 			.prepare(`
 				SELECT
 					fl.faction_id,
+					fl.location_id,
 					l.name AS location_name,
 					fl.relation_type
 				FROM faction_locations fl
@@ -66,6 +70,7 @@ export class D1FactionLocationRepository {
 				relationsByFactionId.get(relation.faction_id) ?? [];
 
 			currentRelations.push({
+				location_id: relation.location_id,
 				location_name: relation.location_name,
 				relation_type: relation.relation_type,
 			});

@@ -77,6 +77,24 @@ export function readRequiredNumber(input: RawInput, fieldName: string): number {
 	return value;
 }
 
+export function readOptionalNumber(input: RawInput, fieldName: string): number | null {
+	const value = input[fieldName];
+
+	if (value === undefined || value === null) {
+		return null;
+	}
+
+	if (typeof value !== "number" || Number.isNaN(value)) {
+		throw new ValidationError(`${fieldName} must be a valid number`);
+	}
+
+	if (!Number.isInteger(value)) {
+		throw new ValidationError(`${fieldName} must be an integer`);
+	}
+
+	return value;
+}
+
 export function readRequiredPositiveIntegerArray(
 	input: RawInput,
 	fieldName: string,

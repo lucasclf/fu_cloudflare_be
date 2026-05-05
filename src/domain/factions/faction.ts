@@ -56,6 +56,7 @@ export interface Faction {
 }
 
 export interface FactionLocationRelation {
+    location_id: Number;
     location_name: string;
     relation_type: FactionLocationRelationType;
 }

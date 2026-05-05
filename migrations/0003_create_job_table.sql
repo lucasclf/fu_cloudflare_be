@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS jobs (
   allows_martial_shield INTEGER NOT NULL DEFAULT 0 CHECK (allows_martial_shield IN (0, 1)),
   allows_martial_ranged_weapon INTEGER NOT NULL DEFAULT 0 CHECK (allows_martial_ranged_weapon IN (0, 1)),
   allows_martial_melee_weapon INTEGER NOT NULL DEFAULT 0 CHECK (allows_martial_melee_weapon IN (0, 1)),
+  allows_monster_spells INTEGER NOT NULL DEFAULT 0 CHECK (allows_monster_spells IN (0, 1)),
   allows_arcane INTEGER NOT NULL DEFAULT 0 CHECK (allows_arcane IN (0, 1)),
   allows_rituals INTEGER NOT NULL DEFAULT 0 CHECK (allows_rituals IN (0, 1)),
   can_start_projects INTEGER NOT NULL DEFAULT 0 CHECK (can_start_projects IN (0, 1)),

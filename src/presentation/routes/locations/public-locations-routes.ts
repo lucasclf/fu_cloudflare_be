@@ -33,5 +33,12 @@ export function createPublicLocationsRoutes(locationServiceFactory: LocationServ
         return ok(c, location);
     });
 
+    routes.get("/scenario", async (c) => {
+        const service = locationServiceFactory(c.env);
+        const worlds = await service.listWorlds();
+
+        return ok(c, worlds);
+    });
+
     return routes;
 }
