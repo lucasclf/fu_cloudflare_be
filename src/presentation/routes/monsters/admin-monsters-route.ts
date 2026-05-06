@@ -3,7 +3,7 @@ import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
 import { badRequest, conflict, created } from "../../http";
 import { ValidationError } from "../../../domain/domain-errors";
 import { MonsterAffinityAlreadyExistsError, MonsterAlreadyExistsError } from "../../../domain/monsters/monster-error";
-import { validateCreateAffinitiesInput, validateCreateMonsterInput, validateCreateTraitInput } from "../../../validation/monster-validator";
+import { validateCreateActionsInput, validateCreateAffinitiesInput, validateCreateMonsterInput, validateCreateTraitInput } from "../../../validation/monster-validator";
 import { MonsterService } from "../../../application/monster-service";
 import type { Env } from "../../../types/env";
 
@@ -69,6 +69,29 @@ export function createAdminMonstersRoutes(
 
             const service = monsterServiceFactory(c.env);
             await service.createMonsterAffinity(input);
+
+            return created(c, { message: "Monster Affinity created successfully" });
+        }
+        catch (error) {
+            if (error instanceof ValidationError) {
+                return badRequest(c, error.message);
+            }
+
+            if (error instanceof MonsterAffinityAlreadyExistsError) {
+                return conflict(c, error.message);
+            }
+
+            throw error;
+        }
+    })
+
+    routes.post("/monsters/actions", async (c) => {
+        try{
+            const rawBody = await c.req.json();
+            const input = validateCreateActionsInput(rawBody)
+
+            const service = monsterServiceFactory(c.env);
+            await service.createMonsterAction(input);
 
             return created(c, { message: "Monster Affinity created successfully" });
         }

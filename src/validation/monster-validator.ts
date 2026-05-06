@@ -1,6 +1,6 @@
 import { ALLOWED_ATTRIBUTE_DIE } from "../domain/domain-types";
-import { ALLOWED_MONSTER_AFFINITY, ALLOWED_MONSTER_TYPE, CreateAffinityInput, CreateMonsterInput, CreateMonsterTraitInput } from "../domain/monsters/monster";
-import { ensureObject, readOptionalNumber, readOptionalString, readRequiredNumber, readRequiredString, validateStringEnum } from "./generic-validator";
+import { ALLOWED_MONSTER_ACTION_ICON, ALLOWED_MONSTER_ACTION_TYPE, ALLOWED_MONSTER_AFFINITY, ALLOWED_MONSTER_DAMAGE_TYPE, ALLOWED_MONSTER_TYPE, CreateActionInput, CreateAffinityInput, CreateMonsterInput, CreateMonsterTraitInput } from "../domain/monsters/monster";
+import { ensureObject, readBooleanWithDefault, readOptionalNumber, readOptionalString, readRequiredNumber, readRequiredString, validateNullableStringEnum, validateStringEnum } from "./generic-validator";
 
 export function validateCreateMonsterInput (input: any): CreateMonsterInput {
     const raw = ensureObject(input);
@@ -49,5 +49,24 @@ export function validateCreateAffinitiesInput(input: any): CreateAffinityInput {
         ice: validateStringEnum(raw.ice, "ice", ALLOWED_MONSTER_AFFINITY),
         light: validateStringEnum(raw.light, "light", ALLOWED_MONSTER_AFFINITY),
         poison: validateStringEnum(raw.poison, "poison", ALLOWED_MONSTER_AFFINITY),
+    }
+}
+
+export function validateCreateActionsInput(input: any): CreateActionInput {
+    const raw = ensureObject(input)
+
+    return {
+        monster_id: readRequiredNumber(raw, "monster_id"),
+        action_type: validateStringEnum(raw.action_type, "action_type", ALLOWED_MONSTER_ACTION_TYPE),
+        action_icon: validateNullableStringEnum(raw.action_icon, "action_icon", ALLOWED_MONSTER_ACTION_ICON),
+        name: readRequiredString(raw, "name"),
+        description: readRequiredString(raw, "description"),
+        check_formula: readOptionalString(raw, "check_formula"),
+        accuracy_bonus: readOptionalNumber(raw, "accuracy_bonus"),
+        damage_type: validateNullableStringEnum(raw.damage_type, "damage_type", ALLOWED_MONSTER_DAMAGE_TYPE),
+        cost: readOptionalString(raw, "cost"),
+        target: readOptionalString(raw, "target"),
+        duration: readOptionalString(raw, "duration"),
+        is_offensive: readBooleanWithDefault(raw, "is_offensive", false)
     }
 }

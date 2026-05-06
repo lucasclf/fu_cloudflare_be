@@ -163,3 +163,15 @@ export function validateStringEnum<T extends string>(
 
 	return normalized as T;
 }
+
+export function validateNullableStringEnum<T extends string>(
+	value: unknown,
+	fieldName: string,
+	allowedValues: readonly T[],
+) {
+	if(value === null) {
+		return value
+	}
+
+	return validateStringEnum(value, fieldName, allowedValues)
+}

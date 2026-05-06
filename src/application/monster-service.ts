@@ -1,4 +1,5 @@
-import { CreateAffinityInput, CreateMonsterInput, CreateMonsterTraitInput, Monster, MonsterFull, MonsterSummary } from "../domain/monsters/monster";
+import { CreateActionInput, CreateAffinityInput, CreateMonsterInput, CreateMonsterTraitInput, Monster, MonsterFull, MonsterSummary } from "../domain/monsters/monster";
+import { D1MonsterActionRepository } from "../infrastructure/d1-monster-action-repository";
 import { D1MonsterAffinityRepository } from "../infrastructure/d1-monster-affinity-repository";
 import { D1MonsterRepository } from "../infrastructure/d1-monster-repository";
 import { D1MonsterTraitRepository } from "../infrastructure/d1-monster-trait-repository";
@@ -7,7 +8,8 @@ export class MonsterService {
     constructor(
         private readonly monsterRepository: D1MonsterRepository,
         private readonly monsterTraitRepository: D1MonsterTraitRepository,
-        private readonly monsterAffinityRepository: D1MonsterAffinityRepository
+        private readonly monsterAffinityRepository: D1MonsterAffinityRepository,
+        private readonly monsterActionRepository: D1MonsterActionRepository
     ) {}
 
     async createMonster(input: CreateMonsterInput): Promise<void> {
@@ -20,6 +22,10 @@ export class MonsterService {
 
     async createMonsterAffinity(input: CreateAffinityInput): Promise<void> {
         await this.monsterAffinityRepository.createAffinity(input)
+    }
+
+    async createMonsterAction(input: CreateActionInput): Promise<void> {
+        await this.monsterActionRepository.createMonsterAction(input)
     }
 
     async findAll(): Promise<Monster[]> {
@@ -74,6 +80,15 @@ export class MonsterService {
 
                 for (const monster of monstersFull) {
                     monster.affinities = affinitiesByMonsterId.get(monster.id) ?? [];
+                }
+            }
+
+            if (includes.includes("actions")) {
+                const actionsByMonsterId = 
+                    await this.monsterActionRepository.findByMonstersIds(monsterIds)
+
+                for (const monster of monstersFull) {
+                    monster.actions = actionsByMonsterId.get(monster.id) ?? [];
                 }
             }
     

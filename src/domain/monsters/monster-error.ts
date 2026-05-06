@@ -19,6 +19,13 @@ export class MonsterAffinityAlreadyExistsError extends Error {
 	}
 }
 
+export class MonsterActionAlreadyExistsError extends Error {
+	constructor(action: string) {
+		super(`Action ${action} already exists`);
+		this.name = "MonsterActionAlreadyExistsError";
+	}
+}
+
 export class MonsterNotFoundError extends Error {
 	constructor(monsterName: string) {
 		super(`Monster ${monsterName} not found`);

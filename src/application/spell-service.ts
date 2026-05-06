@@ -1,6 +1,6 @@
-import { CreateJobSpellInput, CreateMonsterSpellInput, JobSpellWithJob, MonsterSpell } from "../domain/spells/spells";
+import { CreateJobSpellInput, JobSpellWithJob, MonsterSpell } from "../domain/spells/spells";
 import { D1JobSpellRepository } from "../infrastructure/d1-job-spell-repository";
-import { D1MonsterActionRepository } from "../infrastructure/d1-monster-spell-repository";
+import { D1MonsterActionRepository } from "../infrastructure/d1-monster-action-repository";
 
 
 export class SpellService {
@@ -15,8 +15,8 @@ export class SpellService {
 
     async listSpells(): Promise<(JobSpellWithJob | MonsterSpell)[]> {
         const jobSpells = await this.jobSpellRepository.listSpells();
-        //const monsterSpells = await this.monsterActionRepository.listSpells();
-
-        return [...jobSpells];
+        const monsterSpells = await this.monsterActionRepository.listMonsterSpells()
+        
+        return [...jobSpells, ...monsterSpells];
     }
 }
