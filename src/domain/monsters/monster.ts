@@ -15,9 +15,41 @@ export const ALLOWED_MONSTER_TYPE = [
 
 export type MonsterType = (typeof ALLOWED_MONSTER_TYPE)[number];
 
+export const ALLOWED_MONSTER_AFFINITY = [
+    "normal", "vulnerable", "resistant", "immune", "absorbs"
+]
+
+export type MonsterAffinityType = (typeof ALLOWED_MONSTER_AFFINITY[number])
+
 export interface MonsterTrait {
     monster_id: number;
     trait: string;
+}
+
+export interface MonsterAffinity {
+    monster_id: number;
+    physical: MonsterAffinityType;
+    air: MonsterAffinityType;
+    bolt: MonsterAffinityType;
+    dark: MonsterAffinityType;
+    earth: MonsterAffinityType;
+    fire: MonsterAffinityType;
+    ice: MonsterAffinityType;
+    light: MonsterAffinityType;
+    poison: MonsterAffinityType;
+}
+
+export interface CreateAffinityInput {
+    monster_id: number;
+    physical: MonsterAffinityType;
+    air: MonsterAffinityType;
+    bolt: MonsterAffinityType;
+    dark: MonsterAffinityType;
+    earth: MonsterAffinityType;
+    fire: MonsterAffinityType;
+    ice: MonsterAffinityType;
+    light: MonsterAffinityType;
+    poison: MonsterAffinityType;
 }
 
 export interface Monster extends Character {
@@ -27,7 +59,8 @@ export interface Monster extends Character {
 }
 
 export interface MonsterFull extends Monster {
-    traits?: MonsterTrait[]
+    traits?: MonsterTrait[];
+    affinities?: MonsterAffinity[]
 }
 
 export interface MonsterSummary extends CharacterSummary {
@@ -43,4 +76,17 @@ export interface CreateMonsterInput extends CreateCharacterInput {
 export interface CreateMonsterTraitInput {
     monster_id: number,
     trait: string
+}
+
+export interface CreateAffinityInput {
+    monster_id: number;
+    physical: MonsterAffinityType;
+    air: MonsterAffinityType;
+    bolt: MonsterAffinityType;
+    dark: MonsterAffinityType;
+    earth: MonsterAffinityType;
+    fire: MonsterAffinityType;
+    ice: MonsterAffinityType;
+    light: MonsterAffinityType;
+    poison: MonsterAffinityType
 }

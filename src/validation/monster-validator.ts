@@ -1,5 +1,5 @@
 import { ALLOWED_ATTRIBUTE_DIE } from "../domain/domain-types";
-import { ALLOWED_MONSTER_TYPE, CreateMonsterInput, CreateMonsterTraitInput } from "../domain/monsters/monster";
+import { ALLOWED_MONSTER_AFFINITY, ALLOWED_MONSTER_TYPE, CreateAffinityInput, CreateMonsterInput, CreateMonsterTraitInput } from "../domain/monsters/monster";
 import { ensureObject, readOptionalNumber, readOptionalString, readRequiredNumber, readRequiredString, validateStringEnum } from "./generic-validator";
 
 export function validateCreateMonsterInput (input: any): CreateMonsterInput {
@@ -26,11 +26,28 @@ export function validateCreateMonsterInput (input: any): CreateMonsterInput {
     }
 }
 
-export function validateCreateTraitInput(input: Any): CreateMonsterTraitInput {
+export function validateCreateTraitInput(input: any): CreateMonsterTraitInput {
     const raw = ensureObject(input);
 
     return {
         monster_id: readRequiredNumber(raw, "monster_id"),
         trait: readRequiredString(raw, "trait")
+    }
+}
+
+export function validateCreateAffinitiesInput(input: any): CreateAffinityInput {
+    const raw = ensureObject(input);
+
+    return {
+        monster_id: readRequiredNumber(raw, "monster_id"),
+        physical: validateStringEnum(raw.physical, "physical", ALLOWED_MONSTER_AFFINITY),
+        air: validateStringEnum(raw.air, "air", ALLOWED_MONSTER_AFFINITY),
+        bolt: validateStringEnum(raw.bolt, "bolt", ALLOWED_MONSTER_AFFINITY),
+        dark: validateStringEnum(raw.dark, "dark", ALLOWED_MONSTER_AFFINITY),
+        earth: validateStringEnum(raw.earth, "earth", ALLOWED_MONSTER_AFFINITY),
+        fire: validateStringEnum(raw.fire, "fire", ALLOWED_MONSTER_AFFINITY),
+        ice: validateStringEnum(raw.ice, "ice", ALLOWED_MONSTER_AFFINITY),
+        light: validateStringEnum(raw.light, "light", ALLOWED_MONSTER_AFFINITY),
+        poison: validateStringEnum(raw.poison, "poison", ALLOWED_MONSTER_AFFINITY),
     }
 }

@@ -1,11 +1,13 @@
-import { CreateMonsterInput, CreateMonsterTraitInput, Monster, MonsterFull, MonsterSummary } from "../domain/monsters/monster";
+import { CreateAffinityInput, CreateMonsterInput, CreateMonsterTraitInput, Monster, MonsterFull, MonsterSummary } from "../domain/monsters/monster";
+import { D1MonsterAffinityRepository } from "../infrastructure/d1-monster-affinity-repository";
 import { D1MonsterRepository } from "../infrastructure/d1-monster-repository";
 import { D1MonsterTraitRepository } from "../infrastructure/d1-monster-trait-repository";
 
 export class MonsterService {
     constructor(
         private readonly monsterRepository: D1MonsterRepository,
-        private readonly monsterTraitRepository: D1MonsterTraitRepository
+        private readonly monsterTraitRepository: D1MonsterTraitRepository,
+        private readonly monsterAffinityRepository: D1MonsterAffinityRepository
     ) {}
 
     async createMonster(input: CreateMonsterInput): Promise<void> {
@@ -14,6 +16,10 @@ export class MonsterService {
 
     async createMonsterTrait(input: CreateMonsterTraitInput): Promise<void> {
         await this.monsterTraitRepository.createMonsterTrait(input)
+    }
+
+    async createMonsterAffinity(input: CreateAffinityInput): Promise<void> {
+        await this.monsterAffinityRepository.createAffinity(input)
     }
 
     async findAll(): Promise<Monster[]> {
@@ -59,6 +65,15 @@ export class MonsterService {
                 
                 for (const monster of monstersFull) {
                     monster.traits = traitsByMonsterId.get(monster.id) ?? [];
+                }
+            }
+
+            if (includes.includes("affinities")) {
+                const affinitiesByMonsterId = 
+                    await this.monsterAffinityRepository.findByMonstersIds(monsterIds)
+
+                for (const monster of monstersFull) {
+                    monster.affinities = affinitiesByMonsterId.get(monster.id) ?? [];
                 }
             }
     
