@@ -1,4 +1,4 @@
-import { CreateNpcEquipmentInput, NpcEquipment } from "../domain/npc/npc";
+import { CreateNpcEquipmentInput, NpcEquipmentRelation } from "../domain/npc/npc";
 import { EquipmentAlreadyExistsError } from "../domain/npc/npc_error";
 
 export class D1NpcEquipmentRepository {
@@ -31,7 +31,7 @@ export class D1NpcEquipmentRepository {
         }        
     }
 
-    async findByNpcsIds(npcsIds: number[]): Promise<Map<number, NpcEquipment[]>> {
+    async findByNpcsIds(npcsIds: number[]): Promise<Map<number, NpcEquipmentRelation[]>> {
             if (npcsIds.length === 0) {
                 return new Map();
             }
@@ -49,9 +49,9 @@ export class D1NpcEquipmentRepository {
                 ORDER BY npc_id ASC
                 `)
                 .bind(...npcsIds)
-                .all<NpcEquipment>();
+                .all<NpcEquipmentRelation>();
     
-            const grouped = new Map<number, NpcEquipment[]>();
+            const grouped = new Map<number, NpcEquipmentRelation[]>();
     
             for (const equipment of results) {
                 const current = grouped.get(equipment.npc_id) ?? [];

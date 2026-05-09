@@ -15,12 +15,4 @@ export class ItemService {
 	async createItem(input: CreateItemInput): Promise<void> {
 		await this.repository.create(input);
 	}
-
-	/* async updateItem(itemNumber: number, input: UpdateItemInput): Promise<void> {
-    await this.repository.updateByItemNumber(itemNumber, input);
-  }
-
-  async deleteItem(itemNumber: number): Promise<void> {
-    await this.repository.deleteByItemNumber(itemNumber);
-  } */
 }

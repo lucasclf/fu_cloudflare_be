@@ -114,13 +114,13 @@ export class D1NpcRepository {
                     id,   
                     name,   
                     description,
+                    tagline,
                     level,
                     dexterity_die,
                     insight_die,
                     might_die,
                     willpower_die,
                     hp,
-                    crisis_hp,
                     mp,
                     initiative,
                     defense,
@@ -129,6 +129,7 @@ export class D1NpcRepository {
                     created_at,
                     updated_at
                 FROM NPCS
+                WHERE id = ?
                 ORDER BY name ASC
                 `
             )

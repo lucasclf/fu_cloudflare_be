@@ -182,4 +182,54 @@ export class D1ItemRepository {
 			throw error;
 		}
 	}
+
+  async findByIds(itemIds: number[]): Promise<Map<number, Item>> {
+    if (itemIds.length === 0) {
+      return new Map();
+    }
+
+    const uniqueItemIds = [...new Set(itemIds)];
+    const placeholders = uniqueItemIds.map(() => "?").join(",");
+
+    const { results } = await this.db
+      .prepare(`
+        SELECT
+          id,
+          name,
+          item_type,
+          description,
+          img_key,
+          cost,
+          weapon_category,
+          accuracy,
+          damage,
+          damage_type,
+          grip,
+          distance,
+          defense,
+          magic_defense,
+          initiative,
+          is_martial,
+          created_at,
+          updated_at
+        FROM items
+        WHERE id IN (${placeholders})
+      `)
+      .bind(...uniqueItemIds)
+      .all<Item>();
+
+    const itemsById = new Map<number, Item>();
+
+    for (const item of results) {
+      itemsById.set(item.id, {
+        ...item,
+        is_martial:
+          item.is_martial === null || item.is_martial === undefined
+            ? null
+            : Boolean(item.is_martial),
+      });
+    }
+
+    return itemsById;
+  }
 }

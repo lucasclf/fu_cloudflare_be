@@ -1,4 +1,4 @@
-import { CreateNpcInventoryInput, NpcInventory } from "../domain/npc/npc";
+import { CreateNpcInventoryInput, NpcInventoryRelation } from "../domain/npc/npc";
 import { InventoryAlreadyExistsError } from "../domain/npc/npc_error";
 
 export class D1NpcInventoryRepository {
@@ -33,7 +33,7 @@ export class D1NpcInventoryRepository {
         }        
     }
 
-    async findByNpcsIds(npcsIds: number[]): Promise<Map<number, NpcInventory[]>> {
+    async findByNpcsIds(npcsIds: number[]): Promise<Map<number, NpcInventoryRelation[]>> {
         if (npcsIds.length === 0) {
             return new Map();
         }
@@ -52,9 +52,9 @@ export class D1NpcInventoryRepository {
             ORDER BY npc_id ASC
             `)
             .bind(...npcsIds)
-            .all<NpcInventory>();
+            .all<NpcInventoryRelation>();
 
-        const grouped = new Map<number, NpcInventory[]>();
+        const grouped = new Map<number, NpcInventoryRelation[]>();
 
         for (const inventory of results) {
             const current = grouped.get(inventory.npc_id) ?? [];

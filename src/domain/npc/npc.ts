@@ -1,4 +1,5 @@
 import { Character, CharacterSummary, CreateCharacterInput } from "../domain-types";
+import { Item } from "../items/item";
 
 export type NpcInclude = "rules" | "inventories" | "equipments";
 
@@ -50,17 +51,30 @@ export interface NpcSpecialRules {
     updated_at: string;
 }
 
-export interface NpcInventory {
+export interface NpcInventoryRelation {
     npc_id: number;
     item_id: number;
     relation_type: InventoryType;
     quantity: number;
 }
 
-export interface NpcEquipment {
+export interface NpcEquipmentRelation {
     npc_id: number;
     item_id: number;
     slot: SlotType;
+}
+
+export interface NpcInventory {
+	npc_id: number;
+	item: Item;
+	relation_type: InventoryType;
+	quantity: number;
+}
+
+export interface NpcEquipment {
+	npc_id: number;
+	item: Item;
+	slot: SlotType;
 }
 
 export interface NpcFull extends Npc {
