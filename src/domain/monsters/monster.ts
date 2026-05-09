@@ -11,31 +11,31 @@ export const ALLOWED_MONSTER_TYPE = [
     "monster",
     "undead",
      "plant"
-]
+] as const;
 
 export type MonsterType = (typeof ALLOWED_MONSTER_TYPE)[number];
 
 export const ALLOWED_MONSTER_AFFINITY = [
     "normal", "vulnerable", "resistant", "immune", "absorbs"
-]
+] as const;
 
 export type MonsterAffinityType = (typeof ALLOWED_MONSTER_AFFINITY[number])
 
 export const ALLOWED_MONSTER_ACTION_TYPE = [
     "basic_attack", "spell", "other_action", "special_rule"
-]
+] as const;
 
 export type MonsterActionType = (typeof ALLOWED_MONSTER_ACTION_TYPE[number])
 
 export const ALLOWED_MONSTER_ACTION_ICON = [
     "melee", "ranged", "spell", "support", "passive"
-]
+] as const;
 
 export type MonsterActionIcon = (typeof ALLOWED_MONSTER_ACTION_ICON[number])
 
 export const ALLOWED_MONSTER_DAMAGE_TYPE = [
     "physical", "air", "bolt", "dark", "earth", "fire", "ice", "light", "poison"
-]
+] as const;
 
 export type MonsterDamageType = (typeof ALLOWED_MONSTER_DAMAGE_TYPE[number])
 

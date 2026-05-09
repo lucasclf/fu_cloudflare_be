@@ -28,6 +28,9 @@ import { createScenarioService } from "./composition/create-scenario-service";
 import { createAdminMonstersRoutes } from "./presentation/routes/monsters/admin-monsters-route";
 import { createMonsterService } from "./composition/create-monster-service";
 import { createPublicMonstersRoutes } from "./presentation/routes/monsters/public-monsters-route";
+import { createNpcService } from "./composition/create-npc-service";
+import { createAdminNpcRoutes } from "./presentation/routes/npcs/admin-npcs-routes";
+import { createPublicNpcRoutes } from "./presentation/routes/npcs/public-npcs-routes";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -63,6 +66,8 @@ app.route("/public", createPublicScenarioRoutes(createScenarioService));
 app.route("/admin", createAdminMonstersRoutes(createMonsterService));
 app.route("/public", createPublicMonstersRoutes(createMonsterService));
 
+app.route("/admin", createAdminNpcRoutes(createNpcService))
+app.route("/public", createPublicNpcRoutes(createNpcService))
 
 app.notFound((c) => {
 	return notFound(c, "Route not found");

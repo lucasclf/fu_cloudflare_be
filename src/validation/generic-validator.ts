@@ -142,6 +142,22 @@ export function readBooleanWithDefault(
 	return value;
 }
 
+export function validateStringNullabeEnum<T extends string>(
+	value: unknown,
+	fieldName: string,
+	allowedValues: readonly T[]
+): T | null {
+	if(value === null || value === undefined) {
+		return null
+	}
+
+	return validateStringEnum(
+		value,
+		fieldName,
+		allowedValues,
+	)
+}
+
 export function validateStringEnum<T extends string>(
 	value: unknown,
 	fieldName: string,
@@ -174,4 +190,27 @@ export function validateNullableStringEnum<T extends string>(
 	}
 
 	return validateStringEnum(value, fieldName, allowedValues)
+}
+
+export function readOptionalMetadata(
+    raw: Record<string, unknown>,
+    field: string,
+): Record<string, unknown> | null {
+    const value = raw[field];
+
+    if (value === undefined || value === null) {
+        return null;
+    }
+
+    if (typeof value !== "object" || Array.isArray(value)) {
+        throw new Error(`${field} must be an object or null`);
+    }
+
+    try {
+        JSON.stringify(value);
+    } catch {
+        throw new Error(`${field} must be JSON serializable`);
+    }
+
+    return value as Record<string, unknown>;
 }
