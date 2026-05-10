@@ -68,6 +68,15 @@ export interface JobPower {
 	is_global: boolean;
 }
 
+export interface Arcana {
+	id: number;
+	name: string;
+	domain: string;
+	merge_effect: string | null;
+	dismiss_effect: string | null;
+	special_rules: string | null;
+}
+
 export interface JobPowerWithJob extends JobPower {
 	job_name: string[];
 }
@@ -77,6 +86,7 @@ export interface JobFull extends Job {
 	aliases?: JobAlias[];
 	powers?: JobPower[];
 	spells?: JobSpell[];
+	arcanas?: Arcana[];
 }
 
 export interface CreateJobInput {
@@ -117,4 +127,12 @@ export interface CreateJobPowerInput {
 	type: "common" | "heroic";
 	max_level: number;
 	is_global: boolean;
+}
+
+export interface CreateArcanaInput {
+	name: string;
+	domain: string;
+	merge_effect: string | null;
+	dismiss_effect: string | null;
+	special_rule: string | null;
 }

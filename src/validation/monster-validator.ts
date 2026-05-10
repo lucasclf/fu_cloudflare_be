@@ -22,7 +22,10 @@ export function validateCreateMonsterInput (input: any): CreateMonsterInput {
         img_key: readOptionalString(raw, "img_key"),
         monster_type: validateStringEnum(raw.monster_type, "monster_type", ALLOWED_MONSTER_TYPE),
         equipment: readOptionalString(raw, "img_key"),
-        source_page: readOptionalNumber(raw, "source_page")
+        source_page: readOptionalNumber(raw, "source_page"),
+        is_villain: readBooleanWithDefault(raw, "is_villain", false),
+        ultima_points: readOptionalNumber(raw, "ultima_points") ?? 0,
+        strategy: readOptionalString(raw, "strategy"),
     }
 }
 

@@ -1,4 +1,5 @@
 import {
+	CreateArcanaInput,
 	CreateJobAliasInput,
 	CreateJobInput,
 	CreateJobPowerInput,
@@ -7,6 +8,7 @@ import {
 	JobFull,
 	ResumeJob,
 } from "../domain/jobs/job";
+import { D1ArcanaRepository } from "../infrastructure/d1-arcana-repository";
 import { D1JobBackgroundRepository } from "../infrastructure/d1-job-background-repository";
 import { D1JobPowerRepository } from "../infrastructure/d1-job-power-repository";
 import type { D1JobRepository } from "../infrastructure/d1-job-repository";
@@ -18,6 +20,7 @@ export class JobService {
 		private readonly jobBackgroundRepository: D1JobBackgroundRepository,
 		private readonly jobPowerRepository: D1JobPowerRepository,
 		private readonly jobSpellRepository: D1JobSpellRepository,
+		private readonly arcanaRepository: D1ArcanaRepository
 	) {}
 
 	async listJobs(includes: string[]): Promise<Job[] | JobFull[]> {
@@ -90,11 +93,21 @@ export class JobService {
 			}
 		}
 
-			if (includes.includes("spells")) {
-				const spellsByJobId = await this.jobSpellRepository.findSpellsByJobIds(jobIds);
-			
-				for (const job of jobsFull) {
+		if (includes.includes("spells")) {
+			const spellsByJobId = await this.jobSpellRepository.findSpellsByJobIds(jobIds);
+
+			const hasArcaneJobs = jobsFull.some((job) => job.allows_arcane);
+
+			const arcanas = hasArcaneJobs
+				? await this.arcanaRepository.findAll()
+				: [];
+
+			for (const job of jobsFull) {
 				job.spells = spellsByJobId.get(job.id) ?? [];
+
+				if (job.allows_arcane) {
+					job.arcanas = arcanas;
+				}
 			}
 		}
 
@@ -115,5 +128,9 @@ export class JobService {
 
 	async createJobPower(input: CreateJobPowerInput): Promise<void> {
 		await this.jobPowerRepository.createJobPower(input);
+	}
+
+	async createArcana(input: CreateArcanaInput): Promise<void> {
+		await this.arcanaRepository.create(input);
 	}
 }

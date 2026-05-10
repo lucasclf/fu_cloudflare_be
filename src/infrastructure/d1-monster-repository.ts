@@ -25,9 +25,12 @@ export class D1MonsterRepository {
                     magic_defense,
                     equipment,
                     img_key,
-                    source_page
+                    source_page,
+                    is_villain,
+                    ultima_points,
+                    strategy
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `).bind(
                     input.name,
                     input.description,
@@ -45,7 +48,10 @@ export class D1MonsterRepository {
                     input.magic_defense,
                     input.equipment,
                     input.img_key,
-                    input.source_page
+                    input.source_page,
+                    input.is_villain,
+                    input.ultima_points,
+                    input.strategy
                 )
                 .run();
         } catch(error) {
@@ -81,7 +87,10 @@ export class D1MonsterRepository {
                     magic_defense,
                     img_key,
                     created_at,
-                    updated_at
+                    updated_at,
+                    is_villain,
+                    ultima_points,
+                    strategy
                 FROM monsters
                 ORDER BY name ASC
                 `
@@ -103,7 +112,8 @@ export class D1MonsterRepository {
                     insight_die,
                     might_die,
                     willpower_die,
-                    img_key
+                    img_key,
+                    is_villain
                 FROM monsters
                 ORDER BY level ASC
                 `
@@ -133,7 +143,10 @@ export class D1MonsterRepository {
                     magic_defense,
                     img_key,
                     created_at,
-                    updated_at
+                    updated_at,
+                    is_villain,
+                    ultima_points,
+                    strategy
                 FROM monsters
                 WHERE id = ?
                 LIMIT 1

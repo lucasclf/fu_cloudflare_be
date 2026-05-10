@@ -26,9 +26,17 @@ export class JobPowerAlreadyExistsError extends Error {
 	}
 }
 
+export class ArcanaAlreadyExistsError extends Error {
+	constructor(ArcanaName: string) {
+		super(`Arcana ${ArcanaName} already exists`);
+		this.name = "ArcanaAlreadyExistsError";
+	}
+}
+
 export class JobNotFoundError extends Error {
 	constructor(jobNumber: string) {
 		super(`Job ${jobNumber} not found`);
 		this.name = "JobNotFoundError";
 	}
 }
+

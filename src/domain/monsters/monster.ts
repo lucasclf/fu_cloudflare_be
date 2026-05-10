@@ -87,6 +87,9 @@ export interface CreateAffinityInput {
 }
 
 export interface Monster extends Character {
+    is_villain: boolean;
+	ultima_points: number;
+	strategy: string | null;
     monster_type: MonsterType;
     equipment: string;
     source_page: number;
@@ -100,9 +103,13 @@ export interface MonsterFull extends Monster {
 
 export interface MonsterSummary extends CharacterSummary {
     monster_type: MonsterType;
+    is_villain: boolean;
 }
 
 export interface CreateMonsterInput extends CreateCharacterInput {
+    is_villain: boolean;
+	ultima_points: number;
+	strategy: string | null;
     monster_type: MonsterType;
     equipment: string | null;
     source_page: number | null;

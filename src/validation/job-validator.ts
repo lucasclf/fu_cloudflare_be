@@ -1,5 +1,6 @@
 import {
 	ALLOWED_POWER_TYPE,
+	CreateArcanaInput,
 	CreateJobAliasInput,
 	CreateJobInput,
 	CreateJobPowerInput,
@@ -101,4 +102,18 @@ export function validateCreateJobPowersInput(
 		max_level: readRequiredNumber(raw, "max_level"),
 		is_global: readBooleanWithDefault(raw, "is_global", false),
 	};
+}
+
+export function validateCreateArcanaInput(
+		input: unknown,
+): CreateArcanaInput {
+	const raw = ensureObject(input);
+
+	return {
+		name: readRequiredString(raw, "name"),
+		domain: readRequiredString(raw, "domain"),
+		merge_effect: readOptionalString(raw, "merge_effect"),
+		dismiss_effect: readOptionalString(raw, "dismiss_effect"),
+		special_rule: readOptionalString(raw, "special_rule")
+	}
 }

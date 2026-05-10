@@ -37,6 +37,10 @@ CREATE TABLE IF NOT EXISTS monsters (
     equipment TEXT,
     img_key TEXT,
 
+    is_villain INTEGER NOT NULL DEFAULT 0 CHECK (is_villain IN (0, 1)),
+    ultima_points INTEGER NOT NULL DEFAULT 0 CHECK (ultima_points >= 0),
+    strategy TEXT NULL,
+
     source_page INTEGER,
 
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -48,3 +52,6 @@ ON monsters (monster_type);
 
 CREATE INDEX IF NOT EXISTS idx_monsters_level
 ON monsters (level);
+
+CREATE INDEX IF NOT EXISTS idx_monsters_is_villain
+ON monsters (is_villain);

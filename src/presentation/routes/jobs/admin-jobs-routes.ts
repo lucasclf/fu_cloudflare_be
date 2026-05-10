@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { JobService } from "../../../application/job-service";
 import { ValidationError } from "../../../domain/domain-errors";
 import {
+	ArcanaAlreadyExistsError,
 	JobAliasAlreadyExistsError,
 	JobAlreadyExistsError,
 	JobNotFoundError,
@@ -11,6 +12,7 @@ import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
 import type { Env } from "../../../types/env";
 import { badRequest, conflict, created, notFound, ok } from "../../http";
 import {
+	validateCreateArcanaInput,
 	validateCreateJobAliasesInput,
 	validateCreateJobInput,
 	validateCreateJobQuestionsInput,
@@ -91,6 +93,28 @@ export function createAdminJobsRoutes(jobServiceFactory: JobServiceFactory) {
 			}
 
 			if (error instanceof JobAliasAlreadyExistsError) {
+				return conflict(c, error.message);
+			}
+
+			throw error;
+		}
+	});
+
+	routes.post("/jobs/arcanas", async (c) => {
+		try {
+			const rawBody = await c.req.json();
+			const input = validateCreateArcanaInput(rawBody);
+
+			const service = jobServiceFactory(c.env);
+			await service.createArcana(input);
+
+			return created(c, { message: "Arcana created successfully" });
+		} catch (error) {
+			if (error instanceof ValidationError) {
+				return badRequest(c, error.message);
+			}
+
+			if (error instanceof ArcanaAlreadyExistsError) {
 				return conflict(c, error.message);
 			}
 
