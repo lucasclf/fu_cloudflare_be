@@ -42,7 +42,7 @@ export function createPublicNpcRoutes(npcServiceFactory: NpcServiceFactory) {
         return ok(c, npcs);
     })
 
-    routes.get("/npcs/:id", async (c) => {
+    routes.get("/npcs/:id{[0-9]+}", async (c) => {
         const npcId = c.req.param("id");
 		const include = parseJobIncludes(c.req.query("include"));
 

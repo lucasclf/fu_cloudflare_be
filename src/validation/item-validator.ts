@@ -23,8 +23,11 @@ type RawItemInput = {
 	grip?: unknown;
 	distance?: unknown;
 
-	defense?: unknown;
-	magic_defense?: unknown;
+	defense_dice?: unknown;
+	defense_bonus?: unknown;
+	magic_defense_dice?: unknown;
+	magic_defense_bonus?: unknown;
+
 	initiative?: unknown;
 
 	is_martial?: unknown;
@@ -36,7 +39,7 @@ const MAX_URL_LENGTH = 1_000;
 const MAX_TEXT_FIELD_LENGTH = 255;
 
 function isObject(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null;
+	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function normalizeRequiredString(
@@ -192,16 +195,25 @@ function parseBaseItemInput(raw: unknown) {
 			MAX_TEXT_FIELD_LENGTH,
 		),
 
-		defense: normalizeOptionalString(
-			input.defense,
-			"defense",
+		defense_dice: normalizeOptionalString(
+			input.defense_dice,
+			"defense_dice",
 			MAX_TEXT_FIELD_LENGTH,
 		),
-		magic_defense: normalizeOptionalString(
-			input.magic_defense,
-			"magic_defense",
+		defense_bonus: normalizeOptionalInteger(
+			input.defense_bonus,
+			"defense_bonus",
+		),
+		magic_defense_dice: normalizeOptionalString(
+			input.magic_defense_dice,
+			"magic_defense_dice",
 			MAX_TEXT_FIELD_LENGTH,
 		),
+		magic_defense_bonus: normalizeOptionalInteger(
+			input.magic_defense_bonus,
+			"magic_defense_bonus",
+		),
+
 		initiative: normalizeOptionalString(
 			input.initiative,
 			"initiative",
@@ -221,6 +233,30 @@ function assertRequired<T>(
 	}
 }
 
+function assertHasDefenseValue(
+	defenseDice: string | null,
+	defenseBonus: number | null,
+	itemLabel: string,
+): void {
+	if (defenseDice === null && defenseBonus === null) {
+		throw new ValidationError(
+			`${itemLabel} must have defense_dice or defense_bonus`,
+		);
+	}
+}
+
+function assertHasMagicDefenseValue(
+	magicDefenseDice: string | null,
+	magicDefenseBonus: number | null,
+	itemLabel: string,
+): void {
+	if (magicDefenseDice === null && magicDefenseBonus === null) {
+		throw new ValidationError(
+			`${itemLabel} must have magic_defense_dice or magic_defense_bonus`,
+		);
+	}
+}
+
 function validateWeaponInput(
 	base: ReturnType<typeof parseBaseItemInput>,
 ): CreateItemInput {
@@ -235,8 +271,12 @@ function validateWeaponInput(
 
 	return {
 		...base,
-		defense: null,
-		magic_defense: null,
+
+		// Armas podem ter bônus defensivos opcionais.
+		// Mas não devem usar fórmula/dado de defesa como armaduras.
+		defense_dice: null,
+		magic_defense_dice: null,
+
 		initiative: null,
 	};
 }
@@ -245,10 +285,20 @@ function validateArmorInput(
 	base: ReturnType<typeof parseBaseItemInput>,
 ): CreateItemInput {
 	assertRequired(base.cost, "cost");
-	assertRequired(base.defense, "defense");
-	assertRequired(base.magic_defense, "magic_defense");
 	assertRequired(base.initiative, "initiative");
 	assertRequired(base.is_martial, "is_martial");
+
+	assertHasDefenseValue(
+		base.defense_dice,
+		base.defense_bonus,
+		"armor",
+	);
+
+	assertHasMagicDefenseValue(
+		base.magic_defense_dice,
+		base.magic_defense_bonus,
+		"armor",
+	);
 
 	return {
 		...base,
@@ -265,10 +315,20 @@ function validateShieldInput(
 	base: ReturnType<typeof parseBaseItemInput>,
 ): CreateItemInput {
 	assertRequired(base.cost, "cost");
-	assertRequired(base.defense, "defense");
-	assertRequired(base.magic_defense, "magic_defense");
 	assertRequired(base.initiative, "initiative");
 	assertRequired(base.is_martial, "is_martial");
+
+	assertHasDefenseValue(
+		base.defense_dice,
+		base.defense_bonus,
+		"shield",
+	);
+
+	assertHasMagicDefenseValue(
+		base.magic_defense_dice,
+		base.magic_defense_bonus,
+		"shield",
+	);
 
 	return {
 		...base,
@@ -294,8 +354,10 @@ function validateAccessoryInput(
 		damage_type: null,
 		grip: null,
 		distance: null,
-		defense: null,
-		magic_defense: null,
+
+		defense_dice: null,
+		magic_defense_dice: null,
+
 		initiative: null,
 		is_martial: null,
 	};
@@ -313,8 +375,12 @@ function validateArtifactInput(
 		damage_type: null,
 		grip: null,
 		distance: null,
-		defense: null,
-		magic_defense: null,
+
+		defense_dice: null,
+		defense_bonus: null,
+		magic_defense_dice: null,
+		magic_defense_bonus: null,
+
 		initiative: null,
 		is_martial: null,
 	};
@@ -332,8 +398,12 @@ function validateGenericItemInput(
 		damage_type: null,
 		grip: null,
 		distance: null,
-		defense: null,
-		magic_defense: null,
+
+		defense_dice: null,
+		defense_bonus: null,
+		magic_defense_dice: null,
+		magic_defense_bonus: null,
+
 		initiative: null,
 		is_martial: null,
 	};
@@ -345,14 +415,19 @@ export function validateCreateItemInput(raw: unknown): CreateItemInput {
 	switch (base.item_type) {
 		case "arma":
 			return validateWeaponInput(base);
+
 		case "armadura":
 			return validateArmorInput(base);
+
 		case "escudo":
 			return validateShieldInput(base);
+
 		case "acessorio":
 			return validateAccessoryInput(base);
+
 		case "artefato":
 			return validateArtifactInput(base);
+
 		case "outros":
 			return validateGenericItemInput(base);
 	}

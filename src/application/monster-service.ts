@@ -1,4 +1,4 @@
-import { CreateActionInput, CreateAffinityInput, CreateMonsterInput, CreateMonsterTraitInput, Monster, MonsterFull, MonsterSummary } from "../domain/monsters/monster";
+import { CreateActionInput, CreateAffinityInput, CreateMonsterInput, CreateMonsterTraitInput, Monster, MonsterAction, MonsterFull, MonsterSummary } from "../domain/monsters/monster";
 import { D1MonsterActionRepository } from "../infrastructure/d1-monster-action-repository";
 import { D1MonsterAffinityRepository } from "../infrastructure/d1-monster-affinity-repository";
 import { D1MonsterRepository } from "../infrastructure/d1-monster-repository";
@@ -55,43 +55,49 @@ export class MonsterService {
 		return monsterFull;
     }
 
+    async findMonsterActions(includes: string[]): Promise<MonsterAction[]>{
+        const actions = await this.monsterActionRepository.findActions(includes)
+        return actions;
+    }
+
+
     private async enrichJobs(
-            monsters: Monster[],
-            includes: string[],
-        ): Promise<MonsterFull[]> {
-            const monsterIds = monsters.map((monster) => monster.id);
-    
-            const monstersFull: MonsterFull[] = monsters.map((monster) => ({
-                ...monster,
-            }));
-    
-            if (includes.includes("traits")) {
-                const traitsByMonsterId = 
-                    await this.monsterTraitRepository.findByMonstersIds(monsterIds)
-                
-                for (const monster of monstersFull) {
-                    monster.traits = traitsByMonsterId.get(monster.id) ?? [];
-                }
+        monsters: Monster[],
+        includes: string[],
+    ): Promise<MonsterFull[]> {
+        const monsterIds = monsters.map((monster) => monster.id);
+
+        const monstersFull: MonsterFull[] = monsters.map((monster) => ({
+            ...monster,
+        }));
+
+        if (includes.includes("traits")) {
+            const traitsByMonsterId = 
+                await this.monsterTraitRepository.findByMonstersIds(monsterIds)
+            
+            for (const monster of monstersFull) {
+                monster.traits = traitsByMonsterId.get(monster.id) ?? [];
             }
-
-            if (includes.includes("affinities")) {
-                const affinitiesByMonsterId = 
-                    await this.monsterAffinityRepository.findByMonstersIds(monsterIds)
-
-                for (const monster of monstersFull) {
-                    monster.affinities = affinitiesByMonsterId.get(monster.id) ?? [];
-                }
-            }
-
-            if (includes.includes("actions")) {
-                const actionsByMonsterId = 
-                    await this.monsterActionRepository.findByMonstersIds(monsterIds)
-
-                for (const monster of monstersFull) {
-                    monster.actions = actionsByMonsterId.get(monster.id) ?? [];
-                }
-            }
-    
-            return monstersFull;
         }
+
+        if (includes.includes("affinities")) {
+            const affinitiesByMonsterId = 
+                await this.monsterAffinityRepository.findByMonstersIds(monsterIds)
+
+            for (const monster of monstersFull) {
+                monster.affinities = affinitiesByMonsterId.get(monster.id) ?? [];
+            }
+        }
+
+        if (includes.includes("actions")) {
+            const actionsByMonsterId = 
+                await this.monsterActionRepository.findByMonstersIds(monsterIds)
+
+            for (const monster of monstersFull) {
+                monster.actions = actionsByMonsterId.get(monster.id) ?? [];
+            }
+        }
+
+        return monstersFull;
+    }
 }

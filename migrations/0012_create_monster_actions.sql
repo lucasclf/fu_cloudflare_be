@@ -69,3 +69,6 @@ ON monster_actions (action_type);
 
 CREATE INDEX IF NOT EXISTS idx_monster_actions_damage_type
 ON monster_actions (damage_type);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_monster_actions_monster_id_name
+ON monster_actions (monster_id, name);

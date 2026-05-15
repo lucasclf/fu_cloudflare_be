@@ -129,8 +129,4 @@ export class JobService {
 	async createJobPower(input: CreateJobPowerInput): Promise<void> {
 		await this.jobPowerRepository.createJobPower(input);
 	}
-
-	async createArcana(input: CreateArcanaInput): Promise<void> {
-		await this.arcanaRepository.create(input);
-	}
 }

@@ -53,4 +53,41 @@ export class D1ArcanaRepository{
 
         return results;
     }
+
+  async findByIds(arcanaIds: number[]): Promise<Map<number, Arcana>> {
+    if (arcanaIds.length === 0) {
+      return new Map();
+    }
+
+    const uniqueArcanaIds = [...new Set(arcanaIds)];
+    const placeholders = uniqueArcanaIds.map(() => "?").join(",");
+
+    const { results } = await this.db
+      .prepare(`
+        SELECT
+            id,
+            job_id,
+            name,
+            description,
+            is_offensive,
+            cost,
+            target,
+            duration
+        FROM job_spells
+        WHERE id IN (${placeholders})
+        ORDER BY name ASC
+      `)
+      .bind(...uniqueArcanaIds)
+      .all<Arcana>();
+
+    const arcanasById = new Map<number, Arcana>();
+
+    for (const arcana of results) {
+      arcanasById.set(arcana.id, {
+        ...arcana,
+      });
+    }
+
+    return arcanasById;
+  }
 }

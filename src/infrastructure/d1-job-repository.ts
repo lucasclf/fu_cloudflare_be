@@ -146,4 +146,56 @@ export class D1JobRepository {
 			throw error;
 		}
 	}
+
+  async findResumeByIds(jobIds: number[]): Promise<Map<number, ResumeJob>> {
+    if (jobIds.length === 0) {
+      return new Map();
+    }
+
+    const uniqueJobIds = [...new Set(jobIds)];
+    const placeholders = uniqueJobIds.map(() => "?").join(",");
+
+    const { results } = await this.db
+      .prepare(`
+        SELECT
+          id,
+          name,
+          tagline,
+          img_key,
+          hp_bonus,
+          mp_bonus,
+          ip_bonus,
+          allows_martial_armor,
+          allows_martial_shield,
+          allows_martial_ranged_weapon,
+          allows_martial_melee_weapon,
+          allows_arcane,
+          allows_rituals,
+          allows_monster_spells,
+          can_start_projects
+        FROM jobs
+        WHERE id IN (${placeholders})
+        ORDER BY name ASC
+      `)
+      .bind(...uniqueJobIds)
+      .all<ResumeJob>();
+
+    const jobsById = new Map<number, ResumeJob>();
+
+    for (const job of results) {
+      jobsById.set(job.id, {
+        ...job,
+        allows_martial_armor: Boolean(job.allows_martial_armor),
+        allows_martial_shield: Boolean(job.allows_martial_shield),
+        allows_martial_ranged_weapon: Boolean(job.allows_martial_ranged_weapon),
+        allows_martial_melee_weapon: Boolean(job.allows_martial_melee_weapon),
+        allows_arcane: Boolean(job.allows_arcane),
+        allows_rituals: Boolean(job.allows_rituals),
+        allows_monster_spells: Boolean(job.allows_monster_spells),
+        can_start_projects: Boolean(job.can_start_projects),
+      });
+    }
+
+    return jobsById;
+  }
 }

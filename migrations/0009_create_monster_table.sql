@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS monsters (
     willpower_die TEXT NOT NULL CHECK (willpower_die IN ('d6', 'd8', 'd10', 'd12')),
 
     hp INTEGER NOT NULL,
-    crisis_hp INTEGER NOT NULL,
     mp INTEGER NOT NULL,
 
     initiative INTEGER NOT NULL,

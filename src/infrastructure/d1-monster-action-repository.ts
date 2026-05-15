@@ -1,4 +1,4 @@
-import { CreateActionInput, MonsterAction } from "../domain/monsters/monster";
+import { CreateActionInput, Monster, MonsterAction } from "../domain/monsters/monster";
 import { MonsterActionAlreadyExistsError } from "../domain/monsters/monster-error";
 import { MonsterSpell } from "../domain/spells/spells";
 
@@ -113,4 +113,106 @@ export class D1MonsterActionRepository {
             nature: "monster",
         }));
     }
+
+    async isMonsterSpell(
+        actionId: number,
+    ): Promise<boolean> {
+        const result = await this.db
+            .prepare(`
+                SELECT
+                    id
+                FROM monster_actions
+                WHERE id = ?
+                AND action_type = 'spell'
+                LIMIT 1
+            `)
+            .bind(actionId)
+            .first<{ id: number }>();
+
+        return result !== null;
+    }
+
+    async findActions(include: string[]): Promise<MonsterAction[]> {
+        const hasActionTypeFilter = include.length > 0;
+
+        const whereClause = hasActionTypeFilter
+            ? `WHERE action_type IN (${include.map(() => "?").join(",")})`
+            : "";
+        
+        const query = `
+            SELECT
+                id,
+                monster_id,
+                action_type,
+                action_icon,
+                name,
+                description,
+                check_formula,
+                accuracy_bonus,
+                damage_type,
+                cost,
+                target,
+                duration,
+                is_offensive
+            FROM monster_actions
+            ${whereClause}
+            ORDER BY
+                action_type ASC,
+                name ASC
+        `;
+
+        const statement = this.db.prepare(query);
+
+        const { results } = hasActionTypeFilter
+            ? await statement.bind(...include).all<MonsterAction>()
+            : await statement.all<MonsterAction>();
+
+        return results.map((action) => ({
+            ...action,
+            is_offensive: Boolean(action.is_offensive),
+        }));    
+    }
+
+  async findByIds(spellIds: number[]): Promise<Map<number, MonsterAction>> {
+    if (spellIds.length === 0) {
+      return new Map();
+    }
+
+    const uniqueSpellIds = [...new Set(spellIds)];
+    const placeholders = uniqueSpellIds.map(() => "?").join(",");
+
+    const { results } = await this.db
+      .prepare(`
+        SELECT
+            id,
+            monster_id,
+            action_type,
+            action_icon,
+            name,
+            description,
+            check_formula,
+            accuracy_bonus,
+            damage_type,
+            cost,
+            target,
+            duration,
+            is_offensive
+        FROM monster_actions
+        WHERE id IN (${placeholders})
+        ORDER BY name ASC
+      `)
+      .bind(...uniqueSpellIds)
+      .all<MonsterAction>();
+
+    const spellsById = new Map<number, MonsterAction>();
+
+    for (const spell of results) {
+      spellsById.set(spell.id, {
+        ...spell,
+        is_offensive: Boolean(spell.is_offensive)
+      });
+    }
+
+    return spellsById;
+  }
 }

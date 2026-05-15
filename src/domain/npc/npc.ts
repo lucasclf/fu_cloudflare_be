@@ -1,4 +1,4 @@
-import { Character, CharacterSummary, CreateCharacterInput } from "../domain-types";
+import { Character, CharacterSummary, CreateCharacterInput, CreateFullCharacterInput } from "../domain-types";
 import { Item } from "../items/item";
 
 export type NpcInclude = "rules" | "inventories" | "equipments";
@@ -32,11 +32,13 @@ export const ALLOWED_EQUIPMENT_SLOT_TYPE = [
 
 export type SlotType = (typeof ALLOWED_EQUIPMENT_SLOT_TYPE)[number];
 
-export interface Npc extends Omit<Character, "crisis_hp"> {
+export interface Npc extends Character {
+    level: number | null;
     tagline: string | null
 }
 
 export interface NpcSummary extends CharacterSummary {
+    level: number;
     tagline: string | null
 }
 
@@ -79,11 +81,11 @@ export interface NpcEquipment {
 
 export interface NpcFull extends Npc {
     specialRules?: NpcSpecialRules[],
-    inventory?: NpcInventory[]
+    inventory?: NpcInventory[],
     equipment?: NpcEquipment[]
 }
 
-export interface CreateNpcInput extends Omit<CreateCharacterInput, "crisis_hp"> {
+export interface CreateNpcInput extends CreateFullCharacterInput {
     tagline: string | null
 }
 

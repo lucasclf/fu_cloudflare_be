@@ -14,7 +14,6 @@ export function validateCreateMonsterInput (input: any): CreateMonsterInput {
         might_die: validateStringEnum(raw.might_die, "might_die", ALLOWED_ATTRIBUTE_DIE),
         willpower_die: validateStringEnum(raw.willpower_die, "willpower_die", ALLOWED_ATTRIBUTE_DIE),
         hp: readRequiredNumber(raw, "hp"),
-        crisis_hp: readRequiredNumber(raw, "crisis_hp"),
         mp: readRequiredNumber(raw, "mp"),
         initiative: readRequiredNumber(raw, "initiative"),
         defense: readRequiredNumber(raw, "defense"),

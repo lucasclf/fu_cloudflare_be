@@ -8,13 +8,11 @@ export interface Character {
     id: number;
     name: string;
     description: string;
-    level: number | null;
     dexterity_die: AttributeDie | null;
     insight_die: AttributeDie | null;
     might_die: AttributeDie | null;
     willpower_die: AttributeDie | null;
     hp: number | null;
-    crisis_hp: number | null;
     mp: number | null;
     initiative: number | null;
     defense: number | null;
@@ -27,7 +25,6 @@ export interface Character {
 export interface CharacterSummary {
     id: number;
     name: string;
-    level: number;
     dexterity_die: AttributeDie;
     insight_die: AttributeDie;
     might_die: AttributeDie;
@@ -38,16 +35,18 @@ export interface CharacterSummary {
 export interface CreateCharacterInput {
     name: string;
     description: string;
-    level: number | null;
     dexterity_die: AttributeDie | null;
     insight_die: AttributeDie | null;
     might_die: AttributeDie | null;
     willpower_die: AttributeDie | null;
+    img_key: string | null;
+}
+
+export interface CreateFullCharacterInput extends CreateCharacterInput {
+    level: number | null;
     hp: number | null;
-    crisis_hp: number | null;
     mp: number | null;
     initiative: number | null;
     defense: number | null;
     magic_defense: number | null;
-    img_key: string | null;
 }

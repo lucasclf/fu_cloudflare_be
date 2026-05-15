@@ -68,7 +68,6 @@ export class D1NpcRepository {
                     might_die,
                     willpower_die,
                     hp,
-                    crisis_hp,
                     mp,
                     initiative,
                     defense,

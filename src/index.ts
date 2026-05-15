@@ -31,6 +31,12 @@ import { createPublicMonstersRoutes } from "./presentation/routes/monsters/publi
 import { createNpcService } from "./composition/create-npc-service";
 import { createAdminNpcRoutes } from "./presentation/routes/npcs/admin-npcs-routes";
 import { createPublicNpcRoutes } from "./presentation/routes/npcs/public-npcs-routes";
+import { createAdminPcsRoutes } from "./presentation/routes/pcs/admin-pcs-routes";
+import { createPcService } from "./composition/create-pc-service";
+import { createPublicPcsRoutes } from "./presentation/routes/pcs/public-pcs-routes";
+import { createAdminArcanaRoutes } from "./presentation/routes/arcanas/admin-arcana-routes";
+import { createPublicArcanaRoutes } from "./presentation/routes/arcanas/public-arcana-routes";
+import { createArcanaService } from "./composition/create-arcana-service";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -68,6 +74,12 @@ app.route("/public", createPublicMonstersRoutes(createMonsterService));
 
 app.route("/admin", createAdminNpcRoutes(createNpcService))
 app.route("/public", createPublicNpcRoutes(createNpcService))
+
+app.route("/admin", createAdminPcsRoutes(createPcService))
+app.route("/public", createPublicPcsRoutes(createPcService))
+
+app.route("/admin", createAdminArcanaRoutes(createArcanaService))
+app.route("/public", createPublicArcanaRoutes(createArcanaService))
 
 app.notFound((c) => {
 	return notFound(c, "Route not found");

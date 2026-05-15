@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
 import { badRequest, conflict, created } from "../../http";
 import { ValidationError } from "../../../domain/domain-errors";
-import { MonsterAffinityAlreadyExistsError, MonsterAlreadyExistsError } from "../../../domain/monsters/monster-error";
+import { MonsterActionAlreadyExistsError, MonsterAffinityAlreadyExistsError, MonsterAlreadyExistsError, MonsterTraitAlreadyExistsError } from "../../../domain/monsters/monster-error";
 import { validateCreateActionsInput, validateCreateAffinitiesInput, validateCreateMonsterInput, validateCreateTraitInput } from "../../../validation/monster-validator";
 import { MonsterService } from "../../../application/monster-service";
 import type { Env } from "../../../types/env";
@@ -54,7 +54,7 @@ export function createAdminMonstersRoutes(
                 return badRequest(c, error.message);
             }
 
-            if (error instanceof MonsterAlreadyExistsError) {
+            if (error instanceof MonsterTraitAlreadyExistsError) {
                 return conflict(c, error.message);
             }
 
@@ -100,7 +100,7 @@ export function createAdminMonstersRoutes(
                 return badRequest(c, error.message);
             }
 
-            if (error instanceof MonsterAffinityAlreadyExistsError) {
+            if (error instanceof MonsterActionAlreadyExistsError) {
                 return conflict(c, error.message);
             }
 

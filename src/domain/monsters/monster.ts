@@ -1,6 +1,8 @@
-import { Character, CharacterSummary, CreateCharacterInput } from "../domain-types";
+import { Character, CharacterSummary, CreateCharacterInput, CreateFullCharacterInput } from "../domain-types";
 
 export type MonsterInclude = "traits" | "affinities" | "actions";
+
+export type MonsterActionIncludes = "basic_attack" | "spell" | "other_action" | "special_rule"
 
 export const ALLOWED_MONSTER_TYPE = [
     "construct",
@@ -87,6 +89,7 @@ export interface CreateAffinityInput {
 }
 
 export interface Monster extends Character {
+    level: number | null;
     is_villain: boolean;
 	ultima_points: number;
 	strategy: string | null;
@@ -102,11 +105,12 @@ export interface MonsterFull extends Monster {
 }
 
 export interface MonsterSummary extends CharacterSummary {
+    level: number;
     monster_type: MonsterType;
     is_villain: boolean;
 }
 
-export interface CreateMonsterInput extends CreateCharacterInput {
+export interface CreateMonsterInput extends CreateFullCharacterInput {
     is_villain: boolean;
 	ultima_points: number;
 	strategy: string | null;

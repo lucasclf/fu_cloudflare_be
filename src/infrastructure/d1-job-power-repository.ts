@@ -1,4 +1,4 @@
-import { CreateJobPowerInput, JobPower, JobPowerWithJob } from "../domain/jobs/job";
+import { CreateJobPowerInput, JobPower, JobPowerWithJob, ResumeJob } from "../domain/jobs/job";
 import { JobPowerAlreadyExistsError } from "../domain/jobs/job-errors";
 
 type JobPowerRow = JobPower & {
@@ -212,5 +212,41 @@ export class D1JobPowerRepository {
             is_global: Boolean(power.is_global),
             job_name: JSON.parse(power.job_name),
         }));
+    }
+
+    async findByIds(powerIds: number[]): Promise<Map<number, JobPower>> {
+        if (powerIds.length === 0) {
+            return new Map();
+        }
+
+        const uniquePowerIds = [...new Set(powerIds)];
+        const placeholders = uniquePowerIds.map(() => "?").join(",");
+
+        const { results } = await this.db
+            .prepare(`
+                SELECT
+                    id,
+                    name,
+                    description,
+                    type,
+                    max_level,
+                    is_global
+                FROM job_powers
+                WHERE id IN (${placeholders})
+                ORDER BY name ASC
+            `)
+            .bind(...uniquePowerIds)
+            .all<JobPower>();
+
+        const powersById = new Map<number, JobPower>();
+
+        for (const power of results) {
+            powersById.set(power.id, {
+                ...power,
+                is_global: Boolean(power.is_global),
+            });
+        }
+
+        return powersById;
     }
 }

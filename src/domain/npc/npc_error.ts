@@ -15,14 +15,14 @@ export class SpecialRulesAlreadyExistsError extends Error {
 export class InventoryAlreadyExistsError extends Error {
 	constructor(npcId: number, itemId: number) {
 		super(`Inventory for NPC ${npcId} and ITEM ${itemId} already exists`);
-		this.name = "SpecialRulesAlreadyExistsError";
+		this.name = "InventoryAlreadyExistsError";
 	}
 }
 
 export class EquipmentAlreadyExistsError extends Error {
 	constructor(npcId: number, itemId: number) {
 		super(`Equipment for NPC ${npcId} and ITEM ${itemId} already exists`);
-		this.name = "SpecialRulesAlreadyExistsError";
+		this.name = "EquipmentAlreadyExistsError";
 	}
 }
 

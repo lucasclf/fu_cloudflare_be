@@ -18,7 +18,6 @@ export class D1MonsterRepository {
                     might_die,
                     willpower_die,
                     hp,
-                    crisis_hp,
                     mp,
                     initiative,
                     defense,
@@ -30,7 +29,7 @@ export class D1MonsterRepository {
                     ultima_points,
                     strategy
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `).bind(
                     input.name,
                     input.description,
@@ -41,7 +40,6 @@ export class D1MonsterRepository {
                     input.might_die,
                     input.willpower_die,
                     input.hp,
-                    input.crisis_hp,
                     input.mp,
                     input.initiative,
                     input.defense,
@@ -80,7 +78,6 @@ export class D1MonsterRepository {
                     might_die,
                     willpower_die,
                     hp,
-                    crisis_hp,
                     mp,
                     initiative,
                     defense,
@@ -136,7 +133,6 @@ export class D1MonsterRepository {
                     might_die,
                     willpower_die,
                     hp,
-                    crisis_hp,
                     mp,
                     initiative,
                     defense,

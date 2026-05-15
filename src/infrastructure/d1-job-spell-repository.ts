@@ -77,31 +77,69 @@ export class D1JobSpellRepository {
 		const placeholders = jobIds.map(() => "?").join(",");
 
 		const { results } = await this.db
-					.prepare(`
-					SELECT
-					  id,
-					  job_id,
-					  name,
-					  description,
-					  is_offensive,
-					  cost,
-					  target,
-					  duration
-					FROM job_spells
-					WHERE job_id IN (${placeholders})
-					ORDER BY job_id ASC, id ASC
-				  `)
-					.bind(...jobIds)
-					.all<JobSpell>();
-		
-				const grouped = new Map<number, JobSpell[]>();
-		
-				for (const spell of results) {
-					const current = grouped.get(spell.job_id) ?? [];
-					current.push(spell);
-					grouped.set(spell.job_id, current);
-				}
-		
-				return grouped;
+			.prepare(`
+			SELECT
+				id,
+				job_id,
+				name,
+				description,
+				is_offensive,
+				cost,
+				target,
+				duration
+			FROM job_spells
+			WHERE job_id IN (${placeholders})
+			ORDER BY job_id ASC, id ASC
+			`)
+			.bind(...jobIds)
+			.all<JobSpell>();
+
+		const grouped = new Map<number, JobSpell[]>();
+
+		for (const spell of results) {
+			const current = grouped.get(spell.job_id) ?? [];
+			current.push(spell);
+			grouped.set(spell.job_id, current);
+		}
+
+		return grouped;
 	}
+
+  async findByIds(spellIds: number[]): Promise<Map<number, JobSpell>> {
+	if (spellIds.length === 0) {
+	  return new Map();
+	}
+
+	const uniqueSpellIds = [...new Set(spellIds)];
+	const placeholders = uniqueSpellIds.map(() => "?").join(",");
+
+	const { results } = await this.db
+	  .prepare(`
+		SELECT
+			id,
+			job_id,
+			name,
+			description,
+			is_offensive,
+			cost,
+			target,
+			duration
+		FROM job_spells
+		WHERE id IN (${placeholders})
+		ORDER BY name ASC
+	  `)
+	  .bind(...uniqueSpellIds)
+	  .all<JobSpell>();
+
+	const spellsById = new Map<number, JobSpell>();
+
+	for (const spell of results) {
+	  spellsById.set(spell.id, {
+		...spell,
+		is_offensive: Boolean(spell.is_offensive)
+	  });
+	}
+
+	return spellsById;
+  }
 }
