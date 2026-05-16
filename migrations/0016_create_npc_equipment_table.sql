@@ -1,6 +1,6 @@
 -- Migration number: 0016 2026-05-07T11:51:48.132Z
 
-CREATE TABLE npc_equipment (
+CREATE TABLE IF NOT EXISTS npc_equipment (
     npc_id INTEGER NOT NULL,
 
     slot TEXT NOT NULL CHECK (

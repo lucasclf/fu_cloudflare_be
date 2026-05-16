@@ -6,8 +6,14 @@
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
-		"test": "vitest",
+		"test": "vitest run",
+		"test:watch": "vitest",
+	    "typecheck": "tsc --noEmit",
 		"cf-typegen": "wrangler types",
+		"db:migrate:local": "wrangler d1 migrations apply fabula_ultima_db --local",
+		"db:migrate:remote": "wrangler d1 migrations apply fabula_ultima_db --remote",
+		"db:tables:local": "wrangler d1 execute fabula_ultima_db --local --command \"SELECT name FROM sqlite_master WHERE type='table';\"",
+		"db:tables:remote": "wrangler d1 execute fabula_ultima_db --remote --command \"SELECT name FROM sqlite_master WHERE type='table';\"",
     	"db:remote:reset": "powershell -ExecutionPolicy Bypass -File ./scripts/reset-d1-remote.ps1"
 	},
 	"devDependencies": {

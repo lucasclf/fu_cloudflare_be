@@ -1,6 +1,6 @@
 -- Migration number: 0015 2026-05-07T11:51:48.132Z
 
-CREATE TABLE npc_inventory (
+CREATE TABLE IF NOT EXISTS npc_inventory (
     npc_id INTEGER NOT NULL,
     item_id INTEGER NOT NULL,
 

@@ -19,9 +19,9 @@ CREATE TABLE IF NOT EXISTS items (
     distance TEXT,
 
     defense_dice TEXT,
-    defense_bonus number,
+    defense_bonus INTEGER,
     magic_defense_dice TEXT,
-    magic_defense_bonus number,
+    magic_defense_bonus INTEGER,
     initiative TEXT,
 
     is_martial INTEGER CHECK (is_martial IN (0, 1)),

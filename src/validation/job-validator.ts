@@ -5,7 +5,6 @@ import {
 	CreateJobInput,
 	CreateJobPowerInput,
 	CreateJobQuestionInput,
-	CreateJobSpellInput,
 } from "../domain/jobs/job";
 import {
 	ensureObject,
