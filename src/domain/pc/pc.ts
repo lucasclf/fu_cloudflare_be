@@ -80,7 +80,7 @@ export interface CreatePcInventoryInput {
     quantity: number
 }
 
-export interface CreatePcBondInput {
+export interface PcBondInput {
     pc_id: number,
     target_type: TargetType,
     target_id: number | null,
@@ -91,6 +91,12 @@ export interface CreatePcBondInput {
     description: string | null
 }
 
+export type BondTargetSummary = {
+	id: number;
+	name: string;
+	img_key: string | null;
+};
+
 export interface PcBond {
     id: number,
     pc_id: number,
@@ -100,7 +106,8 @@ export interface PcBond {
     admiration_axis: AdmirationAxys | null,
     loyalty_axis: LoyaltyAxis | null,
     affection_axis: AffectionAxys | null,
-    description: string | null
+    description: string | null,
+    img_key: string | null
 }
 
 export interface PcSummary extends CharacterSummary {
@@ -173,17 +180,6 @@ export interface PcInventory {
     pc_id: number,
     item: Item,
     quantity: number
-}
-
-export interface PcBond {
-    pc_id: number,
-    target_type: TargetType,
-    target_id: number | null,
-    target_name: string | null,
-    admiration_axis: AdmirationAxys | null,
-    loyalty_axis: LoyaltyAxis | null,
-    affection_axis: AffectionAxys | null,
-    description: string | null
 }
 
 export interface PcBase extends PC {

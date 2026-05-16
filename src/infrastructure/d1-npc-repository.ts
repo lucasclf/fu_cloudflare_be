@@ -1,5 +1,6 @@
 import { CreateNpcInput, Npc, NpcSummary } from "../domain/npc/npc";
 import { NpcAlreadyExistsError } from "../domain/npc/npc_error";
+import { BondTargetSummary } from "../domain/pc/pc";
 
 export class D1NpcRepository {
     constructor(private readonly db: D1Database){}
@@ -138,4 +139,34 @@ export class D1NpcRepository {
         return result
     }
     
-}
+    async findBondTargetsByIds(
+        npcIds: number[],
+    ): Promise<Map<number, BondTargetSummary>> {
+        if (npcIds.length === 0) {
+            return new Map();
+        }
+
+        const uniqueIds = [...new Set(npcIds)];
+        const placeholders = uniqueIds.map(() => "?").join(",");
+
+        const { results } = await this.db
+            .prepare(`
+                SELECT
+                    id,
+                    name,
+                    img_key
+                FROM npcs
+                WHERE id IN (${placeholders})
+            `)
+            .bind(...uniqueIds)
+            .all<BondTargetSummary>();
+
+        const targetsById = new Map<number, BondTargetSummary>();
+
+        for (const target of results) {
+            targetsById.set(target.id, target);
+        }
+
+        return targetsById;
+    }
+}   

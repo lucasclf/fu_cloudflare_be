@@ -1,5 +1,6 @@
 import { CreateMonsterInput, Monster, MonsterSummary, MonsterTrait } from "../domain/monsters/monster";
 import { MonsterAlreadyExistsError } from "../domain/monsters/monster-error";
+import { BondTargetSummary } from "../domain/pc/pc";
 
 export class D1MonsterRepository {
     constructor(private readonly db: D1Database) {}
@@ -151,5 +152,36 @@ export class D1MonsterRepository {
             .first<Monster>();
 
         return result;
+    }
+
+    async findBondTargetsByIds(
+        monsterIds: number[],
+    ): Promise<Map<number, BondTargetSummary>> {
+        if (monsterIds.length === 0) {
+            return new Map();
+        }
+
+        const uniqueIds = [...new Set(monsterIds)];
+        const placeholders = uniqueIds.map(() => "?").join(",");
+
+        const { results } = await this.db
+            .prepare(`
+                SELECT
+                    id,
+                    name,
+                    img_key
+                FROM monsters
+                WHERE id IN (${placeholders})
+            `)
+            .bind(...uniqueIds)
+            .all<BondTargetSummary>();
+
+        const targetsById = new Map<number, BondTargetSummary>();
+
+        for (const target of results) {
+            targetsById.set(target.id, target);
+        }
+
+        return targetsById;
     }
 }

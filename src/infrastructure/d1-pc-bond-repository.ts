@@ -1,10 +1,10 @@
-import { CreatePcBondInput, PcBond } from "../domain/pc/pc";
+import { PcBondInput, PcBond } from "../domain/pc/pc";
 import { PcBondAlreadyExistsError } from "../domain/pc/pc_error";
 
 export class D1PCBondRepository {
     constructor(private readonly db: D1Database){}
 
-    async create(input: CreatePcBondInput): Promise<void> {
+    async create(input: PcBondInput): Promise<void> {
         try {
             await this.db
                 .prepare(`

@@ -5,7 +5,9 @@ import { D1JobPowerRepository } from "../infrastructure/d1-job-power-repository"
 import { D1JobRepository } from "../infrastructure/d1-job-repository";
 import { D1JobSpellRepository } from "../infrastructure/d1-job-spell-repository";
 import { D1MonsterActionRepository } from "../infrastructure/d1-monster-action-repository";
+import { D1MonsterRepository } from "../infrastructure/d1-monster-repository";
 import { D1MonsterSpellRepository } from "../infrastructure/d1-monster-spell-repository";
+import { D1NpcRepository } from "../infrastructure/d1-npc-repository";
 import { D1PCArcanaRepository } from "../infrastructure/d1-pc-arcana-repository";
 import { D1PCBondRepository } from "../infrastructure/d1-pc-bond-repository";
 import { D1PCEquipmentRepository } from "../infrastructure/d1-pc-equipment-repository";
@@ -34,6 +36,8 @@ export function createPcService(env: Env): PCService {
     const arcanaRepository = new D1ArcanaRepository(env.fabula_ultima_db)
     const itemRepository = new D1ItemRepository(env.fabula_ultima_db)
     const monsterSpellRepository = new D1MonsterSpellRepository(env.fabula_ultima_db)
+    const npcRepository = new D1NpcRepository(env.fabula_ultima_db)
+    const monsterRepository = new D1MonsterRepository(env.fabula_ultima_db)
 
     return new PCService(
         pcRepository, 
@@ -52,5 +56,7 @@ export function createPcService(env: Env): PCService {
         arcanaRepository,
         itemRepository,
         monsterSpellRepository,
+        npcRepository,
+        monsterRepository,
     )
 }

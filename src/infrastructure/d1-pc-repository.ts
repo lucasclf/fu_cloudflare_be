@@ -1,4 +1,4 @@
-import { CreatePCInput, PcBase, PcSummary } from "../domain/pc/pc";
+import { BondTargetSummary, CreatePCInput, PcBase, PcSummary } from "../domain/pc/pc";
 import { PcAlreadyExistsError } from "../domain/pc/pc_error";
 
 export class D1PCRepository {
@@ -103,5 +103,36 @@ export class D1PCRepository {
             .first<PcBase>();
         
         return result
+    }
+
+    async findBondTargetsByIds(
+        pcIds: number[],
+    ): Promise<Map<number, BondTargetSummary>> {
+        if (pcIds.length === 0) {
+            return new Map();
+        }
+
+        const uniqueIds = [...new Set(pcIds)];
+        const placeholders = uniqueIds.map(() => "?").join(",");
+
+        const { results } = await this.db
+            .prepare(`
+                SELECT
+                    id,
+                    name,
+                    img_key
+                FROM pcs
+                WHERE id IN (${placeholders})
+            `)
+            .bind(...uniqueIds)
+            .all<BondTargetSummary>();
+
+        const targetsById = new Map<number, BondTargetSummary>();
+
+        for (const target of results) {
+            targetsById.set(target.id, target);
+        }
+
+        return targetsById;
     }
 }
