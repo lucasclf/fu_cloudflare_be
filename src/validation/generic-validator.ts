@@ -203,13 +203,13 @@ export function readOptionalMetadata(
     }
 
     if (typeof value !== "object" || Array.isArray(value)) {
-        throw new Error(`${field} must be an object or null`);
+        throw new ValidationError(`${field} must be an object or null`);
     }
 
     try {
         JSON.stringify(value);
     } catch {
-        throw new Error(`${field} must be JSON serializable`);
+        throw new ValidationError(`${field} must be JSON serializable`);
     }
 
     return value as Record<string, unknown>;

@@ -37,6 +37,7 @@ import { createPublicPcsRoutes } from "./presentation/routes/pcs/public-pcs-rout
 import { createAdminArcanaRoutes } from "./presentation/routes/arcanas/admin-arcana-routes";
 import { createPublicArcanaRoutes } from "./presentation/routes/arcanas/public-arcana-routes";
 import { createArcanaService } from "./composition/create-arcana-service";
+import { handleAppError } from "./presentation/error-handler";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -86,8 +87,8 @@ app.notFound((c) => {
 });
 
 app.onError((error, c) => {
-	console.error(error);
-	return internalServerError(c);
+	return handleAppError(error, c);
 });
+
 
 export default app;
