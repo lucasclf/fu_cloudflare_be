@@ -1,8 +1,6 @@
 import { Hono } from "hono";
 import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
-import { badRequest, conflict, created } from "../../http";
-import { ValidationError } from "../../../domain/domain-errors";
-import { MonsterActionAlreadyExistsError, MonsterAffinityAlreadyExistsError, MonsterAlreadyExistsError, MonsterTraitAlreadyExistsError } from "../../../domain/monsters/monster-error";
+import { created } from "../../http";
 import { validateCreateActionsInput, validateCreateAffinitiesInput, validateCreateMonsterInput, validateCreateTraitInput } from "../../../validation/monster-validator";
 import { MonsterService } from "../../../application/monster-service";
 import type { Env } from "../../../types/env";
@@ -17,95 +15,43 @@ export function createAdminMonstersRoutes(
     routes.use("*", adminAuthMiddleware);
     
     routes.post("/monsters", async (c) => {
-        try {
-            const rawBody = await c.req.json();
-            const input = validateCreateMonsterInput(rawBody);
+        const rawBody = await c.req.json();
+        const input = validateCreateMonsterInput(rawBody);
 
-            const service = monsterServiceFactory(c.env);
-            await service.createMonster(input);
+        const service = monsterServiceFactory(c.env);
+        await service.createMonster(input);
 
-            return created(c, { message: "Monster created successfully" });
-        } catch (error) {
-            if (error instanceof ValidationError) {
-                return badRequest(c, error.message);
-            }
-
-            if (error instanceof MonsterAlreadyExistsError) {
-                return conflict(c, error.message);
-            }
-
-            throw error;
-        }
-           
+        return created(c, { message: "Monster created successfully" });
     });
 
     routes.post("/monsters/traits", async (c) => {
-        try{
-            const rawBody = await c.req.json();
-            const input = validateCreateTraitInput(rawBody)
+        const rawBody = await c.req.json();
+        const input = validateCreateTraitInput(rawBody)
 
-            const service = monsterServiceFactory(c.env);
-            await service.createMonsterTrait(input);
+        const service = monsterServiceFactory(c.env);
+        await service.createMonsterTrait(input);
 
-            return created(c, { message: "Monster Trait created successfully" });
-        }
-        catch (error) {
-            if (error instanceof ValidationError) {
-                return badRequest(c, error.message);
-            }
-
-            if (error instanceof MonsterTraitAlreadyExistsError) {
-                return conflict(c, error.message);
-            }
-
-            throw error;
-        }
+        return created(c, { message: "Monster Trait created successfully" });
     })
 
     routes.post("/monsters/affinities", async (c) => {
-        try{
-            const rawBody = await c.req.json();
-            const input = validateCreateAffinitiesInput(rawBody)
+        const rawBody = await c.req.json();
+        const input = validateCreateAffinitiesInput(rawBody)
 
-            const service = monsterServiceFactory(c.env);
-            await service.createMonsterAffinity(input);
+        const service = monsterServiceFactory(c.env);
+        await service.createMonsterAffinity(input);
 
-            return created(c, { message: "Monster Affinity created successfully" });
-        }
-        catch (error) {
-            if (error instanceof ValidationError) {
-                return badRequest(c, error.message);
-            }
-
-            if (error instanceof MonsterAffinityAlreadyExistsError) {
-                return conflict(c, error.message);
-            }
-
-            throw error;
-        }
+        return created(c, { message: "Monster Affinity created successfully" });
     })
 
     routes.post("/monsters/actions", async (c) => {
-        try{
-            const rawBody = await c.req.json();
-            const input = validateCreateActionsInput(rawBody)
+        const rawBody = await c.req.json();
+        const input = validateCreateActionsInput(rawBody)
 
-            const service = monsterServiceFactory(c.env);
-            await service.createMonsterAction(input);
+        const service = monsterServiceFactory(c.env);
+        await service.createMonsterAction(input);
 
-            return created(c, { message: "Monster Affinity created successfully" });
-        }
-        catch (error) {
-            if (error instanceof ValidationError) {
-                return badRequest(c, error.message);
-            }
-
-            if (error instanceof MonsterActionAlreadyExistsError) {
-                return conflict(c, error.message);
-            }
-
-            throw error;
-        }
+        return created(c, { message: "Monster Affinity created successfully" });
     })
 
     return routes
