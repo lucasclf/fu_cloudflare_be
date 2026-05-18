@@ -109,14 +109,3 @@ export interface CreateNpcEquipmentInput {
     slot: SlotType;
     item_id: number;
 }
-
-export interface NpcSpecialRulesRow {
-    id: number;
-    npc_id: number;
-    type: SpecialRulesType;
-    title: string;
-    description: string;
-    metadata: string | null;
-    created_at: string;
-    updated_at: string;
-}

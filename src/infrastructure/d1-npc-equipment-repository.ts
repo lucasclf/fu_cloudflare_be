@@ -1,5 +1,12 @@
 import { CreateNpcEquipmentInput, NpcEquipmentRelation } from "../domain/npc/npc";
 import { EquipmentAlreadyExistsError } from "../domain/npc/npc_error";
+import { uniqueNumbers, buildInPlaceholders, groupByNumberKey } from "./d1-utils";
+
+type NpcEquipmentRelationRow = {
+	npc_id: number;
+	item_id: number;
+	slot: string;
+};
 
 export class D1NpcEquipmentRepository {
     constructor(private readonly db: D1Database){}
@@ -31,34 +38,43 @@ export class D1NpcEquipmentRepository {
         }        
     }
 
-    async findByNpcsIds(npcsIds: number[]): Promise<Map<number, NpcEquipmentRelation[]>> {
-            if (npcsIds.length === 0) {
-                return new Map();
-            }
-    
-            const placeholders = npcsIds.map(() => "?").join(",");
-    
-            const { results } = await this.db
-                .prepare(`
+    async findByNpcsIds(
+        npcIds: number[],
+    ): Promise<Map<number, NpcEquipmentRelation[]>> {
+        if (npcIds.length === 0) {
+            return new Map();
+        }
+
+        const uniqueNpcIds = uniqueNumbers(npcIds);
+        const placeholders = buildInPlaceholders(uniqueNpcIds);
+
+        const { results } = await this.db
+            .prepare(`
                 SELECT
                     npc_id,
                     item_id,
                     slot
                 FROM npc_equipment
                 WHERE npc_id IN (${placeholders})
-                ORDER BY npc_id ASC
-                `)
-                .bind(...npcsIds)
-                .all<NpcEquipmentRelation>();
-    
-            const grouped = new Map<number, NpcEquipmentRelation[]>();
-    
-            for (const equipment of results) {
-                const current = grouped.get(equipment.npc_id) ?? [];
-                current.push(equipment);
-                grouped.set(equipment.npc_id, current);
-            }
-    
-            return grouped;
-        }
+                ORDER BY npc_id ASC, slot ASC
+            `)
+            .bind(...uniqueNpcIds)
+            .all<NpcEquipmentRelationRow>();
+
+        const equipments = results.map((row) =>
+            this.toNpcEquipmentRelation(row),
+        );
+
+        return groupByNumberKey(equipments, (equipment) => equipment.npc_id);
+    }
+
+    private toNpcEquipmentRelation(
+        row: NpcEquipmentRelationRow,
+    ): NpcEquipmentRelation {
+        return {
+            npc_id: row.npc_id,
+            item_id: row.item_id,
+            slot: row.slot as NpcEquipmentRelation["slot"],
+        };
+    }
 }

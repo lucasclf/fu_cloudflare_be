@@ -1,5 +1,17 @@
-import { CreateSpecialRulesInput, NpcSpecialRules, NpcSpecialRulesRow } from "../domain/npc/npc";
+import { CreateSpecialRulesInput, NpcSpecialRules } from "../domain/npc/npc";
 import { SpecialRulesAlreadyExistsError } from "../domain/npc/npc_error";
+import { uniqueNumbers, buildInPlaceholders, groupByNumberKey } from "./d1-utils";
+
+type NpcSpecialRulesRow = {
+	id: number;
+	npc_id: number;
+	type: string;
+	title: string;
+	description: string;
+	metadata: string | null;
+	created_at: string;
+	updated_at: string;
+};
 
 export class D1NpcSpecialRulesRepository {
     constructor(private readonly db: D1Database){}
@@ -39,12 +51,15 @@ export class D1NpcSpecialRulesRepository {
         }        
     }
 
-    async findByNpcsIds(npcsIds: number[]): Promise<Map<number, NpcSpecialRules[]>> {
-        if (npcsIds.length === 0) {
+    async findByNpcsIds(
+        npcIds: number[],
+    ): Promise<Map<number, NpcSpecialRules[]>> {
+        if (npcIds.length === 0) {
             return new Map();
         }
 
-        const placeholders = npcsIds.map(() => "?").join(",");
+        const uniqueNpcIds = uniqueNumbers(npcIds);
+        const placeholders = buildInPlaceholders(uniqueNpcIds);
 
         const { results } = await this.db
             .prepare(`
@@ -59,52 +74,26 @@ export class D1NpcSpecialRulesRepository {
                     updated_at
                 FROM npc_special_rules
                 WHERE npc_id IN (${placeholders})
-                ORDER BY npc_id ASC
+                ORDER BY npc_id ASC, title ASC
             `)
-            .bind(...npcsIds)
+            .bind(...uniqueNpcIds)
             .all<NpcSpecialRulesRow>();
 
-        const grouped = new Map<number, NpcSpecialRules[]>();
+        const rules = results.map((row) => this.toNpcSpecialRule(row));
 
-        for (const row of results) {
-            const rule = mapNpcSpecialRulesRow(row);
-
-            const current = grouped.get(rule.npc_id) ?? [];
-            current.push(rule);
-            grouped.set(rule.npc_id, current);
-        }
-
-        return grouped;
-    }
-}
-
-function parseMetadata(metadata: string | null): Record<string, unknown> | null {
-    if (!metadata) {
-        return null;
+        return groupByNumberKey(rules, (rule) => rule.npc_id);
     }
 
-    try {
-        const parsed = JSON.parse(metadata);
-
-        if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-            return null;
-        }
-
-        return parsed as Record<string, unknown>;
-    } catch {
-        return null;
+    private toNpcSpecialRule(row: NpcSpecialRulesRow): NpcSpecialRules {
+        return {
+            id: row.id,
+            npc_id: row.npc_id,
+            type: row.type as NpcSpecialRules["type"],
+            title: row.title,
+            description: row.description,
+            metadata: row.metadata ? JSON.parse(row.metadata) : null,
+            created_at: row.created_at,
+            updated_at: row.updated_at,
+        };
     }
-}
-
-function mapNpcSpecialRulesRow(row: NpcSpecialRulesRow): NpcSpecialRules {
-    return {
-        id: row.id,
-        npc_id: row.npc_id,
-        type: row.type,
-        title: row.title,
-        description: row.description,
-        metadata: parseMetadata(row.metadata),
-        created_at: row.created_at,
-        updated_at: row.updated_at,
-    };
 }

@@ -1,5 +1,13 @@
 import { CreateNpcInventoryInput, NpcInventoryRelation } from "../domain/npc/npc";
 import { InventoryAlreadyExistsError } from "../domain/npc/npc_error";
+import { uniqueNumbers, buildInPlaceholders, groupByNumberKey } from "./d1-utils";
+
+type NpcInventoryRelationRow = {
+	npc_id: number;
+	item_id: number;
+	relation_type: string;
+	quantity: number;
+};
 
 export class D1NpcInventoryRepository {
     constructor(private readonly db: D1Database){}
@@ -33,35 +41,45 @@ export class D1NpcInventoryRepository {
         }        
     }
 
-    async findByNpcsIds(npcsIds: number[]): Promise<Map<number, NpcInventoryRelation[]>> {
-        if (npcsIds.length === 0) {
+    async findByNpcsIds(
+        npcIds: number[],
+    ): Promise<Map<number, NpcInventoryRelation[]>> {
+        if (npcIds.length === 0) {
             return new Map();
         }
 
-        const placeholders = npcsIds.map(() => "?").join(",");
+        const uniqueNpcIds = uniqueNumbers(npcIds);
+        const placeholders = buildInPlaceholders(uniqueNpcIds);
 
         const { results } = await this.db
             .prepare(`
-            SELECT
-                npc_id,
-                item_id,
-                relation_type,
-                quantity
-            FROM npc_inventory
-            WHERE npc_id IN (${placeholders})
-            ORDER BY npc_id ASC
+                SELECT
+                    npc_id,
+                    item_id,
+                    relation_type,
+                    quantity
+                FROM npc_inventory
+                WHERE npc_id IN (${placeholders})
+                ORDER BY npc_id ASC, item_id ASC
             `)
-            .bind(...npcsIds)
-            .all<NpcInventoryRelation>();
+            .bind(...uniqueNpcIds)
+            .all<NpcInventoryRelationRow>();
 
-        const grouped = new Map<number, NpcInventoryRelation[]>();
+        const inventories = results.map((row) =>
+            this.toNpcInventoryRelation(row),
+        );
 
-        for (const inventory of results) {
-            const current = grouped.get(inventory.npc_id) ?? [];
-            current.push(inventory);
-            grouped.set(inventory.npc_id, current);
-        }
+        return groupByNumberKey(inventories, (inventory) => inventory.npc_id);
+    }
 
-        return grouped;
+    private toNpcInventoryRelation(
+        row: NpcInventoryRelationRow,
+    ): NpcInventoryRelation {
+        return {
+            npc_id: row.npc_id,
+            item_id: row.item_id,
+            relation_type: row.relation_type as NpcInventoryRelation["relation_type"],
+            quantity: row.quantity,
+        };
     }
 }

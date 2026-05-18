@@ -5,7 +5,7 @@ type FactionLocationRelationRow = {
 	faction_id: number;
 	location_id: number;
 	location_name: string;
-	relation_type: FactionLocationRelationType;
+	relation_type: string;
 };
 
 export class D1FactionLocationRepository {
@@ -30,11 +30,7 @@ export class D1FactionLocationRepository {
 			.bind(factionId)
 			.all<FactionLocationRelationRow>();
 
-		return results.map((relation) => ({
-			location_id: relation.location_id,
-			location_name: relation.location_name,
-			relation_type: relation.relation_type,
-		}));
+		return results.map((row) => this.toFactionLocationRelation(row))
 	}
 
 	async findRelationsByFactionIds(
@@ -66,17 +62,24 @@ export class D1FactionLocationRepository {
 		const grouped = new Map<number, FactionLocationRelation[]>();
 
 		for (const row of results) {
-			const relation: FactionLocationRelation = {
-				location_id: row.location_id,
-				location_name: row.location_name,
-				relation_type: row.relation_type as FactionLocationRelation["relation_type"],
-			};
-
+			const relation = this.toFactionLocationRelation(row);
 			const current = grouped.get(row.faction_id) ?? [];
+
 			current.push(relation);
 			grouped.set(row.faction_id, current);
 		}
 
 		return grouped;
+	}
+
+	private toFactionLocationRelation(
+		row: FactionLocationRelationRow,
+	): FactionLocationRelation {
+		return {
+			location_id: row.location_id,
+			location_name: row.location_name,
+			relation_type:
+				row.relation_type as FactionLocationRelation["relation_type"],
+		};
 	}
 }
