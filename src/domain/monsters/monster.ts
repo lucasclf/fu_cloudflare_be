@@ -94,8 +94,8 @@ export interface Monster extends Character {
 	ultima_points: number;
 	strategy: string | null;
     monster_type: MonsterType;
-    equipment: string;
-    source_page: number;
+    equipment: string | null;
+    source_page: number | null;
 }
 
 export interface MonsterFull extends Monster {

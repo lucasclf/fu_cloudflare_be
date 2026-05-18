@@ -1,6 +1,43 @@
 import { CreateMonsterInput, Monster, MonsterSummary, MonsterTrait } from "../domain/monsters/monster";
 import { MonsterAlreadyExistsError } from "../domain/monsters/monster-error";
 import { BondTargetSummary } from "../domain/pc/pc";
+import { D1Boolean, fromBoolean, uniqueNumbers, buildInPlaceholders, mapById, toBoolean } from "./d1-utils";
+
+type MonsterRow = {
+	id: number;
+	name: string;
+	description: string;
+	monster_type: string;
+	level: number;
+
+	dexterity_die: string;
+	insight_die: string;
+	might_die: string;
+	willpower_die: string;
+
+	hp: number;
+	mp: number;
+	initiative: number;
+	defense: number;
+	magic_defense: number;
+
+	equipment: string | null;
+	img_key: string | null;
+	source_page: number | null;
+
+	is_villain: D1Boolean;
+	ultima_points: number;
+	strategy: string | null;
+
+	created_at: string;
+	updated_at: string | null;
+};
+
+type BondTargetSummaryRow = {
+	id: number;
+	name: string;
+	img_key: string | null;
+};
 
 export class D1MonsterRepository {
     constructor(private readonly db: D1Database) {}
@@ -48,7 +85,7 @@ export class D1MonsterRepository {
                     input.equipment,
                     input.img_key,
                     input.source_page,
-                    input.is_villain,
+                    fromBoolean(input.is_villain),
                     input.ultima_points,
                     input.strategy
                 )
@@ -92,9 +129,9 @@ export class D1MonsterRepository {
                 FROM monsters
                 ORDER BY name ASC
                 `
-            ).all<Monster>();
-        
-        return results;
+            ).all<MonsterRow>();
+
+        return results.map((row) => this.toMonster(row));
     }
 
     async findAllSummaries(): Promise<MonsterSummary[]> {
@@ -149,9 +186,9 @@ export class D1MonsterRepository {
                 LIMIT 1
             `)
             .bind(monsterId)
-            .first<Monster>();
+            .first<MonsterRow>();
 
-        return result;
+        return result ? this.toMonster(result) : null;
     }
 
     async findBondTargetsByIds(
@@ -161,8 +198,8 @@ export class D1MonsterRepository {
             return new Map();
         }
 
-        const uniqueIds = [...new Set(monsterIds)];
-        const placeholders = uniqueIds.map(() => "?").join(",");
+        const uniqueMonsterIds = uniqueNumbers(monsterIds);
+        const placeholders = buildInPlaceholders(uniqueMonsterIds);
 
         const { results } = await this.db
             .prepare(`
@@ -173,15 +210,21 @@ export class D1MonsterRepository {
                 FROM monsters
                 WHERE id IN (${placeholders})
             `)
-            .bind(...uniqueIds)
-            .all<BondTargetSummary>();
+            .bind(...uniqueMonsterIds)
+            .all<BondTargetSummaryRow>();
 
-        const targetsById = new Map<number, BondTargetSummary>();
+        return mapById(results);
+    }
 
-        for (const target of results) {
-            targetsById.set(target.id, target);
-        }
-
-        return targetsById;
+    private toMonster(row: MonsterRow): Monster {
+        return {
+            ...row,
+            monster_type: row.monster_type as Monster["monster_type"],
+            dexterity_die: row.dexterity_die as Monster["dexterity_die"],
+            insight_die: row.insight_die as Monster["insight_die"],
+            might_die: row.might_die as Monster["might_die"],
+            willpower_die: row.willpower_die as Monster["willpower_die"],
+            is_villain: toBoolean(row.is_villain),
+        };
     }
 }

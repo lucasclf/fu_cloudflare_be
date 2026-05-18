@@ -38,7 +38,7 @@ export interface Npc extends Character {
 }
 
 export interface NpcSummary extends CharacterSummary {
-    level: number;
+    level: number | null;
     tagline: string | null
 }
 

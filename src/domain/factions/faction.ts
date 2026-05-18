@@ -44,8 +44,8 @@ export interface FactionBase {
 export interface Faction {
     id: number;
     name: string;
-    tagline: string;
-	description: string;
+    tagline: string | null;
+	description: string | null;
     img_key: string | null;
 
     faction_type: FactionType;

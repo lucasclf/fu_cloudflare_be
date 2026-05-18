@@ -1,6 +1,17 @@
 import { CreateLocationInput, Location } from "../domain/locations/location";
 import { LocationAlreadyExistsError } from "../domain/locations/location-errors";
 
+type LocationRow = {
+	id: number;
+	name: string;
+	tagline: string;
+	description: string;
+	img_key: string | null;
+	location_type: string;
+	created_at: string;
+	updated_at: string | null;
+};
+
 export class D1LocationRepository {
     constructor(private readonly db: D1Database) {}
 
@@ -51,9 +62,9 @@ export class D1LocationRepository {
                 FROM locations
                 ORDER BY name ASC
                 `)
-            .all<Location>();
+            .all<LocationRow>();
 
-        return results;
+	    return results.map((row) => this.toLocation(row));
     }
 
     async getLocationById(id: number): Promise<Location | null> {
@@ -73,8 +84,15 @@ export class D1LocationRepository {
             LIMIT 1
           `)
                 .bind(id)
-                .first<Location>();
+                .first<LocationRow>();
     
-            return result ?? null;
+            return  result ? this.toLocation(result) : null;
     }
+
+    private toLocation(row: LocationRow): Location {
+	return {
+		...row,
+		location_type: row.location_type as Location["location_type"],
+	};
+}
 }

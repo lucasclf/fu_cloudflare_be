@@ -1,4 +1,5 @@
 import { FactionLocationRelation, FactionLocationRelationType } from "../domain/factions/faction";
+import { uniqueNumbers, buildInPlaceholders } from "./d1-utils";
 
 type FactionLocationRelationRow = {
 	faction_id: number;
@@ -43,7 +44,8 @@ export class D1FactionLocationRepository {
 			return new Map();
 		}
 
-		const placeholders = factionIds.map(() => "?").join(",");
+		const uniqueFactionIds = uniqueNumbers(factionIds);
+		const placeholders = buildInPlaceholders(uniqueFactionIds);
 
 		const { results } = await this.db
 			.prepare(`
@@ -56,28 +58,25 @@ export class D1FactionLocationRepository {
 				INNER JOIN locations l
 					ON l.id = fl.location_id
 				WHERE fl.faction_id IN (${placeholders})
-				ORDER BY
-					fl.faction_id ASC,
-					l.name ASC
+				ORDER BY fl.faction_id ASC, l.name ASC
 			`)
-			.bind(...factionIds)
+			.bind(...uniqueFactionIds)
 			.all<FactionLocationRelationRow>();
 
-		const relationsByFactionId = new Map<number, FactionLocationRelation[]>();
+		const grouped = new Map<number, FactionLocationRelation[]>();
 
-		for (const relation of results) {
-			const currentRelations =
-				relationsByFactionId.get(relation.faction_id) ?? [];
+		for (const row of results) {
+			const relation: FactionLocationRelation = {
+				location_id: row.location_id,
+				location_name: row.location_name,
+				relation_type: row.relation_type as FactionLocationRelation["relation_type"],
+			};
 
-			currentRelations.push({
-				location_id: relation.location_id,
-				location_name: relation.location_name,
-				relation_type: relation.relation_type,
-			});
-
-			relationsByFactionId.set(relation.faction_id, currentRelations);
+			const current = grouped.get(row.faction_id) ?? [];
+			current.push(relation);
+			grouped.set(row.faction_id, current);
 		}
 
-		return relationsByFactionId;
+		return grouped;
 	}
 }
