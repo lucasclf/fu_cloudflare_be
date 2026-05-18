@@ -1,6 +1,11 @@
 import { CreatePcMonsterSpellRelationInput as PcMonsterSpellRelation } from "../domain/pc/pc";
 import { PcMonsterSpellRelationAlreadyExistsError } from "../domain/pc/pc_error";
 
+type PcMonsterSpellRelationRow = {
+	pc_id: number;
+	monster_action_id: number;
+};
+
 export class D1PCMonsterSpellRepository {
     constructor(private readonly db: D1Database){}
 
@@ -41,7 +46,7 @@ export class D1PCMonsterSpellRepository {
                 `
             )
             .bind(pcId)
-            .all<PcMonsterSpellRelation>();
+            .all<PcMonsterSpellRelationRow>();
         
         return results
     }

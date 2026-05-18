@@ -1,6 +1,21 @@
 import { PcBondInput, PcBond } from "../domain/pc/pc";
 import { PcBondAlreadyExistsError } from "../domain/pc/pc_error";
 
+type PcBondRow = {
+	id: number;
+	pc_id: number;
+	target_type: string;
+	target_id: number | null;
+	target_name: string | null;
+	admiration_axis: string | null;
+	loyalty_axis: string | null;
+	affection_axis: string | null;
+	description: string | null;
+	created_at?: string;
+	updated_at?: string | null;
+    img_key: string | null;
+};
+
 export class D1PCBondRepository {
     constructor(private readonly db: D1Database){}
 
@@ -59,8 +74,23 @@ export class D1PCBondRepository {
                 `
             )
             .bind(pcId)
-            .all<PcBond>();
+            .all<PcBondRow>();
         
-        return results
+        return results.map((row) => this.toPcBond(row));
+    }
+
+    private toPcBond(row: PcBondRow): PcBond {
+        return {
+            id: row.id,
+            pc_id: row.pc_id,
+            target_type: row.target_type as PcBond["target_type"],
+            target_id: row.target_id,
+            target_name: row.target_name,
+            admiration_axis: row.admiration_axis as PcBond["admiration_axis"],
+            loyalty_axis: row.loyalty_axis as PcBond["loyalty_axis"],
+            affection_axis: row.affection_axis as PcBond["affection_axis"],
+            description: row.description,
+            img_key: row.img_key,
+        };
     }
 }

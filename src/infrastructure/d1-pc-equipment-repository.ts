@@ -1,6 +1,14 @@
 import { CreatePcEquipmentInput } from "../domain/pc/pc";
 import { PcEquipmentAlreadyExistsError } from "../domain/pc/pc_error";
 
+type PcEquipmentRelationRow = {
+	pc_id: number;
+	main_hand: number | null;
+	off_hand: number | null;
+	armor: number | null;
+	accessory: number | null;
+};
+
 export class D1PCEquipmentRepository {
     constructor(private readonly db: D1Database){}
 
@@ -50,7 +58,7 @@ export class D1PCEquipmentRepository {
                 `
             )
             .bind(pcId)
-            .first<CreatePcEquipmentInput>();
+            .first<PcEquipmentRelationRow>();
         
         return result
     }

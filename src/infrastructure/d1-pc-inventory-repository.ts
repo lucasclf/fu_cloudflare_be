@@ -1,6 +1,12 @@
 import { CreatePcInventoryInput as PcInventory } from "../domain/pc/pc";
 import { PcInventoryAlreadyExistsError } from "../domain/pc/pc_error";
 
+type PcInventoryRelationRow = {
+	pc_id: number;
+	item_id: number;
+	quantity: number;
+};
+
 export class D1PCInventoryRepository {
     constructor(private readonly db: D1Database){}
 
@@ -44,7 +50,7 @@ export class D1PCInventoryRepository {
                 `
             )
             .bind(pcId)
-            .all<PcInventory>();
+            .all<PcInventoryRelationRow>();
         
         return results
     }

@@ -1,6 +1,12 @@
 import { PcPowerRelation } from "../domain/pc/pc";
 import { PcPowerRelationAlreadyExistsError } from "../domain/pc/pc_error";
 
+type PcPowerRelationRow = {
+	pc_id: number;
+	power_id: number;
+	level: number;
+};
+
 export class D1PCPowerRepository {
     constructor(private readonly db: D1Database){}
 
@@ -44,7 +50,7 @@ export class D1PCPowerRepository {
                 `
             )
             .bind(pcId)
-            .all<PcPowerRelation>();
+            .all<PcPowerRelationRow>();
         
         return results
     }

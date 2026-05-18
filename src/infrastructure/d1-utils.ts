@@ -33,3 +33,20 @@ export function toNullableBoolean(value: D1Boolean): boolean | null {
 export function fromBoolean(value: boolean): 0 | 1 {
 	return value ? 1 : 0;
 }
+
+export function groupByNumberKey<T>(
+	items: T[],
+	getKey: (item: T) => number,
+): Map<number, T[]> {
+	const grouped = new Map<number, T[]>();
+
+	for (const item of items) {
+		const key = getKey(item);
+		const current = grouped.get(key) ?? [];
+
+		current.push(item);
+		grouped.set(key, current);
+	}
+
+	return grouped;
+}

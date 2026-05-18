@@ -1,6 +1,12 @@
 import { PcJobRelation } from "../domain/pc/pc";
 import { PcJobRelationAlreadyExistsError } from "../domain/pc/pc_error";
 
+type PcJobRelationRow = {
+	pc_id: number;
+	job_id: number;
+	level: number;
+};
+
 export class D1PCJobRepository {
     constructor(private readonly db: D1Database){}
 
@@ -33,19 +39,18 @@ export class D1PCJobRepository {
     
     async findByPcId(pcId: number): Promise<PcJobRelation[]> {
         const { results } = await this.db
-            .prepare(
-                `
+            .prepare(`
                 SELECT
-                    pc_id,   
-                    job_id,   
+                    pc_id,
+                    job_id,
                     level
                 FROM pc_jobs
                 WHERE pc_id = ?
-                `
-            )
+                ORDER BY job_id ASC
+            `)
             .bind(pcId)
-            .all<PcJobRelation>();
-        
-        return results
+            .all<PcJobRelationRow>();
+
+        return results;
     }
 }

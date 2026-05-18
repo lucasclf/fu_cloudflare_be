@@ -1,6 +1,12 @@
 import { CreatePcArcanaRelationInput as PcArcanaRelation } from "../domain/pc/pc";
 import { PcArcanaRelationAlreadyExistsError } from "../domain/pc/pc_error";
 
+type PcArcanaRelationRow = {
+	pc_id: number;
+	arcana_id: number;
+	description: string | null;
+};
+
 export class D1PCArcanaRepository {
     constructor(private readonly db: D1Database){}
 
@@ -44,7 +50,7 @@ export class D1PCArcanaRepository {
                 `
             )
             .bind(pcId)
-            .all<PcArcanaRelation>();
+            .all<PcArcanaRelationRow>();
         
         return results
     }
