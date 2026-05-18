@@ -1,5 +1,5 @@
 import { ALLOWED_LOCATION_TYPES, CreateLocationInput } from "../domain/locations/location";
-import { ensureObject, readOptionalString, readRequiredNumber, readRequiredString, validateStringEnum } from "./generic-validator";
+import { ensureObject, readOptionalString, readRequiredString, validateStringEnum } from "./generic-validator";
 
 export function validateCreateLocationsInput(
     input: unknown,

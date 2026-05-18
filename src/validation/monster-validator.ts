@@ -2,7 +2,7 @@ import { ALLOWED_ATTRIBUTE_DIE } from "../domain/domain-types";
 import { ALLOWED_MONSTER_ACTION_ICON, ALLOWED_MONSTER_ACTION_TYPE, ALLOWED_MONSTER_AFFINITY, ALLOWED_MONSTER_DAMAGE_TYPE, ALLOWED_MONSTER_TYPE, CreateActionInput, CreateAffinityInput, CreateMonsterInput, CreateMonsterTraitInput } from "../domain/monsters/monster";
 import { ensureObject, readBooleanWithDefault, readOptionalNumber, readOptionalString, readRequiredNumber, readRequiredString, validateNullableStringEnum, validateStringEnum } from "./generic-validator";
 
-export function validateCreateMonsterInput (input: any): CreateMonsterInput {
+export function validateCreateMonsterInput (input: unknown): CreateMonsterInput {
     const raw = ensureObject(input);
 
     return {
@@ -28,7 +28,7 @@ export function validateCreateMonsterInput (input: any): CreateMonsterInput {
     }
 }
 
-export function validateCreateTraitInput(input: any): CreateMonsterTraitInput {
+export function validateCreateTraitInput(input: unknown): CreateMonsterTraitInput {
     const raw = ensureObject(input);
 
     return {
@@ -37,7 +37,7 @@ export function validateCreateTraitInput(input: any): CreateMonsterTraitInput {
     }
 }
 
-export function validateCreateAffinitiesInput(input: any): CreateAffinityInput {
+export function validateCreateAffinitiesInput(input: unknown): CreateAffinityInput {
     const raw = ensureObject(input);
 
     return {
@@ -54,7 +54,7 @@ export function validateCreateAffinitiesInput(input: any): CreateAffinityInput {
     }
 }
 
-export function validateCreateActionsInput(input: any): CreateActionInput {
+export function validateCreateActionsInput(input: unknown): CreateActionInput {
     const raw = ensureObject(input)
 
     return {

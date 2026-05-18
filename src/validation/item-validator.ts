@@ -7,132 +7,26 @@ import {
 	type UpdateItemInput,
 	type WeaponCategory,
 } from "../domain/items/item";
-import { validateStringEnum } from "./generic-validator";
-
-type RawItemInput = {
-	name?: unknown;
-	item_type?: unknown;
-	description?: unknown;
-	img_key?: unknown;
-	cost?: unknown;
-
-	weapon_category?: unknown;
-	accuracy?: unknown;
-	damage?: unknown;
-	damage_type?: unknown;
-	grip?: unknown;
-	distance?: unknown;
-
-	defense_dice?: unknown;
-	defense_bonus?: unknown;
-	magic_defense_dice?: unknown;
-	magic_defense_bonus?: unknown;
-
-	initiative?: unknown;
-
-	is_martial?: unknown;
-};
+import {
+	assertRequired,
+	ensureObject,
+	readBooleanWithDefault,
+	readOptionalNumber,
+	readOptionalString,
+	readRequiredString,
+	validateStringEnum,
+} from "./generic-validator";
 
 const MAX_NAME_LENGTH = 150;
 const MAX_DESCRIPTION_LENGTH = 20_000;
 const MAX_URL_LENGTH = 1_000;
 const MAX_TEXT_FIELD_LENGTH = 255;
 
-function isObject(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function normalizeRequiredString(
-	value: unknown,
-	fieldName: string,
-	maxLength: number,
-): string {
-	if (typeof value !== "string") {
-		throw new ValidationError(`${fieldName} must be a string`);
-	}
-
-	const normalized = value.trim();
-
-	if (normalized.length === 0) {
-		throw new ValidationError(`${fieldName} is required`);
-	}
-
-	if (normalized.length > maxLength) {
-		throw new ValidationError(
-			`${fieldName} exceeds max length of ${maxLength}`,
-		);
-	}
-
-	return normalized;
-}
-
-function normalizeOptionalString(
-	value: unknown,
-	fieldName: string,
-	maxLength: number,
-): string | null {
-	if (value === undefined || value === null) {
-		return null;
-	}
-
-	if (typeof value !== "string") {
-		throw new ValidationError(`${fieldName} must be a string`);
-	}
-
-	const normalized = value.trim();
-
-	if (normalized.length === 0) {
-		return null;
-	}
-
-	if (normalized.length > maxLength) {
-		throw new ValidationError(
-			`${fieldName} exceeds max length of ${maxLength}`,
-		);
-	}
-
-	return normalized;
-}
-
-function normalizeOptionalInteger(
-	value: unknown,
-	fieldName: string,
-): number | null {
-	if (value === undefined || value === null || value === "") {
-		return null;
-	}
-
-	if (!Number.isInteger(value)) {
-		throw new ValidationError(`${fieldName} must be an integer`);
-	}
-
-	if ((value as number) < 0) {
-		throw new ValidationError(`${fieldName} must be zero or greater`);
-	}
-
-	return value as number;
-}
-
-function normalizeOptionalBoolean(
-	value: unknown,
-	fieldName: string,
-): boolean | null {
-	if (value === undefined || value === null) {
-		return null;
-	}
-
-	if (typeof value !== "boolean") {
-		throw new ValidationError(`${fieldName} must be a boolean`);
-	}
-
-	return value;
-}
-
 function validateItemType(value: unknown): ItemType {
 	return validateStringEnum(value, "item_type", ALLOWED_ITEM_TYPES);
 }
 
-function normalizeWeaponCategory(
+function validateWeaponCategory(
 	itemType: ItemType,
 	value: unknown,
 ): WeaponCategory | null {
@@ -153,84 +47,87 @@ function normalizeWeaponCategory(
 	);
 }
 
-function parseBaseItemInput(raw: unknown) {
-	if (!isObject(raw)) {
-		throw new ValidationError("Request body must be a JSON object");
+function assertNonNegativeNumber(
+	value: number | null,
+	fieldName: string,
+): void {
+	if (value !== null && value < 0) {
+		throw new ValidationError(`${fieldName} must be zero or greater`);
 	}
+}
 
-	const input: RawItemInput = raw;
+function parseBaseItemInput(raw: unknown) {
+	const input = ensureObject(raw);
 	const itemType = validateItemType(input.item_type);
 
-	return {
-		name: normalizeRequiredString(input.name, "name", MAX_NAME_LENGTH),
+	const base = {
+		name: readRequiredString(
+			input,
+			"name",
+		),
 		item_type: itemType,
-		description: normalizeOptionalString(
-			input.description,
+
+		description: readOptionalString(
+			input,
 			"description",
-			MAX_DESCRIPTION_LENGTH,
 		),
-		img_key: normalizeOptionalString(input.img_key, "img_key", MAX_URL_LENGTH),
-		cost: normalizeOptionalInteger(input.cost, "cost"),
+		img_key: readOptionalString(
+			input,
+			"img_key",
+		),
+		cost: readOptionalNumber(input, "cost"),
 
-		weapon_category: normalizeWeaponCategory(itemType, input.weapon_category),
-		accuracy: normalizeOptionalString(
-			input.accuracy,
+		weapon_category: validateWeaponCategory(
+			itemType,
+			input.weapon_category,
+		),
+		accuracy: readOptionalString(
+			input,
 			"accuracy",
-			MAX_TEXT_FIELD_LENGTH,
 		),
-		damage: normalizeOptionalString(
-			input.damage,
+		damage: readOptionalString(
+			input,
 			"damage",
-			MAX_TEXT_FIELD_LENGTH,
 		),
-		damage_type: normalizeOptionalString(
-			input.damage_type,
+		damage_type: readOptionalString(
+			input,
 			"damage_type",
-			MAX_TEXT_FIELD_LENGTH,
 		),
-		grip: normalizeOptionalString(input.grip, "grip", MAX_TEXT_FIELD_LENGTH),
-		distance: normalizeOptionalString(
-			input.distance,
+		grip: readOptionalString(
+			input,
+			"grip",
+		),
+		distance: readOptionalString(
+			input,
 			"distance",
-			MAX_TEXT_FIELD_LENGTH,
 		),
 
-		defense_dice: normalizeOptionalString(
-			input.defense_dice,
+		defense_dice: readOptionalString(
+			input,
 			"defense_dice",
-			MAX_TEXT_FIELD_LENGTH,
 		),
-		defense_bonus: normalizeOptionalInteger(
-			input.defense_bonus,
-			"defense_bonus",
-		),
-		magic_defense_dice: normalizeOptionalString(
-			input.magic_defense_dice,
+		defense_bonus: readOptionalNumber(input, "defense_bonus"),
+
+		magic_defense_dice: readOptionalString(
+			input,
 			"magic_defense_dice",
-			MAX_TEXT_FIELD_LENGTH,
 		),
-		magic_defense_bonus: normalizeOptionalInteger(
-			input.magic_defense_bonus,
+		magic_defense_bonus: readOptionalNumber(
+			input,
 			"magic_defense_bonus",
 		),
 
-		initiative: normalizeOptionalString(
-			input.initiative,
+		initiative: readOptionalString(
+			input,
 			"initiative",
-			MAX_TEXT_FIELD_LENGTH,
 		),
 
-		is_martial: normalizeOptionalBoolean(input.is_martial, "is_martial"),
+		is_martial: readBooleanWithDefault(input, "is_martial", false),
 	};
-}
 
-function assertRequired<T>(
-	value: T | null,
-	fieldName: string,
-): asserts value is T {
-	if (value === null) {
-		throw new ValidationError(`${fieldName} is required`);
-	}
+	assertNonNegativeNumber(base.cost, "cost");
+
+	return base;
 }
 
 function assertHasDefenseValue(
@@ -271,9 +168,6 @@ function validateWeaponInput(
 
 	return {
 		...base,
-
-		// Armas podem ter bônus defensivos opcionais.
-		// Mas não devem usar fórmula/dado de defesa como armaduras.
 		defense_dice: null,
 		magic_defense_dice: null,
 
@@ -430,7 +324,10 @@ export function validateCreateItemInput(raw: unknown): CreateItemInput {
 
 		case "outros":
 			return validateGenericItemInput(base);
+		default:
+			throw new ValidationError("item_type is invalid");
 	}
+
 }
 
 export function validateUpdateItemInput(raw: unknown): UpdateItemInput {

@@ -27,10 +27,10 @@ export function readRequiredString(input: RawInput, fieldName: string): string {
 }
 
 export function readOptionalString(
-	input: RawInput,
+	raw: RawInput,
 	fieldName: string,
 ): string | null {
-	const value = input[fieldName];
+	const value = raw[fieldName];
 
 	if (value === undefined || value === null) {
 		return null;
@@ -41,8 +41,12 @@ export function readOptionalString(
 	}
 
 	const normalizedValue = value.trim();
+	
+	if (normalizedValue.length === 0) {
+		return null;
+	}
 
-	return normalizedValue.length > 0 ? normalizedValue : null;
+	return normalizedValue;
 }
 
 export function readNumberWithDefault(input: RawInput, fieldName: string) {
@@ -63,18 +67,14 @@ export function readNumberWithDefault(input: RawInput, fieldName: string) {
 	return value;
 }
 
-export function readRequiredNumber(input: RawInput, fieldName: string): number {
-	const value = input[fieldName];
-
-	if (typeof value !== "number" || Number.isNaN(value)) {
-		throw new ValidationError(`${fieldName} must be a valid number`);
-	}
+export function readRequiredNumber(raw: RawInput, fieldName: string): number {
+	const value = raw[fieldName];
 
 	if (!Number.isInteger(value)) {
 		throw new ValidationError(`${fieldName} must be an integer`);
 	}
 
-	return value;
+	return value as number;
 }
 
 export function readOptionalNumber(input: RawInput, fieldName: string): number | null {
@@ -213,4 +213,13 @@ export function readOptionalMetadata(
     }
 
     return value as Record<string, unknown>;
+}
+
+export function assertRequired<T>(
+	value: T | null,
+	fieldName: string,
+): asserts value is T {
+	if (value === null) {
+		throw new ValidationError(`${fieldName} is required`);
+	}
 }

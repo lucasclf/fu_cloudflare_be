@@ -3,89 +3,34 @@ import type {
 	CreateSessionInput,
 	UpdateSessionInput,
 } from "../domain/sessions/session";
+import {
+	ensureObject,
+	readOptionalString,
+	readRequiredNumber,
+	readRequiredString,
+} from "./generic-validator";
 
-type RawSessionInput = {
-	session_number?: unknown;
-	title?: unknown;
-	summary?: unknown;
-	notes?: unknown;
-	played_at?: unknown;
-};
+function validateSessionNumber(raw: Record<string, unknown>): number {
+	const sessionNumber = readRequiredNumber(raw, "session_number");
 
-const MAX_TITLE_LENGTH = 120;
-const MAX_SUMMARY_LENGTH = 10_000;
-const MAX_NOTES_LENGTH = 100_000;
-
-function normalizeOptionalString(
-	value: unknown,
-	fieldName: string,
-	maxLength: number,
-): string | null {
-	if (value === undefined || value === null) return null;
-
-	if (typeof value !== "string") {
-		throw new ValidationError(`${fieldName} must be a string`);
-	}
-
-	const normalized = value.trim();
-
-	if (normalized.length === 0) return null;
-
-	if (normalized.length > maxLength) {
-		throw new ValidationError(
-			`${fieldName} exceeds max length of ${maxLength}`,
-		);
-	}
-
-	return normalized;
-}
-
-function normalizeRequiredString(
-	value: unknown,
-	fieldName: string,
-	maxLength: number,
-): string {
-	if (typeof value !== "string") {
-		throw new ValidationError(`${fieldName} must be a string`);
-	}
-
-	const normalized = value.trim();
-
-	if (normalized.length === 0) {
-		throw new ValidationError(`${fieldName} is required`);
-	}
-
-	if (normalized.length > maxLength) {
-		throw new ValidationError(
-			`${fieldName} exceeds max length of ${maxLength}`,
-		);
-	}
-
-	return normalized;
-}
-
-function validateSessionNumber(value: unknown): number {
-	if (!Number.isInteger(value)) {
-		throw new ValidationError("session_number must be an integer");
-	}
-
-	if ((value as number) < 0) {
+	if (sessionNumber < 0) {
 		throw new ValidationError(
 			"session_number must be greater or equal than zero",
 		);
 	}
 
-	return value as number;
+	return sessionNumber;
 }
 
-function validatePlayedAt(value: unknown): string {
-	const playedAt = normalizeRequiredString(value, "played_at", 10);
+function validatePlayedAt(raw: Record<string, unknown>): string {
+	const playedAt = readRequiredString(raw, "played_at");
 
 	if (!/^\d{4}-\d{2}-\d{2}$/.test(playedAt)) {
 		throw new ValidationError("played_at must be in YYYY-MM-DD format");
 	}
 
 	const date = new Date(`${playedAt}T00:00:00Z`);
+
 	if (Number.isNaN(date.getTime())) {
 		throw new ValidationError("played_at is not a valid date");
 	}
@@ -93,45 +38,47 @@ function validatePlayedAt(value: unknown): string {
 	return playedAt;
 }
 
-function isObject(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null;
-}
-
-export function validateCreateSessionInput(raw: unknown): CreateSessionInput {
-	if (!isObject(raw)) {
-		throw new ValidationError("Request body must be a JSON object");
-	}
-
-	const input: RawSessionInput = raw;
+export function validateCreateSessionInput(
+	input: unknown,
+): CreateSessionInput {
+	const raw = ensureObject(input);
 
 	return {
-		session_number: validateSessionNumber(input.session_number),
-		title: normalizeOptionalString(input.title, "title", MAX_TITLE_LENGTH),
-		summary: normalizeRequiredString(
-			input.summary,
-			"summary",
-			MAX_SUMMARY_LENGTH,
+		session_number: validateSessionNumber(raw),
+		title: readOptionalString(
+			raw,
+			"title",
 		),
-		notes: normalizeOptionalString(input.notes, "notes", MAX_NOTES_LENGTH),
-		played_at: validatePlayedAt(input.played_at),
+		summary: readRequiredString(
+			raw,
+			"summary",
+		),
+		notes: readOptionalString(
+			raw,
+			"notes",
+		),
+		played_at: validatePlayedAt(raw),
 	};
 }
 
-export function validateUpdateSessionInput(raw: unknown): UpdateSessionInput {
-	if (!isObject(raw)) {
-		throw new ValidationError("Request body must be a JSON object");
-	}
-
-	const input: RawSessionInput = raw;
+export function validateUpdateSessionInput(
+	input: unknown,
+): UpdateSessionInput {
+	const raw = ensureObject(input);
 
 	return {
-		title: normalizeOptionalString(input.title, "title", MAX_TITLE_LENGTH),
-		summary: normalizeRequiredString(
-			input.summary,
-			"summary",
-			MAX_SUMMARY_LENGTH,
+		title: readOptionalString(
+			raw,
+			"title",
 		),
-		notes: normalizeOptionalString(input.notes, "notes", MAX_NOTES_LENGTH),
-		played_at: validatePlayedAt(input.played_at),
+		summary: readRequiredString(
+			raw,
+			"summary",
+		),
+		notes: readOptionalString(
+			raw,
+			"notes",
+		),
+		played_at: validatePlayedAt(raw),
 	};
 }

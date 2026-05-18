@@ -2,7 +2,7 @@ import { ALLOWED_ATTRIBUTE_DIE } from "../domain/domain-types";
 import { ALLOWED_BOND_ADMIRATION, ALLOWED_BOND_AFFECTION, ALLOWED_BOND_LOYALTY, ALLOWED_BOND_TARGET_TYPE, CreatePcArcanaRelationInput, PcBondInput, CreatePcEquipmentInput, CreatePCInput, CreatePcInventoryInput, PcJobRelation, CreatePcMonsterSpellRelationInput, PcPowerRelation, CreatePcSpellRelationInput } from "../domain/pc/pc";
 import { ensureObject, readNumberWithDefault, readOptionalNumber, readOptionalString, readRequiredNumber, readRequiredString, validateStringEnum, validateStringNullabeEnum } from "./generic-validator";
 
-export function validateCreatePcInput(input: any): CreatePCInput {
+export function validateCreatePcInput(input: unknown): CreatePCInput {
     const raw = ensureObject(input)
     
     return {
@@ -22,7 +22,7 @@ export function validateCreatePcInput(input: any): CreatePCInput {
     }
 }
 
-export function validateCreatePcJobRelationInput(input: any): PcJobRelation {
+export function validateCreatePcJobRelationInput(input: unknown): PcJobRelation {
     const raw = ensureObject(input)
 
     return {
@@ -32,7 +32,7 @@ export function validateCreatePcJobRelationInput(input: any): PcJobRelation {
     }
 }
 
-export function validateCreatePcPowerRelationInput(input: any): PcPowerRelation {
+export function validateCreatePcPowerRelationInput(input: unknown): PcPowerRelation {
     const raw = ensureObject(input)
 
     return {
@@ -42,7 +42,7 @@ export function validateCreatePcPowerRelationInput(input: any): PcPowerRelation 
     }
 }
 
-export function validateCreatePcSpellRelationInput(input: any): CreatePcSpellRelationInput {
+export function validateCreatePcSpellRelationInput(input: unknown): CreatePcSpellRelationInput {
     const raw = ensureObject(input)
 
     return {
@@ -51,7 +51,7 @@ export function validateCreatePcSpellRelationInput(input: any): CreatePcSpellRel
     }
 }
 
-export function validateCreatePcMonsterSpellRelationInput(input: any): CreatePcMonsterSpellRelationInput {
+export function validateCreatePcMonsterSpellRelationInput(input: unknown): CreatePcMonsterSpellRelationInput {
     const raw = ensureObject(input)
 
     return {
@@ -60,7 +60,7 @@ export function validateCreatePcMonsterSpellRelationInput(input: any): CreatePcM
     }
 }
 
-export function validateCreatePcArcanaRelationInput(input: any): CreatePcArcanaRelationInput {
+export function validateCreatePcArcanaRelationInput(input: unknown): CreatePcArcanaRelationInput {
     const raw = ensureObject(input)
 
     return {
@@ -70,7 +70,7 @@ export function validateCreatePcArcanaRelationInput(input: any): CreatePcArcanaR
     }
 }
 
-export function validateCreatePcEquipmentInput(input: any): CreatePcEquipmentInput {
+export function validateCreatePcEquipmentInput(input: unknown): CreatePcEquipmentInput {
     const raw = ensureObject(input)
 
     return {
@@ -82,7 +82,7 @@ export function validateCreatePcEquipmentInput(input: any): CreatePcEquipmentInp
     }
 }
 
-export function validateCreatePcInventoryInput(input: any): CreatePcInventoryInput {
+export function validateCreatePcInventoryInput(input: unknown): CreatePcInventoryInput {
     const raw = ensureObject(input)
 
     return {
@@ -92,7 +92,7 @@ export function validateCreatePcInventoryInput(input: any): CreatePcInventoryInp
     }
 }
 
-export function validateCreatePcBondInput(input: any): PcBondInput {
+export function validateCreatePcBondInput(input: unknown): PcBondInput {
     const raw = ensureObject(input)
 
     return {

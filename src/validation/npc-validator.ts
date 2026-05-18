@@ -2,7 +2,7 @@ import { ALLOWED_ATTRIBUTE_DIE } from "../domain/domain-types";
 import { ALLOWED_EQUIPMENT_SLOT_TYPE, ALLOWED_INVENTORY_TYPE, ALLOWED_SPECIAL_RULES_TYPE, CreateNpcEquipmentInput, CreateNpcInput, CreateNpcInventoryInput, CreateSpecialRulesInput } from "../domain/npc/npc";
 import { ensureObject, readOptionalMetadata, readOptionalNumber, readOptionalString, readRequiredNumber, readRequiredString, validateStringEnum, validateStringNullabeEnum } from "./generic-validator";
 
-export function validateCreateNpcInput(input: any): CreateNpcInput {
+export function validateCreateNpcInput(input: unknown): CreateNpcInput {
     const raw = ensureObject(input)
 
     return {
@@ -23,7 +23,7 @@ export function validateCreateNpcInput(input: any): CreateNpcInput {
     }
 }
 
-export function validateCreateNpcSpecialRulesInput(input: any): CreateSpecialRulesInput {
+export function validateCreateNpcSpecialRulesInput(input: unknown): CreateSpecialRulesInput {
     const raw = ensureObject(input)
 
     return {
@@ -35,7 +35,7 @@ export function validateCreateNpcSpecialRulesInput(input: any): CreateSpecialRul
     }
 }
 
-export function validateCreateNpcInventoryInput(input: any): CreateNpcInventoryInput {
+export function validateCreateNpcInventoryInput(input: unknown): CreateNpcInventoryInput {
     const raw = ensureObject(input)
 
     return {
@@ -46,7 +46,7 @@ export function validateCreateNpcInventoryInput(input: any): CreateNpcInventoryI
     }
 }
 
-export function validateCreateNpcEquipmentInput(input: any): CreateNpcEquipmentInput {
+export function validateCreateNpcEquipmentInput(input: unknown): CreateNpcEquipmentInput {
     const raw = ensureObject(input)
 
     return {
