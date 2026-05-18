@@ -1,5 +1,33 @@
 import type { CreateItemInput, Item } from "../domain/items/item";
 import { ItemAlreadyExistsError } from "../domain/items/item-errors";
+import { buildInPlaceholders, D1Boolean, fromBoolean, mapById, toNullableBoolean, uniqueNumbers } from "./d1-utils";
+
+type ItemRow = {
+	id: number;
+	name: string;
+	item_type: string;
+	description: string | null;
+	img_key: string | null;
+	cost: number | null;
+
+	weapon_category: string | null;
+	accuracy: string | null;
+	damage: string | null;
+	damage_type: string | null;
+	grip: string | null;
+	distance: string | null;
+
+	defense_dice: string | null;
+	defense_bonus: number | null;
+	magic_defense_dice: string | null;
+	magic_defense_bonus: number | null;
+
+	initiative: string | null;
+	is_martial: D1Boolean;
+
+	created_at: string;
+	updated_at: string | null;
+};
 
 export class D1ItemRepository {
 	constructor(private readonly db: D1Database) {}
@@ -34,9 +62,9 @@ export class D1ItemRepository {
               weapon_category ASC,
               name ASC
           `)
-			.all<Item>();
+			.all<ItemRow>();
 
-		return results;
+		return results.map((row) => this.toItem(row));
 	}
 
 	async findByItemName(name: string): Promise<Item | null> {
@@ -68,9 +96,9 @@ export class D1ItemRepository {
             LIMIT 1
           `)
 			.bind(name)
-			.first<Item>();
+			.first<ItemRow>();
 
-		return result ?? null;
+		return result ? this.toItem(result) : null;
 	}
 
 	async findByItemType(itemType: string): Promise<Item[]> {
@@ -166,22 +194,27 @@ export class D1ItemRepository {
             `)
 				.bind(
 					input.name,
-					input.item_type,
-					input.description,
-					input.img_key,
-					input.cost,
-					input.weapon_category,
-					input.accuracy,
-					input.damage,
-					input.damage_type,
-					input.grip,
-					input.distance,
-					input.defense_dice,
-	        input.defense_bonus,
-	        input.magic_defense_dice,
-	        input.magic_defense_bonus,
-					input.initiative,
-					input.is_martial,
+          input.item_type,
+          input.description ?? null,
+          input.img_key ?? null,
+          input.cost ?? null,
+
+          input.weapon_category ?? null,
+          input.accuracy ?? null,
+          input.damage ?? null,
+          input.damage_type ?? null,
+          input.grip ?? null,
+          input.distance ?? null,
+
+          input.defense_dice ?? null,
+          input.defense_bonus ?? null,
+          input.magic_defense_dice ?? null,
+          input.magic_defense_bonus ?? null,
+
+          input.initiative ?? null,
+          input.is_martial === null || input.is_martial === undefined
+            ? null
+            : fromBoolean(input.is_martial),
 				)
 				.run();
 		} catch (error) {
@@ -200,8 +233,8 @@ export class D1ItemRepository {
       return new Map();
     }
 
-    const uniqueItemIds = [...new Set(itemIds)];
-    const placeholders = uniqueItemIds.map(() => "?").join(",");
+    const uniqueItemIds = uniqueNumbers(itemIds);
+    const placeholders = buildInPlaceholders(uniqueItemIds);
 
     const { results } = await this.db
       .prepare(`
@@ -230,20 +263,19 @@ export class D1ItemRepository {
         WHERE id IN (${placeholders})
       `)
       .bind(...uniqueItemIds)
-      .all<Item>();
+      .all<ItemRow>();
 
-    const itemsById = new Map<number, Item>();
+    const items = results.map((row) => this.toItem(row));
 
-    for (const item of results) {
-      itemsById.set(item.id, {
-        ...item,
-        is_martial:
-          item.is_martial === null || item.is_martial === undefined
-            ? null
-            : Boolean(item.is_martial),
-      });
-    }
+    return mapById(items);
+  }
 
-    return itemsById;
+  private toItem(row: ItemRow): Item {
+    return {
+      ...row,
+      item_type: row.item_type as Item["item_type"],
+      weapon_category: row.weapon_category as Item["weapon_category"],
+      is_martial: toNullableBoolean(row.is_martial),
+    };
   }
 }

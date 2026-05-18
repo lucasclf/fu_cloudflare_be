@@ -1,6 +1,6 @@
 import { ALLOWED_ATTRIBUTE_DIE } from "../domain/domain-types";
 import { ALLOWED_MONSTER_ACTION_ICON, ALLOWED_MONSTER_ACTION_TYPE, ALLOWED_MONSTER_AFFINITY, ALLOWED_MONSTER_DAMAGE_TYPE, ALLOWED_MONSTER_TYPE, CreateActionInput, CreateAffinityInput, CreateMonsterInput, CreateMonsterTraitInput } from "../domain/monsters/monster";
-import { ensureObject, readBooleanWithDefault, readOptionalNumber, readOptionalString, readRequiredNumber, readRequiredString, validateNullableStringEnum, validateStringEnum } from "./generic-validator";
+import { assertRequired, ensureObject, readBooleanWithDefault, readOptionalNumber, readOptionalString, readRequiredNumber, readRequiredString, validateNullableStringEnum, validateStringEnum } from "./generic-validator";
 
 export function validateCreateMonsterInput (input: unknown): CreateMonsterInput {
     const raw = ensureObject(input);
@@ -56,7 +56,13 @@ export function validateCreateAffinitiesInput(input: unknown): CreateAffinityInp
 
 export function validateCreateActionsInput(input: unknown): CreateActionInput {
     const raw = ensureObject(input)
-
+    
+    if (raw.actionType === "spell") {
+        assertRequired(raw.cost, "cost");
+        assertRequired(raw.target, "target");
+        assertRequired(raw.duration, "duration");
+    }
+    
     return {
         monster_id: readRequiredNumber(raw, "monster_id"),
         action_type: validateStringEnum(raw.action_type, "action_type", ALLOWED_MONSTER_ACTION_TYPE),

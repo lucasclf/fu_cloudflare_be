@@ -1,5 +1,36 @@
 import { CreateJobInput, Job, ResumeJob } from "../domain/jobs/job";
 import { JobAlreadyExistsError } from "../domain/jobs/job-errors";
+import { buildInPlaceholders, D1Boolean, fromBoolean, mapById, toBoolean, uniqueNumbers } from "./d1-utils";
+
+
+type JobRow = {
+  id: number;
+  name: string;
+  tagline: string;
+  description: string;
+  img_key: string | null;
+
+  hp_bonus: number;
+  mp_bonus: number;
+  ip_bonus: number;
+
+  allows_martial_armor: D1Boolean;
+  allows_martial_shield: D1Boolean;
+  allows_martial_ranged_weapon: D1Boolean;
+  allows_martial_melee_weapon: D1Boolean;
+  allows_arcane: D1Boolean;
+  allows_rituals: D1Boolean;
+  allows_monster_spells: D1Boolean;
+  can_start_projects: D1Boolean;
+
+  created_at: string;
+  updated_at: string | null;
+};
+
+type ResumeJobRow = Omit<
+  JobRow,
+  "description" | "created_at" | "updated_at"
+>;
 
 export class D1JobRepository {
 	constructor(private readonly db: D1Database) {}
@@ -30,9 +61,9 @@ export class D1JobRepository {
             ORDER BY
               name ASC
           `)
-			.all<Job>();
+      .all<JobRow>();
 
-		return results;
+    return results.map((row) => this.toJob(row));
 	}
 
 	async findCatalogJobs(): Promise<ResumeJob[]> {
@@ -58,9 +89,9 @@ export class D1JobRepository {
             ORDER BY
               name ASC
           `)
-			.all<Job>();
+			.all<ResumeJobRow>();
 
-		return results;
+    return results.map((row) => this.toResumeJob(row));
 	}
 
 	async findByJobId(jobId: string): Promise<Job | null> {
@@ -90,9 +121,9 @@ export class D1JobRepository {
               LIMIT 1
             `)
 			.bind(jobId)
-			.first<Job>();
+			.first<JobRow>();
 
-		return result;
+    return result ? this.toJob(result) : null;
 	}
 
 	async create(input: CreateJobInput): Promise<void> {
@@ -120,21 +151,21 @@ export class D1JobRepository {
                 `)
 				.bind(
 					input.name,
-					input.tagline,
-					input.description,
-					input.img_key,
-					input.hp_bonus,
-					input.mp_bonus,
-					input.ip_bonus,
-					input.allows_martial_armor,
-					input.allows_martial_shield,
-					input.allows_martial_ranged_weapon,
-					input.allows_martial_melee_weapon,
-					input.allows_arcane,
-					input.allows_rituals,
-					input.allows_monster_spells,
-					input.can_start_projects,
-				)
+          input.tagline,
+          input.description,
+          input.img_key,
+          input.hp_bonus,
+          input.mp_bonus,
+          input.ip_bonus,
+          fromBoolean(input.allows_martial_armor),
+          fromBoolean(input.allows_martial_shield),
+          fromBoolean(input.allows_martial_ranged_weapon),
+          fromBoolean(input.allows_martial_melee_weapon),
+          fromBoolean(input.allows_arcane),
+          fromBoolean(input.allows_rituals),
+          fromBoolean(input.allows_monster_spells),
+          fromBoolean(input.can_start_projects),
+        )
 				.run();
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "";
@@ -152,8 +183,8 @@ export class D1JobRepository {
       return new Map();
     }
 
-    const uniqueJobIds = [...new Set(jobIds)];
-    const placeholders = uniqueJobIds.map(() => "?").join(",");
+    const uniqueJobIds = uniqueNumbers(jobIds);
+    const placeholders = buildInPlaceholders(uniqueJobIds);
 
     const { results } = await this.db
       .prepare(`
@@ -178,24 +209,46 @@ export class D1JobRepository {
         ORDER BY name ASC
       `)
       .bind(...uniqueJobIds)
-      .all<ResumeJob>();
+      .all<ResumeJobRow>();
 
-    const jobsById = new Map<number, ResumeJob>();
+    const jobs = results.map((row) => this.toResumeJob(row));
 
-    for (const job of results) {
-      jobsById.set(job.id, {
-        ...job,
-        allows_martial_armor: Boolean(job.allows_martial_armor),
-        allows_martial_shield: Boolean(job.allows_martial_shield),
-        allows_martial_ranged_weapon: Boolean(job.allows_martial_ranged_weapon),
-        allows_martial_melee_weapon: Boolean(job.allows_martial_melee_weapon),
-        allows_arcane: Boolean(job.allows_arcane),
-        allows_rituals: Boolean(job.allows_rituals),
-        allows_monster_spells: Boolean(job.allows_monster_spells),
-        can_start_projects: Boolean(job.can_start_projects),
-      });
-    }
+    return mapById(jobs);
+  }
 
-    return jobsById;
+  private toJob(row: JobRow): Job {
+    return {
+        ...row,
+        allows_martial_armor: toBoolean(row.allows_martial_armor),
+        allows_martial_shield: toBoolean(row.allows_martial_shield),
+        allows_martial_ranged_weapon: toBoolean(
+            row.allows_martial_ranged_weapon,
+        ),
+        allows_martial_melee_weapon: toBoolean(
+            row.allows_martial_melee_weapon,
+        ),
+        allows_arcane: toBoolean(row.allows_arcane),
+        allows_rituals: toBoolean(row.allows_rituals),
+        allows_monster_spells: toBoolean(row.allows_monster_spells),
+        can_start_projects: toBoolean(row.can_start_projects),
+    };
+  }
+
+  private toResumeJob(row: ResumeJobRow): ResumeJob {
+    return {
+        ...row,
+        allows_martial_armor: toBoolean(row.allows_martial_armor),
+        allows_martial_shield: toBoolean(row.allows_martial_shield),
+        allows_martial_ranged_weapon: toBoolean(
+            row.allows_martial_ranged_weapon,
+        ),
+        allows_martial_melee_weapon: toBoolean(
+            row.allows_martial_melee_weapon,
+        ),
+        allows_arcane: toBoolean(row.allows_arcane),
+        allows_rituals: toBoolean(row.allows_rituals),
+        allows_monster_spells: toBoolean(row.allows_monster_spells),
+        can_start_projects: toBoolean(row.can_start_projects),
+    };
   }
 }

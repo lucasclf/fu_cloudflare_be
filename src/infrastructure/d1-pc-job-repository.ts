@@ -1,4 +1,3 @@
-import { ResumeJob } from "../domain/jobs/job";
 import { PcJobRelation } from "../domain/pc/pc";
 import { PcJobRelationAlreadyExistsError } from "../domain/pc/pc_error";
 
@@ -49,5 +48,4 @@ export class D1PCJobRepository {
         
         return results
     }
-
 }

@@ -1,6 +1,36 @@
 import { CreateActionInput, Monster, MonsterAction } from "../domain/monsters/monster";
 import { MonsterActionAlreadyExistsError } from "../domain/monsters/monster-error";
 import { MonsterSpell } from "../domain/spells/spells";
+import { buildInPlaceholders, D1Boolean, fromBoolean, mapById, toBoolean, uniqueNumbers } from "./d1-utils";
+
+type MonsterActionRow = {
+	id: number;
+	monster_id: number;
+	action_type: string;
+	action_icon: string | null;
+	name: string;
+	description: string;
+	check_formula: string | null;
+	accuracy_bonus: number | null;
+	damage_formula: string | null;
+	damage_type: string | null;
+	cost: string | null;
+	target: string | null;
+	duration: string | null;
+	is_offensive: D1Boolean;
+	created_at?: string;
+	updated_at?: string | null;
+};
+
+type MonsterSpellRow = {
+	id: number;
+	name: string;
+	description: string;
+	is_offensive: D1Boolean;
+	cost: string | null;
+	target: string | null;
+	duration: string | null;
+};
 
 export class D1MonsterActionRepository {
     constructor(private readonly db: D1Database){}
@@ -36,7 +66,7 @@ export class D1MonsterActionRepository {
                     input.cost,
                     input.target,
                     input.duration,
-                    input.is_offensive,
+                    fromBoolean(input.is_offensive)
                 )
                 .run();
         } catch(error) {
@@ -78,12 +108,14 @@ export class D1MonsterActionRepository {
             ORDER BY monster_id ASC, action_type ASC
             `)
             .bind(...monsterIds)
-            .all<MonsterAction>();
+            .all<MonsterActionRow>();
 
         const grouped = new Map<number, MonsterAction[]>();
 
-        for (const action of results) {
+        for (const row of results) {
+            const action = this.toMonsterAction(row);
             const current = grouped.get(action.monster_id) ?? [];
+
             current.push(action);
             grouped.set(action.monster_id, current);
         }
@@ -95,23 +127,20 @@ export class D1MonsterActionRepository {
         const { results } = await this.db
             .prepare(`
                 SELECT
-                ms.id,
-                ms.name,
-                ms.description,
-                ms.is_offensive,
-                ms.cost,
-                ms.target,
-                ms.duration
-            FROM monster_actions ms
-            WHERE action_type = 'spell'
-            ORDER BY ms.id ASC
+                    ms.id,
+                    ms.name,
+                    ms.description,
+                    ms.is_offensive,
+                    ms.cost,
+                    ms.target,
+                    ms.duration
+                FROM monster_actions ms
+                WHERE action_type = 'spell'
+                ORDER BY ms.id ASC
             `)
-            .all<MonsterSpell>();
+            .all<MonsterSpellRow>();
 
-        return results.map((spell) => ({
-            ...spell,
-            nature: "monster",
-        }));
+        return results.map((row) => this.toMonsterSpell(row));
     }
 
     async isMonsterSpell(
@@ -164,55 +193,83 @@ export class D1MonsterActionRepository {
         const statement = this.db.prepare(query);
 
         const { results } = hasActionTypeFilter
-            ? await statement.bind(...include).all<MonsterAction>()
-            : await statement.all<MonsterAction>();
+            ? await statement.bind(...include).all<MonsterActionRow>()
+            : await statement.all<MonsterActionRow>();
 
-        return results.map((action) => ({
-            ...action,
-            is_offensive: Boolean(action.is_offensive),
-        }));    
+        return results.map((row) => this.toMonsterAction(row));
     }
 
-  async findByIds(spellIds: number[]): Promise<Map<number, MonsterAction>> {
-    if (spellIds.length === 0) {
-      return new Map();
+    async findByIds(
+        monsterActionIds: number[],
+    ): Promise<Map<number, MonsterAction>> {
+        if (monsterActionIds.length === 0) {
+            return new Map();
+        }
+
+        const uniqueMonsterActionIds = uniqueNumbers(monsterActionIds);
+        const placeholders = buildInPlaceholders(uniqueMonsterActionIds);
+
+        const { results } = await this.db
+            .prepare(`
+                SELECT
+                    id,
+                    monster_id,
+                    action_type,
+                    action_icon,
+                    name,
+                    description,
+                    check_formula,
+                    accuracy_bonus,
+                    damage_formula,
+                    damage_type,
+                    cost,
+                    target,
+                    duration,
+                    is_offensive
+                FROM monster_actions
+                WHERE id IN (${placeholders})
+                ORDER BY name ASC
+            `)
+            .bind(...uniqueMonsterActionIds)
+            .all<MonsterActionRow>();
+
+        const actions = results.map((row) => this.toMonsterAction(row));
+
+        return mapById(actions);
     }
 
-    const uniqueSpellIds = [...new Set(spellIds)];
-    const placeholders = uniqueSpellIds.map(() => "?").join(",");
-
-    const { results } = await this.db
-      .prepare(`
-        SELECT
-            id,
-            monster_id,
-            action_type,
-            action_icon,
-            name,
-            description,
-            check_formula,
-            accuracy_bonus,
-            damage_type,
-            cost,
-            target,
-            duration,
-            is_offensive
-        FROM monster_actions
-        WHERE id IN (${placeholders})
-        ORDER BY name ASC
-      `)
-      .bind(...uniqueSpellIds)
-      .all<MonsterAction>();
-
-    const spellsById = new Map<number, MonsterAction>();
-
-    for (const spell of results) {
-      spellsById.set(spell.id, {
-        ...spell,
-        is_offensive: Boolean(spell.is_offensive)
-      });
+    private toMonsterAction(row: MonsterActionRow): MonsterAction {
+        return {
+            ...row,
+            action_type: row.action_type as MonsterAction["action_type"],
+            action_icon: row.action_icon as MonsterAction["action_icon"],
+            damage_type: row.damage_type as MonsterAction["damage_type"],
+            is_offensive: toBoolean(row.is_offensive),
+        };
     }
 
-    return spellsById;
-  }
+    private toMonsterSpell(row: MonsterSpellRow): MonsterSpell {
+        if (row.cost === null) {
+            throw new Error(`Monster spell ${row.id} has null cost`);
+        }
+
+        if (row.target === null) {
+            throw new Error(`Monster spell ${row.id} has null target`);
+        }
+
+        if (row.duration === null) {
+            throw new Error(`Monster spell ${row.id} has null duration`);
+        }
+
+        return {
+            id: row.id,
+            name: row.name,
+            description: row.description,
+            is_offensive: toBoolean(row.is_offensive),
+            cost: row.cost,
+            target: row.target,
+            duration: row.duration,
+            nature: "monster",
+        };
+    }
 }
