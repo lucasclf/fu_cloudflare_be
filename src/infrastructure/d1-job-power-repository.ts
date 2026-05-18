@@ -1,112 +1,66 @@
 import { CreateJobPowerInput, JobPower, JobPowerWithJob, ResumeJob } from "../domain/jobs/job";
 import { JobPowerAlreadyExistsError } from "../domain/jobs/job-errors";
+import { D1Boolean, fromBoolean, uniqueNumbers, buildInPlaceholders, mapById, toBoolean } from "./d1-utils";
 
-type JobPowerRow = JobPower & {
-	job_id: number;
-};
-
-type JobPowerWithJobRow = {
+type JobPowerRow = {
 	id: number;
 	name: string;
 	description: string;
-	type: "common" | "heroic";
+	type: string;
 	max_level: number;
-	is_global: number;
-	job_name: string; // vem como JSON string do banco
+	is_global: D1Boolean;
+	created_at?: string;
+	updated_at?: string | null;
+};
+
+type JobPowerWithJobRow = JobPowerRow & {
+	job_name: string | null;
 };
 
 export class D1JobPowerRepository {
 	constructor(private readonly db: D1Database) {}
 
-	async findPowersByJobIds(jobIds: number[]): Promise<Map<number, JobPower[]>> {
-		if (jobIds.length === 0) {
-			return new Map();
-		}
+    async findPowersByJobIds(
+        jobIds: number[],
+    ): Promise<Map<number, JobPower[]>> {
+        if (jobIds.length === 0) {
+            return new Map();
+        }
 
-		const valuesPlaceholders = jobIds.map(() => "(?)").join(",");
+        const uniqueJobIds = uniqueNumbers(jobIds);
+        const placeholders = buildInPlaceholders(uniqueJobIds);
 
-		const { results } = await this.db
-			.prepare(`
-                WITH input_jobs(job_id) AS (
-                    VALUES ${valuesPlaceholders}
-                )
-
+        const { results } = await this.db
+            .prepare(`
                 SELECT
-                    result.job_id,
-                    result.id,
-                    result.name,
-                    result.description,
-                    result.type,
-                    result.max_level,
-                    result.is_global,
-                    result.created_at,
-                    result.updated_at
-                FROM (
-                    SELECT
-                        jpj.job_id,
-                        jp.id,
-                        jp.name,
-                        jp.description,
-                        jp.type,
-                        jp.max_level,
-                        jp.is_global,
-                        jp.created_at,
-                        jp.updated_at
-                    FROM input_jobs ij
-                    INNER JOIN job_power_jobs jpj
-                        ON jpj.job_id = ij.job_id
-                    INNER JOIN job_powers jp
-                        ON jp.id = jpj.power_id
-
-                    UNION ALL
-
-                    SELECT
-                        ij.job_id,
-                        jp.id,
-                        jp.name,
-                        jp.description,
-                        jp.type,
-                        jp.max_level,
-                        jp.is_global,
-                        jp.created_at,
-                        jp.updated_at
-                    FROM input_jobs ij
-                    INNER JOIN job_powers jp
-                        ON jp.is_global = 1
-                ) result
-                ORDER BY
-                    result.is_global ASC,
-                    result.job_id ASC,
-                    result.id ASC,
-                    result.type ASC,
-                    result.name ASC
+                    jpj.job_id,
+                    jp.id,
+                    jp.name,
+                    jp.description,
+                    jp.type,
+                    jp.max_level,
+                    jp.is_global
+                FROM job_power_jobs jpj
+                INNER JOIN job_powers jp
+                    ON jp.id = jpj.power_id
+                WHERE jpj.job_id IN (${placeholders})
+                ORDER BY jpj.job_id ASC, jp.name ASC
             `)
-			.bind(...jobIds)
-			.all<JobPowerRow>();
+            .bind(...uniqueJobIds)
+            .all<JobPowerRow & { job_id: number }>();
 
-		const grouped = new Map<number, JobPower[]>();
+        const grouped = new Map<number, JobPower[]>();
 
-		for (const jobId of jobIds) {
-			grouped.set(jobId, []);
-		}
+        for (const row of results) {
+            const power = this.toJobPower(row);
+            const current = grouped.get(row.job_id) ?? [];
 
-		for (const row of results) {
-			const current = grouped.get(row.job_id) ?? [];
+            current.push(power);
+            grouped.set(row.job_id, current);
+        }
 
-			current.push({
-				id: row.id,
-				name: row.name,
-				description: row.description,
-				type: row.type,
-				max_level: row.max_level,
-				is_global: row.is_global,
-			});
-
-			grouped.set(row.job_id, current);
-		}
-
-		return grouped;
-	}
+        return grouped;
+    }
 
 	async createJobPower(input: CreateJobPowerInput): Promise<void> {
         try {
@@ -127,7 +81,7 @@ export class D1JobPowerRepository {
                         input.description,
                         input.type,
                         input.max_level,
-                        input.is_global ? 1 : 0,
+                        fromBoolean(input.is_global),
                     ),
             ];
 
@@ -203,15 +157,7 @@ export class D1JobPowerRepository {
             `)
             .all<JobPowerWithJobRow>();
 
-        return results.map((power) => ({
-            id: power.id,
-            name: power.name,
-            description: power.description,
-            type: power.type,
-            max_level: power.max_level,
-            is_global: Boolean(power.is_global),
-            job_name: JSON.parse(power.job_name),
-        }));
+        return results.map((row) => this.toJobPowerWithJob(row));
     }
 
     async findByIds(powerIds: number[]): Promise<Map<number, JobPower>> {
@@ -219,8 +165,8 @@ export class D1JobPowerRepository {
             return new Map();
         }
 
-        const uniquePowerIds = [...new Set(powerIds)];
-        const placeholders = uniquePowerIds.map(() => "?").join(",");
+        const uniquePowerIds = uniqueNumbers(powerIds);
+        const placeholders = buildInPlaceholders(uniquePowerIds);
 
         const { results } = await this.db
             .prepare(`
@@ -236,17 +182,46 @@ export class D1JobPowerRepository {
                 ORDER BY name ASC
             `)
             .bind(...uniquePowerIds)
-            .all<JobPower>();
+            .all<JobPowerRow>();
 
-        const powersById = new Map<number, JobPower>();
+        const powers = results.map((row) => this.toJobPower(row));
 
-        for (const power of results) {
-            powersById.set(power.id, {
-                ...power,
-                is_global: Boolean(power.is_global),
-            });
+        return mapById(powers);
+    }
+
+    private toJobPower(row: JobPowerRow): JobPower {
+        return {
+            id: row.id,
+            name: row.name,
+            description: row.description,
+            type: row.type as JobPower["type"],
+            max_level: row.max_level,
+            is_global: toBoolean(row.is_global),
+        };
+    }
+
+    private toJobPowerWithJob(row: JobPowerWithJobRow): JobPowerWithJob {
+        return {
+            ...this.toJobPower(row),
+            job_name: this.parseJobNames(row.job_name),
+        };
+    }
+
+    private parseJobNames(value: string | null): string[] {
+        if (value === null || value.trim().length === 0) {
+            return [];
         }
 
-        return powersById;
+        const parsed: unknown = JSON.parse(value);
+
+        if (!Array.isArray(parsed)) {
+            throw new Error("job_name must be a JSON array");
+        }
+
+        if (!parsed.every((item) => typeof item === "string")) {
+            throw new Error("job_name must contain only strings");
+        }
+
+        return parsed;
     }
 }

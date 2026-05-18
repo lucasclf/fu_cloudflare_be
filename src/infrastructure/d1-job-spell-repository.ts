@@ -1,6 +1,24 @@
 
 import { SpellAlreadyExistsError } from "../domain/spells/spell-errors";
 import { CreateJobSpellInput, JobSpell, JobSpellWithJob } from "../domain/spells/spells";
+import { D1Boolean, fromBoolean, uniqueNumbers, buildInPlaceholders, mapById, toBoolean } from "./d1-utils";
+
+type JobSpellRow = {
+	id: number;
+	job_id: number;
+	name: string;
+	description: string;
+	is_offensive: D1Boolean;
+	cost: string;
+	target: string;
+	duration: string;
+	created_at?: string;
+	updated_at?: string | null;
+};
+
+type JobSpellWithJobRow = JobSpellRow & {
+	job_name: string;
+};
 
 export class D1JobSpellRepository {
 	constructor(private readonly db: D1Database) {}
@@ -24,7 +42,7 @@ export class D1JobSpellRepository {
 					input.name,
 					input.description,
 					input.job_id,
-					input.is_offensive,
+					fromBoolean(input.is_offensive),
 					input.cost,
 					input.target,
 					input.duration,
@@ -41,105 +59,119 @@ export class D1JobSpellRepository {
 		}
 	}
 
-    async listSpells(): Promise<JobSpellWithJob[]> {
-        const { results } = await this.db
-            .prepare(`
-                SELECT
-				js.id,
-				js.job_id,
-				j.name AS job_name,
-				js.name,
-				js.description,
-				js.is_offensive,
-				js.cost,
-				js.target,
-				js.duration
-			FROM job_spells js
-			INNER JOIN jobs j
-				ON js.job_id = j.id
-			ORDER BY js.id ASC
+	async listSpells(): Promise<JobSpellWithJob[]> {
+		const { results } = await this.db
+			.prepare(`
+				SELECT
+					js.id,
+					js.job_id,
+					j.name AS job_name,
+					js.name,
+					js.description,
+					js.is_offensive,
+					js.cost,
+					js.target,
+					js.duration
+				FROM job_spells js
+				INNER JOIN jobs j
+					ON j.id = js.job_id
+				ORDER BY j.name ASC, js.name ASC
 			`)
-            .all<JobSpellWithJob>();
+			.all<JobSpellWithJobRow>();
 
-        return results.map((spell) => ({
-			...spell,
-			nature: "job",
-		}));
-    }
+		return results.map((row) => this.toJobSpellWithJob(row));
+	}
 
 	async findSpellsByJobIds(
-			jobIds: number[],
-		): Promise<Map<number, JobSpell[]>> {
+		jobIds: number[],
+	): Promise<Map<number, JobSpell[]>> {
 		if (jobIds.length === 0) {
 			return new Map();
 		}
 
-		const placeholders = jobIds.map(() => "?").join(",");
+		const uniqueJobIds = uniqueNumbers(jobIds);
+		const placeholders = buildInPlaceholders(uniqueJobIds);
 
 		const { results } = await this.db
 			.prepare(`
-			SELECT
-				id,
-				job_id,
-				name,
-				description,
-				is_offensive,
-				cost,
-				target,
-				duration
-			FROM job_spells
-			WHERE job_id IN (${placeholders})
-			ORDER BY job_id ASC, id ASC
+				SELECT
+					id,
+					job_id,
+					name,
+					description,
+					is_offensive,
+					cost,
+					target,
+					duration
+				FROM job_spells
+				WHERE job_id IN (${placeholders})
+				ORDER BY job_id ASC, name ASC
 			`)
-			.bind(...jobIds)
-			.all<JobSpell>();
+			.bind(...uniqueJobIds)
+			.all<JobSpellRow>();
 
 		const grouped = new Map<number, JobSpell[]>();
 
-		for (const spell of results) {
-			const current = grouped.get(spell.job_id) ?? [];
+		for (const row of results) {
+			const spell = this.toJobSpell(row);
+			const current = grouped.get(row.job_id) ?? [];
+
 			current.push(spell);
-			grouped.set(spell.job_id, current);
+			grouped.set(row.job_id, current);
 		}
 
 		return grouped;
 	}
 
-  async findByIds(spellIds: number[]): Promise<Map<number, JobSpell>> {
-	if (spellIds.length === 0) {
-	  return new Map();
+	async findByIds(spellIds: number[]): Promise<Map<number, JobSpell>> {
+		if (spellIds.length === 0) {
+			return new Map();
+		}
+
+		const uniqueSpellIds = uniqueNumbers(spellIds);
+		const placeholders = buildInPlaceholders(uniqueSpellIds);
+
+		const { results } = await this.db
+			.prepare(`
+				SELECT
+					id,
+					job_id,
+					name,
+					description,
+					is_offensive,
+					cost,
+					target,
+					duration
+				FROM job_spells
+				WHERE id IN (${placeholders})
+				ORDER BY name ASC
+			`)
+			.bind(...uniqueSpellIds)
+			.all<JobSpellRow>();
+
+		const spells = results.map((row) => this.toJobSpell(row));
+
+		return mapById(spells);
 	}
 
-	const uniqueSpellIds = [...new Set(spellIds)];
-	const placeholders = uniqueSpellIds.map(() => "?").join(",");
-
-	const { results } = await this.db
-	  .prepare(`
-		SELECT
-			id,
-			job_id,
-			name,
-			description,
-			is_offensive,
-			cost,
-			target,
-			duration
-		FROM job_spells
-		WHERE id IN (${placeholders})
-		ORDER BY name ASC
-	  `)
-	  .bind(...uniqueSpellIds)
-	  .all<JobSpell>();
-
-	const spellsById = new Map<number, JobSpell>();
-
-	for (const spell of results) {
-	  spellsById.set(spell.id, {
-		...spell,
-		is_offensive: Boolean(spell.is_offensive)
-	  });
+  	private toJobSpell(row: JobSpellRow): JobSpell {
+		return {
+			id: row.id,
+			job_id: row.job_id,
+			name: row.name,
+			description: row.description,
+			is_offensive: toBoolean(row.is_offensive),
+			cost: row.cost,
+			target: row.target,
+			duration: row.duration,
+			nature: "job",
+		};
 	}
 
-	return spellsById;
-  }
+	private toJobSpellWithJob(row: JobSpellWithJobRow): JobSpellWithJob {
+		return {
+			...this.toJobSpell(row),
+			job_name: row.job_name,
+		};
+	}
 }

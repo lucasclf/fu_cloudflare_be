@@ -74,7 +74,7 @@ export interface Arcana {
 	domain: string;
 	merge_effect: string | null;
 	dismiss_effect: string | null;
-	special_rules: string | null;
+	special_rule: string | null;
 }
 
 export interface JobPowerWithJob extends JobPower {
