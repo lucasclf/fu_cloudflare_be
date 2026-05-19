@@ -3,7 +3,7 @@ import type {
 	Session,
 	UpdateSessionInput,
 } from "../domain/sessions/session";
-import type { D1SessionRepository } from "../infrastructure/d1-session-repository";
+import type { D1SessionRepository } from "../infrastructure/repository/d1-session-repository";
 
 export class SessionService {
 	constructor(private readonly repository: D1SessionRepository) {}

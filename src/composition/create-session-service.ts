@@ -1,5 +1,5 @@
 import { SessionService } from "../application/session-service";
-import { D1SessionRepository } from "../infrastructure/d1-session-repository";
+import { D1SessionRepository } from "../infrastructure/repository/d1-session-repository";
 import type { Env } from "../types/env";
 
 export function createSessionService(env: Env): SessionService {

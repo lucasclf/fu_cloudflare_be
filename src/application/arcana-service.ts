@@ -1,5 +1,5 @@
 import { Arcana, CreateArcanaInput } from "../domain/jobs/job";
-import { D1ArcanaRepository } from "../infrastructure/d1-arcana-repository";
+import { D1ArcanaRepository } from "../infrastructure/repository/d1-arcana-repository";
 
 export class ArcanaService {
     constructor(

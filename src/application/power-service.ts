@@ -1,5 +1,5 @@
 import { CreateJobPowerInput, JobPowerWithJob} from "../domain/jobs/job";
-import { D1JobPowerRepository } from "../infrastructure/d1-job-power-repository";
+import { D1JobPowerRepository } from "../infrastructure/repository/d1-job-power-repository";
 
 
 export class PowerService {

@@ -1,6 +1,6 @@
-import { CreateFactionInput, Faction } from "../domain/factions/faction";
-import { D1FactionLocationRepository } from "../infrastructure/d1-faction-location-repository";
-import { D1FactionRepository } from "../infrastructure/d1-faction-repository";
+import { CreateFactionInput, FactionResponse } from "../domain/factions/faction";
+import { D1FactionLocationRepository } from "../infrastructure/repository/d1-faction-location-repository";
+import { D1FactionRepository } from "../infrastructure/repository/d1-faction-repository";
 
 export class FactionService {
     constructor(
@@ -12,7 +12,7 @@ export class FactionService {
         await this.factionRepository.create(input);
     }
 
-    async listFactions(): Promise<Faction[]> {
+    async listFactions(): Promise<FactionResponse[]> {
         const factions = await this.factionRepository.listFactions();
 
 		if (factions.length === 0) {
@@ -32,7 +32,7 @@ export class FactionService {
 		}));
     }
 
-    async getFactionById(id: number): Promise<Faction | null> {
+    async getFactionById(id: number): Promise<FactionResponse | null> {
         const faction = await this.factionRepository.getFactionById(id);
 
 		if (!faction) {

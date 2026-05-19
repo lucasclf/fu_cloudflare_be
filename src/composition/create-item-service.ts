@@ -1,5 +1,5 @@
 import { ItemService } from "../application/item-service";
-import { D1ItemRepository } from "../infrastructure/d1-item-repository";
+import { D1ItemRepository } from "../infrastructure/repository/d1-item-repository";
 import type { Env } from "../types/env";
 
 export function createItemService(env: Env): ItemService {

@@ -8,11 +8,11 @@ import {
 	JobFull,
 	ResumeJob,
 } from "../domain/jobs/job";
-import { D1ArcanaRepository } from "../infrastructure/d1-arcana-repository";
-import { D1JobBackgroundRepository } from "../infrastructure/d1-job-background-repository";
-import { D1JobPowerRepository } from "../infrastructure/d1-job-power-repository";
-import type { D1JobRepository } from "../infrastructure/d1-job-repository";
-import { D1JobSpellRepository } from "../infrastructure/d1-job-spell-repository";
+import { D1ArcanaRepository } from "../infrastructure/repository/d1-arcana-repository";
+import { D1JobBackgroundRepository } from "../infrastructure/repository/d1-job-background-repository";
+import { D1JobPowerRepository } from "../infrastructure/repository/d1-job-power-repository";
+import type { D1JobRepository } from "../infrastructure/repository/d1-job-repository";
+import { D1JobSpellRepository } from "../infrastructure/repository/d1-job-spell-repository";
 
 export class JobService {
 	constructor(

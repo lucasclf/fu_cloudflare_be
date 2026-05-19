@@ -1,5 +1,5 @@
 import { ArcanaService } from "../application/arcana-service";
-import { D1ArcanaRepository } from "../infrastructure/d1-arcana-repository";
+import { D1ArcanaRepository } from "../infrastructure/repository/d1-arcana-repository";
 import type { Env } from "../types/env";
 
 export function createArcanaService(env: Env): ArcanaService {

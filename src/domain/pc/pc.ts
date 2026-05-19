@@ -1,7 +1,6 @@
 import { Character, CharacterSummary, CreateCharacterInput } from "../domain-types";
 import { Item } from "../items/item";
-import { Arcana, Job, JobPower, ResumeJob } from "../jobs/job";
-import { MonsterAction } from "../monsters/monster";
+import { Arcana, JobPower, ResumeJob } from "../jobs/job";
 import { MonsterSpell, Spell } from "../spells/spells";
 
 export const ALLOWED_BOND_TARGET_TYPE = ["pc" , "npc" , "monster", "freeform"]  as const;

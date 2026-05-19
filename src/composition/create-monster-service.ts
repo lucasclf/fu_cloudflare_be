@@ -1,8 +1,8 @@
 import { MonsterService } from "../application/monster-service";
-import { D1MonsterActionRepository } from "../infrastructure/d1-monster-action-repository";
-import { D1MonsterAffinityRepository } from "../infrastructure/d1-monster-affinity-repository";
-import { D1MonsterRepository } from "../infrastructure/d1-monster-repository";
-import { D1MonsterTraitRepository } from "../infrastructure/d1-monster-trait-repository";
+import { D1MonsterActionRepository } from "../infrastructure/repository/d1-monster-action-repository";
+import { D1MonsterAffinityRepository } from "../infrastructure/repository/d1-monster-affinity-repository";
+import { D1MonsterRepository } from "../infrastructure/repository/d1-monster-repository";
+import { D1MonsterTraitRepository } from "../infrastructure/repository/d1-monster-trait-repository";
 import type { Env } from "../types/env";
 
 export function createMonsterService(env: Env): MonsterService {

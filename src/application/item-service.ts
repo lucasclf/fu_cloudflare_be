@@ -1,5 +1,5 @@
 import type { CreateItemInput, Item } from "../domain/items/item";
-import type { D1ItemRepository } from "../infrastructure/d1-item-repository";
+import type { D1ItemRepository } from "../infrastructure/repository/d1-item-repository";
 
 export class ItemService {
 	constructor(private readonly repository: D1ItemRepository) {}

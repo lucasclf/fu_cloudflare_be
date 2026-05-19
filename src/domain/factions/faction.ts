@@ -41,7 +41,7 @@ export interface FactionBase {
 	updated_at: string | null;
 };
 
-export interface Faction {
+export interface FactionResponse {
     id: number;
     name: string;
     tagline: string | null;

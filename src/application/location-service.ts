@@ -1,5 +1,5 @@
 import { CreateLocationInput, Location } from "../domain/locations/location";
-import { D1LocationRepository } from "../infrastructure/d1-location-repository";
+import { D1LocationRepository } from "../infrastructure/repository/d1-location-repository";
 
 export class LocationService {
     constructor(

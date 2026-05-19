@@ -1,9 +1,9 @@
 import { NpcService } from "../application/npc-service";
-import { D1ItemRepository } from "../infrastructure/d1-item-repository";
-import { D1NpcEquipmentRepository } from "../infrastructure/d1-npc-equipment-repository";
-import { D1NpcInventoryRepository } from "../infrastructure/d1-npc-inventory-repository";
-import { D1NpcRepository } from "../infrastructure/d1-npc-repository";
-import { D1NpcSpecialRulesRepository } from "../infrastructure/d1-npc-special-rules-repository";
+import { D1ItemRepository } from "../infrastructure/repository/d1-item-repository";
+import { D1NpcEquipmentRepository } from "../infrastructure/repository/d1-npc-equipment-repository";
+import { D1NpcInventoryRepository } from "../infrastructure/repository/d1-npc-inventory-repository";
+import { D1NpcRepository } from "../infrastructure/repository/d1-npc-repository";
+import { D1NpcSpecialRulesRepository } from "../infrastructure/repository/d1-npc-special-rules-repository";
 import type { Env } from "../types/env";
 
 export function createNpcService(env: Env): NpcService {

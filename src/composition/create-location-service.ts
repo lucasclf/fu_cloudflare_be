@@ -1,5 +1,5 @@
 import { LocationService } from "../application/location-service";
-import { D1LocationRepository } from "../infrastructure/d1-location-repository";
+import { D1LocationRepository } from "../infrastructure/repository/d1-location-repository";
 import type { Env } from "../types/env";
 
 export function createLocationService(env: Env): LocationService {
