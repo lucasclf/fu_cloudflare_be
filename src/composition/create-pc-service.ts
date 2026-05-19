@@ -1,4 +1,5 @@
 import { PCService } from "../application/pc-service";
+import { PcStatsCalculator } from "../domain/pc/pc-stats-calculator";
 import { D1ArcanaRepository } from "../infrastructure/repository/d1-arcana-repository";
 import { D1ItemRepository } from "../infrastructure/repository/d1-item-repository";
 import { D1JobPowerRepository } from "../infrastructure/repository/d1-job-power-repository";
@@ -38,6 +39,7 @@ export function createPcService(env: Env): PCService {
     const monsterSpellRepository = new D1MonsterSpellRepository(env.fabula_ultima_db)
     const npcRepository = new D1NpcRepository(env.fabula_ultima_db)
     const monsterRepository = new D1MonsterRepository(env.fabula_ultima_db)
+    const pcStatsCalculator = new PcStatsCalculator()
 
     return new PCService(
         pcRepository, 
@@ -58,5 +60,6 @@ export function createPcService(env: Env): PCService {
         monsterSpellRepository,
         npcRepository,
         monsterRepository,
+        pcStatsCalculator,
     )
 }

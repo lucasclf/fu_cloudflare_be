@@ -1,8 +1,7 @@
 import { ValidationError } from "../domain/domain-errors";
-import { AttributeDie } from "../domain/domain-types";
-import { Item } from "../domain/items/item";
-import { Arcana, JobPower } from "../domain/jobs/job";
+import { Arcana } from "../domain/jobs/job";
 import { CreatePcArcanaRelationInput, PcBondInput, CreatePcEquipmentInput, CreatePCInput, CreatePcInventoryInput, PcJobRelation, CreatePcMonsterSpellRelationInput, PcPowerRelation, CreatePcSpellRelationInput, PcBase, PcFull, PcSummary, PcJobInfo, PcInventory, PcEquipment, PcCapacities, PcPowerInfo, PcCalculatedStats, BondTargetSummary, PcBond, TargetType } from "../domain/pc/pc";
+import { PcStatsCalculator } from "../domain/pc/pc-stats-calculator";
 import { MonsterSpell, Spell } from "../domain/spells/spells";
 import { D1ArcanaRepository } from "../infrastructure/repository/d1-arcana-repository";
 import { D1ItemRepository } from "../infrastructure/repository/d1-item-repository";
@@ -43,6 +42,7 @@ export class PCService {
         private readonly monsterSpellRepository: D1MonsterSpellRepository,
         private readonly npcRepository: D1NpcRepository,
         private readonly monsterRepository: D1MonsterRepository,
+        private readonly pcStatsCalculator: PcStatsCalculator
     ){}
 
     async createPc(input: CreatePCInput): Promise<void> {
@@ -266,9 +266,10 @@ export class PCService {
             };
         });
 
-        const pcCapacities = this.calculatePcCapacities(jobs);
+        const pcCapacities =
+            this.pcStatsCalculator.calculateCapacities(jobs);
 
-        const stats = this.calculatePcStats(
+        const stats = this.pcStatsCalculator.calculateStats(
             pcBase,
             jobs,
             equipment,
@@ -280,7 +281,7 @@ export class PCService {
         return {
             ...pcBase,
             stats: stats,
-            pc_capacities: this.calculatePcCapacities(jobs),
+            pc_capacities: this.pcStatsCalculator.calculateCapacities(jobs),
             jobs,
             powers,
             spells,
@@ -290,177 +291,6 @@ export class PCService {
             inventories,
             bonds: bonds,
         };
-    }
-
-    private calculatePcCapacities(jobs: PcJobInfo[]): PcCapacities {
-        return {
-            hp_bonus: jobs.reduce((total, job) => total + (job.hp_bonus ?? 0), 0),
-            mp_bonus: jobs.reduce((total, job) => total + (job.mp_bonus ?? 0), 0),
-            ip_bonus: jobs.reduce((total, job) => total + (job.ip_bonus ?? 0), 0),
-
-            allows_martial_armor: jobs.some((job) => job.allows_martial_armor),
-            allows_martial_shield: jobs.some((job) => job.allows_martial_shield),
-            allows_martial_ranged_weapon: jobs.some(
-                (job) => job.allows_martial_ranged_weapon,
-            ),
-            allows_martial_melee_weapon: jobs.some(
-                (job) => job.allows_martial_melee_weapon,
-            ),
-            allows_arcane: jobs.some((job) => job.allows_arcane),
-            allows_rituals: jobs.some((job) => job.allows_rituals),
-            allows_monster_spells: jobs.some((job) => job.allows_monster_spells),
-            can_start_projects: jobs.some((job) => job.can_start_projects),
-        };
-    }
-
-    private calculatePcStats(
-        pcBase: PcBase,
-        jobs: PcJobInfo[],
-        equipment: PcEquipment | undefined,
-        pcCapacities: PcCapacities,
-    ): PcCalculatedStats {
-        const level = jobs.reduce((total, job) => total + job.level, 0);
-
-        const mightValue = this.attributeDieValue(pcBase.might_die);
-        const willpowerValue = this.attributeDieValue(pcBase.willpower_die);
-
-        const equippedItems = this.getEquippedItems(equipment);
-
-        const armor = equipment?.armor ?? null;
-
-        const shield =
-            equipment?.off_hand?.item_type === "escudo"
-                ? equipment.off_hand
-                : null;
-
-        const initiative =
-            this.parseModifier(armor?.initiative) +
-            this.parseModifier(shield?.initiative);
-
-        const armorDefenseBase = armor
-            ? this.resolveDefenseDiceValue(armor.defense_dice, pcBase)
-            : this.attributeDieValue(pcBase.dexterity_die);
-
-        const armorMagicDefenseBase = armor
-            ? this.resolveDefenseDiceValue(armor.magic_defense_dice, pcBase)
-            : this.attributeDieValue(pcBase.insight_die);
-
-        const defenseBonus = equippedItems.reduce(
-            (total, item) => total + (item.defense_bonus ?? 0),
-            0,
-        );
-
-        const magicDefenseBonus = equippedItems.reduce(
-            (total, item) => total + (item.magic_defense_bonus ?? 0),
-            0,
-        );
-
-        return {
-            level,
-            hp: level + 5 * mightValue + pcCapacities.hp_bonus,
-            mp: level + 5 * willpowerValue + pcCapacities.mp_bonus,
-            initiative,
-            ip: 6 + pcCapacities.ip_bonus,
-            defense: armorDefenseBase + defenseBonus,
-            magic_defense: armorMagicDefenseBase + magicDefenseBonus,
-        };
-    }
-
-    private getEquippedItems(
-        equipment: PcEquipment | undefined,
-    ): Item[] {
-        if (!equipment) {
-            return [];
-        }
-
-        return [
-            equipment.main_hand,
-            equipment.off_hand,
-            equipment.armor,
-            equipment.accessory,
-        ].filter((item): item is Item => item !== null);
-    }
-
-    private attributeDieValue(die: AttributeDie | null): number {
-        switch (die) {
-            case "d6":
-                return 6;
-            case "d8":
-                return 8;
-            case "d10":
-                return 10;
-            case "d12":
-                return 12;
-            case null:
-                return 0;
-        }
-    }
-
-    private resolveDefenseDiceValue(
-        defenseDice: string | null,
-        pcBase: PcBase,
-    ): number {
-        if (defenseDice === null) {
-            return 0;
-        }
-
-        const normalized = defenseDice.trim().toUpperCase();
-
-        switch (normalized) {
-            case "DES":
-                return this.attributeDieValue(pcBase.dexterity_die);
-            case "AST":
-                return this.attributeDieValue(pcBase.insight_die);
-            case "VIG":
-                return this.attributeDieValue(pcBase.might_die);
-            case "VON":
-                return this.attributeDieValue(pcBase.willpower_die);
-
-            case "D6":
-                return 6;
-            case "D8":
-                return 8;
-            case "D10":
-                return 10;
-            case "D12":
-                return 12;
-
-            default: {
-                const numericValue = Number(normalized);
-
-                if (Number.isFinite(numericValue)) {
-                    return numericValue;
-                }
-
-                throw new ValidationError(
-                    `Invalid defense dice value: ${defenseDice}`,
-                );
-            }
-        }
-    }
-
-    private parseModifier(value: string | number | null | undefined): number {
-        if (value === null || value === undefined) {
-            return 0;
-        }
-
-        if (typeof value === "number") {
-            return value;
-        }
-
-        const normalized = value.trim();
-
-        if (normalized.length === 0) {
-            return 0;
-        }
-
-        const parsed = Number(normalized.replace("+", ""));
-
-        if (!Number.isFinite(parsed)) {
-            throw new ValidationError(`Invalid modifier value: ${value}`);
-        }
-
-        return parsed;
     }
     
     private async enrichPcBonds(

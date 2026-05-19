@@ -64,5 +64,3 @@ export type BondTargetSummaryEntity = {
     name: string;
     img_key: string | null;
 };
-
-export 
