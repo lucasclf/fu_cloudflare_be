@@ -1,4 +1,5 @@
 import { PCService } from "../application/pc-service";
+import { PcBondResolver } from "../domain/pc/pc-bond-resolver";
 import { PcStatsCalculator } from "../domain/pc/pc-stats-calculator";
 import { D1ArcanaRepository } from "../infrastructure/repository/d1-arcana-repository";
 import { D1ItemRepository } from "../infrastructure/repository/d1-item-repository";
@@ -40,6 +41,11 @@ export function createPcService(env: Env): PCService {
     const npcRepository = new D1NpcRepository(env.fabula_ultima_db)
     const monsterRepository = new D1MonsterRepository(env.fabula_ultima_db)
     const pcStatsCalculator = new PcStatsCalculator()
+    const pcBondResolver = new PcBondResolver(
+        pcRepository,
+        npcRepository,
+        monsterRepository,
+    );
 
     return new PCService(
         pcRepository, 
@@ -61,5 +67,6 @@ export function createPcService(env: Env): PCService {
         npcRepository,
         monsterRepository,
         pcStatsCalculator,
+        pcBondResolver,
     )
 }

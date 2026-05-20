@@ -1,6 +1,7 @@
 import { ValidationError } from "../domain/domain-errors";
 import { Arcana } from "../domain/jobs/job";
 import { CreatePcArcanaRelationInput, PcBondInput, CreatePcEquipmentInput, CreatePCInput, CreatePcInventoryInput, PcJobRelation, CreatePcMonsterSpellRelationInput, PcPowerRelation, CreatePcSpellRelationInput, PcBase, PcFull, PcSummary, PcJobInfo, PcInventory, PcEquipment, PcCapacities, PcPowerInfo, PcCalculatedStats, BondTargetSummary, PcBond, TargetType } from "../domain/pc/pc";
+import { PcBondResolver } from "../domain/pc/pc-bond-resolver";
 import { PcStatsCalculator } from "../domain/pc/pc-stats-calculator";
 import { MonsterSpell, Spell } from "../domain/spells/spells";
 import { D1ArcanaRepository } from "../infrastructure/repository/d1-arcana-repository";
@@ -42,8 +43,15 @@ export class PCService {
         private readonly monsterSpellRepository: D1MonsterSpellRepository,
         private readonly npcRepository: D1NpcRepository,
         private readonly monsterRepository: D1MonsterRepository,
-        private readonly pcStatsCalculator: PcStatsCalculator
-    ){}
+        private readonly pcStatsCalculator: PcStatsCalculator,
+        private readonly pcBondResolver: PcBondResolver,
+    ){
+        this.pcBondResolver = new PcBondResolver(
+            this.pcRepository,
+            this.npcRepository,
+            this.monsterRepository,
+        );
+    }
 
     async createPc(input: CreatePCInput): Promise<void> {
         await this.pcRepository.create(input)
@@ -276,7 +284,7 @@ export class PCService {
             pcCapacities,
         );
 
-        const bonds = await this.enrichPcBonds(pcBonds);
+        const bonds = await this.pcBondResolver.resolve(pcBonds);
 
         return {
             ...pcBase,
@@ -291,120 +299,5 @@ export class PCService {
             inventories,
             bonds: bonds,
         };
-    }
-    
-    private async enrichPcBonds(
-        bonds: PcBond[],
-    ): Promise<PcBond[]> {
-        if (bonds.length === 0) {
-            return [];
-        }
-
-        const pcTargetIds = bonds
-            .filter((bond) => bond.target_type === "pc" && bond.target_id !== null)
-            .map((bond) => bond.target_id as number);
-
-        const npcTargetIds = bonds
-            .filter((bond) => bond.target_type === "npc" && bond.target_id !== null)
-            .map((bond) => bond.target_id as number);
-
-        const monsterTargetIds = bonds
-            .filter((bond) => bond.target_type === "monster" && bond.target_id !== null)
-            .map((bond) => bond.target_id as number);
-
-        const [pcsById, npcsById, monstersById] = await Promise.all([
-            this.pcRepository.findBondTargetsByIds(pcTargetIds),
-            this.npcRepository.findBondTargetsByIds(npcTargetIds),
-            this.monsterRepository.findBondTargetsByIds(monsterTargetIds),
-        ]);
-
-        return bonds.map((bond) => {
-            if (bond.target_type === "freeform") {
-                if (!bond.target_name) {
-                    throw new ValidationError(
-                        "target_name is required when target_type is freeform",
-                    );
-                }
-
-                return {
-                    ...bond,
-                    target_name: bond.target_name,
-                    img_key: this.normalizeImgKey(bond.target_name),
-                };
-            }
-
-            if (bond.target_id === null) {
-                throw new ValidationError(
-                    `target_id is required when target_type is ${bond.target_type}`,
-                );
-            }
-
-            const target = this.findBondTarget(
-                bond.target_type,
-                bond.target_id,
-                pcsById,
-                npcsById,
-                monstersById,
-            );
-
-            return {
-                ...bond,
-                target_name: target.name,
-                img_key: target.img_key,
-            };
-        });
-    }
-
-    private findBondTarget(
-        targetType: TargetType,
-        targetId: number,
-        pcsById: Map<number, BondTargetSummary>,
-        npcsById: Map<number, BondTargetSummary>,
-        monstersById: Map<number, BondTargetSummary>,
-    ): BondTargetSummary {
-        switch (targetType) {
-            case "pc": {
-                const target = pcsById.get(targetId);
-
-                if (!target) {
-                    throw new Error(`PC target not found for id=${targetId}`);
-                }
-
-                return target;
-            }
-
-            case "npc": {
-                const target = npcsById.get(targetId);
-
-                if (!target) {
-                    throw new Error(`NPC target not found for id=${targetId}`);
-                }
-
-                return target;
-            }
-
-            case "monster": {
-                const target = monstersById.get(targetId);
-
-                if (!target) {
-                    throw new Error(`Monster target not found for id=${targetId}`);
-                }
-
-                return target;
-            }
-
-            default:
-                throw new ValidationError(`Invalid bond target_type: ${targetType}`);
-        }
-    }
-
-    private normalizeImgKey(value: string): string {
-        return value
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase()
-            .trim()
-            .replace(/[^a-z0-9]+/g, "_")
-            .replace(/^_+|_+$/g, "");
     }
 }
