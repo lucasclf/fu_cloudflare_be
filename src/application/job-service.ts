@@ -1,5 +1,4 @@
 import {
-	CreateArcanaInput,
 	CreateJobAliasInput,
 	CreateJobInput,
 	CreateJobPowerInput,
@@ -8,19 +7,15 @@ import {
 	JobFull,
 	ResumeJob,
 } from "../domain/jobs/job";
-import { D1ArcanaRepository } from "../infrastructure/repository/d1-arcana-repository";
-import { D1JobBackgroundRepository } from "../infrastructure/repository/d1-job-background-repository";
-import { D1JobPowerRepository } from "../infrastructure/repository/d1-job-power-repository";
-import type { D1JobRepository } from "../infrastructure/repository/d1-job-repository";
-import { D1JobSpellRepository } from "../infrastructure/repository/d1-job-spell-repository";
+import { JobRepositoryPort, JobBackgroundRepositoryPort, JobPowerRepositoryPort, JobSpellRepositoryPort, ArcanaRepositoryPort } from "./ports/job-ports";
 
 export class JobService {
 	constructor(
-		private readonly jobRepository: D1JobRepository,
-		private readonly jobBackgroundRepository: D1JobBackgroundRepository,
-		private readonly jobPowerRepository: D1JobPowerRepository,
-		private readonly jobSpellRepository: D1JobSpellRepository,
-		private readonly arcanaRepository: D1ArcanaRepository
+		private readonly jobRepository: JobRepositoryPort,
+		private readonly jobBackgroundRepository: JobBackgroundRepositoryPort,
+		private readonly jobPowerRepository: JobPowerRepositoryPort,
+		private readonly jobSpellRepository: JobSpellRepositoryPort,
+		private readonly arcanaRepository: ArcanaRepositoryPort,
 	) {}
 
 	async listJobs(includes: string[]): Promise<Job[] | JobFull[]> {

@@ -1,27 +1,24 @@
 import { CreateActionInput, CreateAffinityInput, CreateMonsterInput, CreateMonsterTraitInput, Monster, MonsterAction, MonsterFull, MonsterSummary } from "../domain/monsters/monster";
-import { D1MonsterActionRepository } from "../infrastructure/repository/d1-monster-action-repository";
-import { D1MonsterAffinityRepository } from "../infrastructure/repository/d1-monster-affinity-repository";
-import { D1MonsterRepository } from "../infrastructure/repository/d1-monster-repository";
-import { D1MonsterTraitRepository } from "../infrastructure/repository/d1-monster-trait-repository";
+import { MonsterRepositoryPort, MonsterTraitRepositoryPort, MonsterAffinityRepositoryPort, MonsterActionRepositoryPort } from "./ports/monster-ports";
 
 export class MonsterService {
     constructor(
-        private readonly monsterRepository: D1MonsterRepository,
-        private readonly monsterTraitRepository: D1MonsterTraitRepository,
-        private readonly monsterAffinityRepository: D1MonsterAffinityRepository,
-        private readonly monsterActionRepository: D1MonsterActionRepository
+        private readonly monsterRepository: MonsterRepositoryPort,
+		private readonly monsterTraitRepository: MonsterTraitRepositoryPort,
+		private readonly monsterAffinityRepository: MonsterAffinityRepositoryPort,
+		private readonly monsterActionRepository: MonsterActionRepositoryPort,
     ) {}
 
     async createMonster(input: CreateMonsterInput): Promise<void> {
-        await this.monsterRepository.createMonster(input)
+        await this.monsterRepository.create(input)
     }
 
     async createMonsterTrait(input: CreateMonsterTraitInput): Promise<void> {
-        await this.monsterTraitRepository.createMonsterTrait(input)
+        await this.monsterTraitRepository.create(input)
     }
 
     async createMonsterAffinity(input: CreateAffinityInput): Promise<void> {
-        await this.monsterAffinityRepository.createAffinity(input)
+        await this.monsterAffinityRepository.create(input)
     }
 
     async createMonsterAction(input: CreateActionInput): Promise<void> {
@@ -85,7 +82,7 @@ export class MonsterService {
                 await this.monsterAffinityRepository.findByMonstersIds(monsterIds)
 
             for (const monster of monstersFull) {
-                monster.affinities = affinitiesByMonsterId.get(monster.id) ?? [];
+                monster.affinities = affinitiesByMonsterId.get(monster.id);
             }
         }
 

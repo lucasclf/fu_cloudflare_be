@@ -100,7 +100,7 @@ export interface Monster extends Character {
 
 export interface MonsterFull extends Monster {
     traits?: MonsterTrait[];
-    affinities?: MonsterAffinity[];
+    affinities?: MonsterAffinity;
     actions?: MonsterAction[];
 }
 
