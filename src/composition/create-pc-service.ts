@@ -1,3 +1,4 @@
+import { PcFullAssembler } from "../application/pc-full-assembler.ts";
 import { PCService } from "../application/pc-service";
 import { PcBondResolver } from "../domain/pc/pc-bond-resolver";
 import { PcStatsCalculator } from "../domain/pc/pc-stats-calculator";
@@ -46,6 +47,24 @@ export function createPcService(env: Env): PCService {
         npcRepository,
         monsterRepository,
     );
+    const pcFullAssembler = new PcFullAssembler(
+        pcJobRepository,
+        pcPowerRepository,
+        pcSpellRepository,
+        pcArcanaRepository,
+        pcEquipmentRepository,
+        pcInventoryRepository,
+        pcBondRepository,
+        pcMonsterSpellRepository,
+        jobRepository,
+        jobPowerRepository,
+        jobSpellRepository,
+        arcanaRepository,
+        itemRepository,
+        monsterSpellRepository,
+        pcStatsCalculator,
+        pcBondResolver,
+    )
 
     return new PCService(
         pcRepository, 
@@ -58,15 +77,6 @@ export function createPcService(env: Env): PCService {
         pcBondRepository,
         pcMonsterSpellRepository,
         monsterActionRepository,
-        jobRepository,
-        jobPowerRepository,
-        jobSpellRepository,
-        arcanaRepository,
-        itemRepository,
-        monsterSpellRepository,
-        npcRepository,
-        monsterRepository,
-        pcStatsCalculator,
-        pcBondResolver,
+        pcFullAssembler,
     )
 }

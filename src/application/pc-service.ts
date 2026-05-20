@@ -22,6 +22,7 @@ import { D1PCMonsterSpellRepository } from "../infrastructure/repository/d1-pc-m
 import { D1PCPowerRepository } from "../infrastructure/repository/d1-pc-power-repository";
 import { D1PCRepository } from "../infrastructure/repository/d1-pc-repository";
 import { D1PCSpellRepository } from "../infrastructure/repository/d1-pc-spell-repository";
+import { PcFullAssembler } from "./pc-full-assembler.ts";
 
 export class PCService {
     constructor(
@@ -35,23 +36,8 @@ export class PCService {
         private readonly pcBondRepository: D1PCBondRepository,
         private readonly pcMonsterSpellRepository: D1PCMonsterSpellRepository,
         private readonly monsterActionRepository: D1MonsterActionRepository,
-        private readonly jobRepository: D1JobRepository,
-        private readonly jobPowerRepository: D1JobPowerRepository,
-        private readonly jobSpellRepository: D1JobSpellRepository,
-        private readonly arcanaRepository: D1ArcanaRepository,
-        private readonly itemRepository: D1ItemRepository,
-        private readonly monsterSpellRepository: D1MonsterSpellRepository,
-        private readonly npcRepository: D1NpcRepository,
-        private readonly monsterRepository: D1MonsterRepository,
-        private readonly pcStatsCalculator: PcStatsCalculator,
-        private readonly pcBondResolver: PcBondResolver,
-    ){
-        this.pcBondResolver = new PcBondResolver(
-            this.pcRepository,
-            this.npcRepository,
-            this.monsterRepository,
-        );
-    }
+        private readonly pcFullAssembler: PcFullAssembler,
+    ){}
 
     async createPc(input: CreatePCInput): Promise<void> {
         await this.pcRepository.create(input)
@@ -101,7 +87,7 @@ export class PCService {
             return null
         }
 
-        return await this.mountPcFull(pcBase)
+        return this.pcFullAssembler.assemble(pcBase);
     }
 
     private async validatePcMonsterSpell(
@@ -116,188 +102,5 @@ export class PCService {
                 "monster_action_id must reference a monster action with action_type = spell",
             );
         }
-    }
-
-    private async mountPcFull(pcBase: PcBase): Promise<PcFull | null> {
-        const pcId = pcBase.id;
-
-        const [
-            pcJobRelations,
-            pcPowerRelations,
-            pcSpellRelations,
-            pcArcanaRelations,
-            pcEquipmentRelation,
-            pcInventoryRelations,
-            pcBonds,
-            pcMonsterSpellRelations,
-        ] = await Promise.all([
-            this.pcJobRepository.findByPcId(pcId),
-            this.pcPowerRepository.findByPcId(pcId),
-            this.pcSpellRepository.findByPcId(pcId),
-            this.pcArcanaRepository.findByPcId(pcId),
-            this.pcEquipmentRepository.findByPcId(pcId),
-            this.pcInventoryRepository.findByPcId(pcId),
-            this.pcBondRepository.findByPcId(pcId),
-            this.pcMonsterSpellRepository.findByPcId(pcId),
-        ]);
-
-        const jobIds = pcJobRelations.map((relation) => relation.job_id);
-        const powerIds = pcPowerRelations.map((relation) => relation.power_id);
-        const spellIds = pcSpellRelations.map((relation) => relation.spell_id);
-        const arcanaIds = pcArcanaRelations.map((relation) => relation.arcana_id);
-
-        const monsterActionIds = pcMonsterSpellRelations.map(
-            (relation) => relation.monster_action_id,
-        );
-
-        const equipmentItemIds = pcEquipmentRelation
-            ? [
-                    pcEquipmentRelation.main_hand,
-                    pcEquipmentRelation.off_hand,
-                    pcEquipmentRelation.armor,
-                    pcEquipmentRelation.accessory,
-                ].filter((id): id is number => id !== null)
-            : [];
-
-        const inventoryItemIds = pcInventoryRelations.map(
-            (relation) => relation.item_id,
-        );
-
-        const itemIds = [...new Set([
-            ...equipmentItemIds,
-            ...inventoryItemIds,
-        ])];
-
-        const [
-            jobsById,
-            powersById,
-            spellsById,
-            arcanasById,
-            monsterSpellsById,
-            itemsById,
-        ] = await Promise.all([
-            this.jobRepository.findResumeByIds(jobIds),
-            this.jobPowerRepository.findByIds(powerIds),
-            this.jobSpellRepository.findByIds(spellIds),
-            this.arcanaRepository.findByIds(arcanaIds),
-            this.monsterSpellRepository.findByIds(monsterActionIds),
-            this.itemRepository.findByIds(itemIds),
-        ]);
-
-        const jobs: PcJobInfo[] = pcJobRelations.map((relation) => {
-            const job = jobsById.get(relation.job_id);
-
-            if (!job) {
-                throw new Error(`Job não encontrada para id=${relation.job_id}`);
-            }
-
-            return {
-                ...job,
-                level: relation.level,
-            };
-        });
-
-        const powers: PcPowerInfo[] = pcPowerRelations.map((relation) => {
-            const power = powersById.get(relation.power_id);
-
-            if (!power) {
-                throw new Error(`Power não encontrado para id=${relation.power_id}`);
-            }
-
-            return {
-                ...power,
-                level: relation.level
-            }
-        });
-
-        const spells: Spell[] = pcSpellRelations.map((relation) => {
-            const spell = spellsById.get(relation.spell_id);
-
-            if (!spell) {
-                throw new Error(`Spell não encontrada para id=${relation.spell_id}`);
-            }
-
-            return spell;
-        });
-
-        const monsterSpells: MonsterSpell[] = pcMonsterSpellRelations.map((relation) => {
-            const monsterSpell = monsterSpellsById.get(relation.monster_action_id);
-
-            if (!monsterSpell) {
-                throw new Error(
-                    `Monster spell não encontrada para id=${relation.monster_action_id}`,
-                );
-            }
-
-            return monsterSpell;
-        });
-
-        const arcanas: Arcana[] = pcArcanaRelations.map((relation) => {
-            const arcana = arcanasById.get(relation.arcana_id);
-
-            if (!arcana) {
-                throw new Error(`Arcana não encontrada para id=${relation.arcana_id}`);
-            }
-
-            return arcana;
-        });
-
-        const equipment: PcEquipment | undefined = pcEquipmentRelation
-            ? {
-                    pc_id: pcEquipmentRelation.pc_id,
-                    main_hand: pcEquipmentRelation.main_hand
-                        ? itemsById.get(pcEquipmentRelation.main_hand) ?? null
-                        : null,
-                    off_hand: pcEquipmentRelation.off_hand
-                        ? itemsById.get(pcEquipmentRelation.off_hand) ?? null
-                        : null,
-                    armor: pcEquipmentRelation.armor
-                        ? itemsById.get(pcEquipmentRelation.armor) ?? null
-                        : null,
-                    accessory: pcEquipmentRelation.accessory
-                        ? itemsById.get(pcEquipmentRelation.accessory) ?? null
-                        : null,
-                }
-            : undefined;
-
-        const inventories: PcInventory[] = pcInventoryRelations.map((relation) => {
-            const item = itemsById.get(relation.item_id);
-
-            if (!item) {
-                throw new Error(`Item não encontrado para id=${relation.item_id}`);
-            }
-
-            return {
-                pc_id: relation.pc_id,
-                item,
-                quantity: relation.quantity,
-            };
-        });
-
-        const pcCapacities =
-            this.pcStatsCalculator.calculateCapacities(jobs);
-
-        const stats = this.pcStatsCalculator.calculateStats(
-            pcBase,
-            jobs,
-            equipment,
-            pcCapacities,
-        );
-
-        const bonds = await this.pcBondResolver.resolve(pcBonds);
-
-        return {
-            ...pcBase,
-            stats: stats,
-            pc_capacities: this.pcStatsCalculator.calculateCapacities(jobs),
-            jobs,
-            powers,
-            spells,
-            monsterSpells,
-            arcanas,
-            equipment,
-            inventories,
-            bonds: bonds,
-        };
     }
 }
