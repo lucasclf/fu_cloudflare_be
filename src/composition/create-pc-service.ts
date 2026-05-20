@@ -1,6 +1,8 @@
+import { PcBondResolver } from "../application/pc-bond-resolver.js";
+import { PcCommandService } from "../application/pc-command-service.js";
 import { PcFullAssembler } from "../application/pc-full-assembler.ts";
+import { PcQueryService } from "../application/pc-query-service.js";
 import { PCService } from "../application/pc-service";
-import { PcBondResolver } from "../domain/pc/pc-bond-resolver";
 import { PcStatsCalculator } from "../domain/pc/pc-stats-calculator";
 import { D1ArcanaRepository } from "../infrastructure/repository/d1-arcana-repository";
 import { D1ItemRepository } from "../infrastructure/repository/d1-item-repository";
@@ -65,18 +67,25 @@ export function createPcService(env: Env): PCService {
         pcStatsCalculator,
         pcBondResolver,
     )
-
-    return new PCService(
-        pcRepository, 
-        pcJobRepository, 
-        pcPowerRepository, 
-        pcSpellRepository,
-        pcArcanaRepository,
-        pcEquipmentRepository,
-        pcInventoryRepository,
-        pcBondRepository,
-        pcMonsterSpellRepository,
-        monsterActionRepository,
+    const pcQueryService = new PcQueryService(
+        pcRepository,
         pcFullAssembler,
+    );
+    const pcCommandService = new PcCommandService(
+        pcRepository,
+		pcJobRepository,
+		pcPowerRepository,
+		pcSpellRepository,
+		pcArcanaRepository,
+		pcEquipmentRepository,
+		pcInventoryRepository,
+		pcBondRepository,
+		pcMonsterSpellRepository,
+		monsterActionRepository,
+    )
+    
+    return new PCService(
+        pcQueryService,
+        pcCommandService,
     )
 }

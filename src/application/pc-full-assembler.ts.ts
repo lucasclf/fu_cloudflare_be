@@ -1,40 +1,29 @@
 import { Arcana } from "../domain/jobs/job";
 import type { PcBase, PcEquipment, PcFull, PcInventory, PcJobInfo, PcPowerInfo } from "../domain/pc/pc";
-import { PcBondResolver } from "../domain/pc/pc-bond-resolver";
 import { PcStatsCalculator } from "../domain/pc/pc-stats-calculator";
 import { Spell, MonsterSpell } from "../domain/spells/spells";
-import { D1ArcanaRepository } from "../infrastructure/repository/d1-arcana-repository";
-import { D1ItemRepository } from "../infrastructure/repository/d1-item-repository";
-import { D1JobPowerRepository } from "../infrastructure/repository/d1-job-power-repository";
-import { D1JobRepository } from "../infrastructure/repository/d1-job-repository";
-import { D1JobSpellRepository } from "../infrastructure/repository/d1-job-spell-repository";
-import { D1MonsterSpellRepository } from "../infrastructure/repository/d1-monster-spell-repository";
-import { D1PCArcanaRepository } from "../infrastructure/repository/d1-pc-arcana-repository";
-import { D1PCBondRepository } from "../infrastructure/repository/d1-pc-bond-repository";
-import { D1PCEquipmentRepository } from "../infrastructure/repository/d1-pc-equipment-repository";
-import { D1PCInventoryRepository } from "../infrastructure/repository/d1-pc-inventory-repository";
-import { D1PCJobRepository } from "../infrastructure/repository/d1-pc-job-repository";
-import { D1PCMonsterSpellRepository } from "../infrastructure/repository/d1-pc-monster-spell-repository";
-import { D1PCPowerRepository } from "../infrastructure/repository/d1-pc-power-repository";
-import { D1PCSpellRepository } from "../infrastructure/repository/d1-pc-spell-repository";
+import { PcBondResolver } from "./pc-bond-resolver";
+import { PcJobRelationReaderPort, PcPowerRelationReaderPort, PcSpellRelationReaderPort, PcArcanaRelationReaderPort, PcEquipmentRelationReaderPort, PcInventoryRelationReaderPort, PcBondRelationReaderPort, PcMonsterSpellRelationReaderPort, JobLookupPort, JobPowerLookupPort, JobSpellLookupPort, ArcanaLookupPort, ItemLookupPort, MonsterSpellLookupPort } from "./ports/pc-ports";
+
+
 
 export class PcFullAssembler {
 	constructor(
-		private readonly pcJobRepository: D1PCJobRepository,
-		private readonly pcPowerRepository: D1PCPowerRepository,
-		private readonly pcSpellRepository: D1PCSpellRepository,
-		private readonly pcArcanaRepository: D1PCArcanaRepository,
-		private readonly pcEquipmentRepository: D1PCEquipmentRepository,
-		private readonly pcInventoryRepository: D1PCInventoryRepository,
-		private readonly pcBondRepository: D1PCBondRepository,
-		private readonly pcMonsterSpellRepository: D1PCMonsterSpellRepository,
+		private readonly pcJobRepository: PcJobRelationReaderPort,
+		private readonly pcPowerRepository: PcPowerRelationReaderPort,
+		private readonly pcSpellRepository: PcSpellRelationReaderPort,
+		private readonly pcArcanaRepository: PcArcanaRelationReaderPort,
+		private readonly pcEquipmentRepository: PcEquipmentRelationReaderPort,
+		private readonly pcInventoryRepository: PcInventoryRelationReaderPort,
+		private readonly pcBondRepository: PcBondRelationReaderPort,
+		private readonly pcMonsterSpellRepository: PcMonsterSpellRelationReaderPort,
 
-		private readonly jobRepository: D1JobRepository,
-		private readonly jobPowerRepository: D1JobPowerRepository,
-		private readonly jobSpellRepository: D1JobSpellRepository,
-		private readonly arcanaRepository: D1ArcanaRepository,
-		private readonly itemRepository: D1ItemRepository,
-		private readonly monsterSpellRepository: D1MonsterSpellRepository,
+		private readonly jobRepository: JobLookupPort,
+		private readonly jobPowerRepository: JobPowerLookupPort,
+		private readonly jobSpellRepository: JobSpellLookupPort,
+		private readonly arcanaRepository: ArcanaLookupPort,
+		private readonly itemRepository: ItemLookupPort,
+		private readonly monsterSpellRepository: MonsterSpellLookupPort,
 
 		private readonly pcStatsCalculator: PcStatsCalculator,
 		private readonly pcBondResolver: PcBondResolver,

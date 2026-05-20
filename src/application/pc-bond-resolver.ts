@@ -1,9 +1,7 @@
-import { ValidationError } from "../domain-errors";
-import type {
-	BondTargetSummary,
-	PcBond,
-	TargetType,
-} from "./pc";
+
+import { ValidationError } from "../domain/domain-errors";
+import { BondTargetSummary, PcBond, TargetType } from "../domain/pc/pc";
+import { PcBondTargetReaderPort } from "./ports/pc-ports";
 
 type BondTargetRepository = {
 	findBondTargetsByIds(ids: number[]): Promise<Map<number, BondTargetSummary>>;
@@ -11,9 +9,9 @@ type BondTargetRepository = {
 
 export class PcBondResolver {
 	constructor(
-		private readonly pcRepository: BondTargetRepository,
-		private readonly npcRepository: BondTargetRepository,
-		private readonly monsterRepository: BondTargetRepository,
+		private readonly pcRepository: PcBondTargetReaderPort,
+		private readonly npcRepository: PcBondTargetReaderPort,
+		private readonly monsterRepository: PcBondTargetReaderPort,
 	) {}
 
 	async resolve(bonds: PcBond[]): Promise<PcBond[]> {
