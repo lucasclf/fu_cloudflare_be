@@ -22,7 +22,7 @@ export class MonsterService {
     }
 
     async createMonsterAction(input: CreateActionInput): Promise<void> {
-        await this.monsterActionRepository.createMonsterAction(input)
+        await this.monsterActionRepository.create(input)
     }
 
     async findAll(): Promise<Monster[]> {
@@ -78,8 +78,8 @@ export class MonsterService {
         }
 
         if (includes.includes("affinities")) {
-            const affinitiesByMonsterId = 
-                await this.monsterAffinityRepository.findByMonstersIds(monsterIds)
+            const affinitiesByMonsterId =
+                await this.monsterAffinityRepository.findByMonstersIds(monsterIds);
 
             for (const monster of monstersFull) {
                 monster.affinities = affinitiesByMonsterId.get(monster.id);

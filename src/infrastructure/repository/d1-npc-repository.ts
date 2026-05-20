@@ -109,7 +109,7 @@ export class D1NpcRepository {
         return results.map((row) => this.toNpcSummary(row));
     }
 
-    async finById(npcId: string): Promise<Npc | null> {
+    async findById(npcId: string): Promise<Npc | null> {
         const result = await this.db
             .prepare(
                 `

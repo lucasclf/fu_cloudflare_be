@@ -84,7 +84,7 @@ export interface MonsterActionReaderPort {
 }
 
 export interface MonsterActionWriterPort {
-	createMonsterAction(input: CreateActionInput): Promise<void>;
+	create(input: CreateActionInput): Promise<void>;
 }
 
 export interface MonsterActionRepositoryPort

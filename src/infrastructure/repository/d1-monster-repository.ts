@@ -7,7 +7,7 @@ import { MonsterEntity, BondTargetSummaryEntity } from "../entity/monster";
 export class D1MonsterRepository {
     constructor(private readonly db: D1Database) {}
 
-    async createMonster(input: CreateMonsterInput): Promise<void> {
+    async create(input: CreateMonsterInput): Promise<void> {
         try {
             await this.db
                 .prepare(`

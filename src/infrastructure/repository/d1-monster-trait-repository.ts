@@ -4,7 +4,7 @@ import { MonsterTraitAlreadyExistsError } from "../../domain/monsters/monster-er
 export class D1MonsterTraitRepository {
     constructor(private readonly db: D1Database) {}
 
-    async createMonsterTrait(input: CreateMonsterTraitInput): Promise<void> {
+    async create(input: CreateMonsterTraitInput): Promise<void> {
         try {
             await this.db
                 .prepare(`

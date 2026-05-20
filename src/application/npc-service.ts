@@ -4,14 +4,15 @@ import { D1NpcEquipmentRepository } from "../infrastructure/repository/d1-npc-eq
 import { D1NpcInventoryRepository } from "../infrastructure/repository/d1-npc-inventory-repository";
 import { D1NpcRepository } from "../infrastructure/repository/d1-npc-repository";
 import { D1NpcSpecialRulesRepository } from "../infrastructure/repository/d1-npc-special-rules-repository";
+import { NpcRepositoryPort, NpcSpecialRuleRepositoryPort, NpcInventoryRepositoryPort, NpcEquipmentRepositoryPort, NpcItemLookupPort } from "./ports/npc-ports";
 
 export class NpcService{
     constructor(
-        private readonly npcRepository: D1NpcRepository,
-        private readonly npcSpecialRulesRepository: D1NpcSpecialRulesRepository,
-        private readonly npcInventoryRepository: D1NpcInventoryRepository,
-        private readonly npcEquipmentRepository: D1NpcEquipmentRepository,
-        private readonly itemRepository: D1ItemRepository,
+        private readonly npcRepository: NpcRepositoryPort,
+		private readonly npcSpecialRulesRepository: NpcSpecialRuleRepositoryPort,
+		private readonly npcInventoryRepository: NpcInventoryRepositoryPort,
+		private readonly npcEquipmentRepository: NpcEquipmentRepositoryPort,
+		private readonly itemRepository: NpcItemLookupPort,
     ){}
 
     async createNpc(input: CreateNpcInput) {
@@ -42,7 +43,7 @@ export class NpcService{
         npcId: string,
         includes: string[],
     ): Promise<NpcFull | null> {
-        const npc = await this.npcRepository.finById(npcId);
+        const npc = await this.npcRepository.findById(npcId);
 
         if (!npc) {
 			return null;

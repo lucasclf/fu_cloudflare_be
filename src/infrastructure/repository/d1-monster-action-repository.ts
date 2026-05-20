@@ -7,7 +7,7 @@ import { MonsterActionEntity, MonsterSpellEntity } from "../entity/monster";
 export class D1MonsterActionRepository {
     constructor(private readonly db: D1Database){}
 
-    async createMonsterAction(input: CreateActionInput): Promise<void> {
+    async create(input: CreateActionInput): Promise<void> {
         try {
             await this.db
                 .prepare(`
