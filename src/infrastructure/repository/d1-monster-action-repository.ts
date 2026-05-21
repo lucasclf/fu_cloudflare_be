@@ -133,7 +133,7 @@ export class D1MonsterActionRepository {
         return result !== null;
     }
 
-    async findActions(include: string[]): Promise<MonsterAction[]> {
+    async findAll(include: string[]): Promise<MonsterAction[]> {
         const hasActionTypeFilter = include.length > 0;
 
         const whereClause = hasActionTypeFilter

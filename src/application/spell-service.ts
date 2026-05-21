@@ -10,11 +10,11 @@ export class SpellService {
     ) {}
 
 	async createJobSpell(input: CreateJobSpellInput): Promise<void> {
-		await this.jobSpellRepository.createJobSpell(input);
+		await this.jobSpellRepository.create(input);
 	}
 
     async listSpells(): Promise<(JobSpellWithJob | MonsterSpell)[]> {
-        const jobSpells = await this.jobSpellRepository.listSpells();
+        const jobSpells = await this.jobSpellRepository.findAll();
         const monsterSpells = await this.monsterActionRepository.listSpells()
         
         return [...jobSpells, ...monsterSpells];

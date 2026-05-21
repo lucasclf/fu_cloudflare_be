@@ -6,7 +6,7 @@ import { JobPowerEntity, JobPowerWithJobEntity } from "../entity/job";
 export class D1JobPowerRepository {
 	constructor(private readonly db: D1Database) {}
 
-    async findPowersByJobIds(
+    async findByJobIds(
         jobIds: number[],
     ): Promise<Map<number, JobPower[]>> {
         if (jobIds.length === 0) {
@@ -48,7 +48,7 @@ export class D1JobPowerRepository {
         return grouped;
     }
 
-	async createJobPower(input: CreateJobPowerInput): Promise<void> {
+	async create(input: CreateJobPowerInput): Promise<void> {
         try {
             const statements = [
                 this.db
@@ -113,7 +113,7 @@ export class D1JobPowerRepository {
         }
     }
 
-    async listPowers(): Promise<JobPowerWithJob[]> {
+    async findAll(): Promise<JobPowerWithJob[]> {
         const { results } = await this.db
             .prepare(`
                 SELECT

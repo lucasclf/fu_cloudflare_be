@@ -114,7 +114,7 @@ export interface PcMonsterSpellRelationReaderPort {
  */
 
 export interface JobLookupPort {
-	findResumeByIds(jobIds: number[]): Promise<Map<number, ResumeJob>>;
+	findSummaryByIds(jobIds: number[]): Promise<Map<number, ResumeJob>>;
 }
 
 export interface JobPowerLookupPort {

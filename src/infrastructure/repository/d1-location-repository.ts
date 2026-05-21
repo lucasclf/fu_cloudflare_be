@@ -37,7 +37,7 @@ export class D1LocationRepository {
             }
         }
 
-    async listLocations(): Promise<Location[]> {
+    async findAll(): Promise<Location[]> {
         const { results } = await this.db
             .prepare(`
                 SELECT
@@ -57,7 +57,7 @@ export class D1LocationRepository {
 	    return results.map((row) => this.toLocation(row));
     }
 
-    async getLocationById(id: number): Promise<Location | null> {
+    async findById(id: number): Promise<Location | null> {
     const result = await this.db
                 .prepare(`
             SELECT

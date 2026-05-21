@@ -99,7 +99,7 @@ export class D1MonsterRepository {
         return results.map((row) => this.toMonster(row));
     }
 
-    async findAllSummaries(): Promise<MonsterSummary[]> {
+    async findAllSummary(): Promise<MonsterSummary[]> {
         const { results } = await this.db
             .prepare(
                 `

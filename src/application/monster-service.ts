@@ -30,7 +30,7 @@ export class MonsterService {
     }
 
     async findAllSummaries(): Promise<MonsterSummary[]> {
-        return await this.monsterRepository.findAllSummaries();
+        return await this.monsterRepository.findAllSummary();
     }
 
     async findById(
@@ -53,7 +53,7 @@ export class MonsterService {
     }
 
     async findMonsterActions(includes: string[]): Promise<MonsterAction[]>{
-        const actions = await this.monsterActionRepository.findActions(includes)
+        const actions = await this.monsterActionRepository.findAll(includes)
         return actions;
     }
 

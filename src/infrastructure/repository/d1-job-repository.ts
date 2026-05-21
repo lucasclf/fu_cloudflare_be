@@ -37,7 +37,7 @@ export class D1JobRepository {
     return results.map((row) => this.toJob(row));
 	}
 
-	async findCatalogJobs(): Promise<ResumeJob[]> {
+	async findAllSummary(): Promise<ResumeJob[]> {
 		const { results } = await this.db
 			.prepare(`
             SELECT
@@ -65,7 +65,7 @@ export class D1JobRepository {
     return results.map((row) => this.toResumeJob(row));
 	}
 
-	async findByJobId(jobId: string): Promise<Job | null> {
+	async findById(jobId: string): Promise<Job | null> {
 		const result = await this.db
 			.prepare(`
               SELECT
@@ -149,7 +149,7 @@ export class D1JobRepository {
 		}
 	}
 
-  async findResumeByIds(jobIds: number[]): Promise<Map<number, ResumeJob>> {
+  async findSummaryByIds(jobIds: number[]): Promise<Map<number, ResumeJob>> {
     if (jobIds.length === 0) {
       return new Map();
     }

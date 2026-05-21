@@ -5,11 +5,11 @@ import type {
 import type { Location } from "../../domain/locations/location";
 
 export interface LocationReaderPort {
-	listLocations(): Promise<Location[]>;
+	findAll(): Promise<Location[]>;
 }
 
 export interface FactionReaderPort {
-	listFactions(): Promise<FactionBase[]>;
+	findAll(): Promise<FactionBase[]>;
 }
 
 export interface FactionLocationReaderPort {

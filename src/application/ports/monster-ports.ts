@@ -5,9 +5,7 @@ import type {
 	CreateMonsterTraitInput,
 	Monster,
 	MonsterAction,
-	MonsterActionIncludes,
 	MonsterAffinity,
-	MonsterFull,
 	MonsterSummary,
 	MonsterTrait,
 } from "../../domain/monsters/monster";
@@ -19,7 +17,7 @@ import type { BondTargetSummary } from "../../domain/pc/pc";
 
 export interface MonsterReaderPort {
 	findAll(): Promise<Monster[]>;
-	findAllSummaries(): Promise<MonsterSummary[]>;
+	findAllSummary(): Promise<MonsterSummary[]>;
 	findById(monsterId: string): Promise<Monster | null>;
 
 	findBondTargetsByIds(
@@ -80,7 +78,7 @@ export interface MonsterActionReaderPort {
 		monsterIds: number[],
 	): Promise<Map<number, MonsterAction[]>>;
 
-	findActions(include: string[]): Promise<MonsterAction[]>;
+	findAll(include: string[]): Promise<MonsterAction[]>;
 }
 
 export interface MonsterActionWriterPort {

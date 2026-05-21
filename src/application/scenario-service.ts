@@ -10,8 +10,8 @@ export class ScenarioService {
 
     async listEntities() {
         const [locations, factions] = await Promise.all([
-			this.locationRepository.listLocations(),
-			this.factionRepository.listFactions(),
+			this.locationRepository.findAll(),
+			this.factionRepository.findAll(),
 		]);
 
 		const factionIds = factions.map((faction) => faction.id);

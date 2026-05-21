@@ -9,10 +9,10 @@ export class PowerService {
     ) {}
 
     async createJobPower(input: CreateJobPowerInput): Promise<void> {
-        await this.jobPowerRepository.createJobPower(input);
+        await this.jobPowerRepository.create(input);
     }
 
     async listPowers(): Promise<JobPowerWithJob[]> {
-        return await this.jobPowerRepository.listPowers();
+        return await this.jobPowerRepository.findAll();
     }
 }

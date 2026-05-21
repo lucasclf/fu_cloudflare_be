@@ -7,12 +7,13 @@ import {
 	JobFull,
 	ResumeJob,
 } from "../domain/jobs/job";
-import { JobRepositoryPort, JobBackgroundRepositoryPort, JobPowerRepositoryPort, JobSpellRepositoryPort, ArcanaRepositoryPort } from "./ports/job-ports";
+import { JobRepositoryPort, JobQuestionsRepositoryPort, JobPowerRepositoryPort, JobSpellRepositoryPort, ArcanaRepositoryPort, JobAliasesRepositoryPort } from "./ports/job-ports";
 
 export class JobService {
 	constructor(
 		private readonly jobRepository: JobRepositoryPort,
-		private readonly jobBackgroundRepository: JobBackgroundRepositoryPort,
+		private readonly jobQuestionsRepository: JobQuestionsRepositoryPort,
+		private readonly jobAliasesRepository: JobAliasesRepositoryPort,
 		private readonly jobPowerRepository: JobPowerRepositoryPort,
 		private readonly jobSpellRepository: JobSpellRepositoryPort,
 		private readonly arcanaRepository: ArcanaRepositoryPort,
@@ -29,7 +30,7 @@ export class JobService {
 	}
 
 	async listCatalogJobs(includes: string[]): Promise<ResumeJob[]> {
-		const jobs = await this.jobRepository.findCatalogJobs();
+		const jobs = await this.jobRepository.findAllSummary();
 
 		if (jobs.length === 0 || includes.length === 0) {
 			return jobs;
@@ -42,7 +43,7 @@ export class JobService {
 		jobId: string,
 		includes: string[],
 	): Promise<Job | JobFull | null> {
-		const job = await this.jobRepository.findByJobId(jobId);
+		const job = await this.jobRepository.findById(jobId);
 
 		if (!job) {
 			return null;
@@ -69,8 +70,8 @@ export class JobService {
 
 		if (includes.includes("background")) {
 			const [questionsByJobId, aliasesByJobId] = await Promise.all([
-				this.jobBackgroundRepository.findQuestionsByJobIds(jobIds),
-				this.jobBackgroundRepository.findAliasesByJobIds(jobIds),
+				this.jobQuestionsRepository.findByJobIds(jobIds),
+				this.jobAliasesRepository.findByJobIds(jobIds),
 			]);
 
 			for (const job of jobsFull) {
@@ -81,7 +82,7 @@ export class JobService {
 
 		if (includes.includes("powers")) {
 			const powersByJobId =
-				await this.jobPowerRepository.findPowersByJobIds(jobIds);
+				await this.jobPowerRepository.findByJobIds(jobIds);
 
 			for (const job of jobsFull) {
 				job.powers = powersByJobId.get(job.id) ?? [];
@@ -89,7 +90,7 @@ export class JobService {
 		}
 
 		if (includes.includes("spells")) {
-			const spellsByJobId = await this.jobSpellRepository.findSpellsByJobIds(jobIds);
+			const spellsByJobId = await this.jobSpellRepository.findByJobIds(jobIds);
 
 			const hasArcaneJobs = jobsFull.some((job) => job.allows_arcane);
 
@@ -114,14 +115,14 @@ export class JobService {
 	}
 
 	async createJobQuestion(input: CreateJobQuestionInput): Promise<void> {
-		await this.jobBackgroundRepository.createJobQuestion(input);
+		await this.jobQuestionsRepository.create(input);
 	}
 
 	async createJobAlias(input: CreateJobAliasInput): Promise<void> {
-		await this.jobBackgroundRepository.createJobAlias(input);
+		await this.jobAliasesRepository.create(input);
 	}
 
 	async createJobPower(input: CreateJobPowerInput): Promise<void> {
-		await this.jobPowerRepository.createJobPower(input);
+		await this.jobPowerRepository.create(input);
 	}
 }

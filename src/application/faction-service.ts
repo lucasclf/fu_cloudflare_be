@@ -13,7 +13,7 @@ export class FactionService {
     }
 
     async listFactions(): Promise<FactionResponse[]> {
-        const factions = await this.factionRepository.listFactions();
+        const factions = await this.factionRepository.findAll();
 
 		if (factions.length === 0) {
 			return [];

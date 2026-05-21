@@ -15,9 +15,9 @@ import { JobSpell } from "../../domain/spells/spells";
 
 export interface JobReaderPort {
 	findAll(): Promise<Job[]>;
-	findCatalogJobs(): Promise<ResumeJob[]>;
-	findByJobId(jobId: string): Promise<Job | null>;
-	findResumeByIds(jobIds: number[]): Promise<Map<number, ResumeJob>>;
+	findAllSummary(): Promise<ResumeJob[]>;
+	findById(jobId: string): Promise<Job | null>;
+	findSummaryByIds(jobIds: number[]): Promise<Map<number, ResumeJob>>;
 }
 
 export interface JobWriterPort {
@@ -26,33 +26,42 @@ export interface JobWriterPort {
 
 export interface JobRepositoryPort extends JobReaderPort, JobWriterPort {}
 
-export interface JobBackgroundReaderPort {
-	findQuestionsByJobIds(
+export interface JobQuestionsReaderPort {
+	findByJobIds(
 		jobIds: number[],
 	): Promise<Map<number, JobQuestion[]>>;
+}
 
-	findAliasesByJobIds(
+export interface JobAliasesReaderPort {
+	findByJobIds(
 		jobIds: number[],
 	): Promise<Map<number, JobAlias[]>>;
 }
 
-export interface JobBackgroundWriterPort {
-	createJobQuestion(input: CreateJobQuestionInput): Promise<void>;
-	createJobAlias(input: CreateJobAliasInput): Promise<void>;
+export interface JobQuestionsWriterPort {
+	create(input: CreateJobQuestionInput): Promise<void>;
 }
 
-export interface JobBackgroundRepositoryPort
-	extends JobBackgroundReaderPort,
-		JobBackgroundWriterPort {}
+export interface JobAliasesWriterPort {
+	create(input: CreateJobAliasInput): Promise<void>;
+}
+
+export interface JobQuestionsRepositoryPort
+	extends JobQuestionsReaderPort,
+		JobQuestionsWriterPort {}
+
+export interface JobAliasesRepositoryPort
+	extends JobAliasesReaderPort,
+		JobAliasesWriterPort {}
 
 export interface JobPowerReaderPort {
-	findPowersByJobIds(
+	findByJobIds(
 		jobIds: number[],
 	): Promise<Map<number, JobPower[]>>;
 }
 
 export interface JobPowerWriterPort {
-	createJobPower(input: CreateJobPowerInput): Promise<void>;
+	create(input: CreateJobPowerInput): Promise<void>;
 }
 
 export interface JobPowerRepositoryPort
@@ -60,7 +69,7 @@ export interface JobPowerRepositoryPort
 		JobPowerWriterPort {}
 
 export interface JobSpellReaderPort {
-	findSpellsByJobIds(
+	findByJobIds(
 		jobIds: number[],
 	): Promise<Map<number, JobSpell[]>>;
 }

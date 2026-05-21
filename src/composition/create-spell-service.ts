@@ -1,7 +1,6 @@
 import { SpellService } from "../application/spell-service";
 import { D1JobSpellRepository } from "../infrastructure/repository/d1-job-spell-repository";
 import { D1MonsterActionRepository } from "../infrastructure/repository/d1-monster-action-repository";
-import { D1MonsterSpellRepository } from "../infrastructure/repository/d1-monster-spell-repository";
 import type { Env } from "../types/env";
 
 export function createSpellService(env: Env): SpellService {

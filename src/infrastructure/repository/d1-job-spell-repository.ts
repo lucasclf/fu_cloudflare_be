@@ -7,7 +7,7 @@ import { JobSpellWithJobEntity, JobSpellEntity } from "../entity/job";
 export class D1JobSpellRepository {
 	constructor(private readonly db: D1Database) {}
 
-	async createJobSpell(input: CreateJobSpellInput): Promise<void> {
+	async create(input: CreateJobSpellInput): Promise<void> {
 		try {
 			await this.db
 				.prepare(`
@@ -43,7 +43,7 @@ export class D1JobSpellRepository {
 		}
 	}
 
-	async listSpells(): Promise<JobSpellWithJob[]> {
+	async findAll(): Promise<JobSpellWithJob[]> {
 		const { results } = await this.db
 			.prepare(`
 				SELECT
@@ -66,7 +66,7 @@ export class D1JobSpellRepository {
 		return results.map((row) => this.toJobSpellWithJob(row));
 	}
 
-	async findSpellsByJobIds(
+	async findByJobIds(
 		jobIds: number[],
 	): Promise<Map<number, JobSpell[]>> {
 		if (jobIds.length === 0) {

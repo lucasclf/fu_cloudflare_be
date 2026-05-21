@@ -87,7 +87,7 @@ export class PcFullAssembler {
             monsterSpellsById,
             itemsById,
         ] = await Promise.all([
-            this.jobRepository.findResumeByIds(jobIds),
+            this.jobRepository.findSummaryByIds(jobIds),
             this.jobPowerRepository.findByIds(powerIds),
             this.jobSpellRepository.findByIds(spellIds),
             this.arcanaRepository.findByIds(arcanaIds),

@@ -11,10 +11,10 @@ export class LocationService {
     }
 
     async listLocations(): Promise<Location[]> {
-        return await this.locationRepository.listLocations();
+        return await this.locationRepository.findAll();
     }
 
     async getLocationById(id: number): Promise<Location | null> {
-        return await this.locationRepository.getLocationById(id);
+        return await this.locationRepository.findById(id);
     }
 }

@@ -73,7 +73,7 @@ export class D1FactionRepository {
         }
     }
 
-    async listFactions(): Promise<FactionBase[]> {
+    async findAll(): Promise<FactionBase[]> {
 		const { results } = await this.db
 			.prepare(`
 				SELECT
