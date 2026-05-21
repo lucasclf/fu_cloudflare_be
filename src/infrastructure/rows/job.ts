@@ -1,6 +1,6 @@
 import { D1Boolean } from "../d1-utils";
 
-export type JobPowerEntity = {
+export type PowerRow = {
     id: number;
     name: string;
     description: string;
@@ -11,11 +11,11 @@ export type JobPowerEntity = {
     updated_at?: string | null;
 };
 
-export type JobPowerWithJobEntity = JobPowerEntity & {
+export type PowerWithJobNameRow = PowerRow & {
     job_name: string | null;
 };
 
-export type JobEntity = {
+export type JobRow = {
   id: number;
   name: string;
   tagline: string;
@@ -39,12 +39,12 @@ export type JobEntity = {
   updated_at: string | null;
 };
 
-export type ResumeJobEntity = Omit<
-  JobEntity,
+export type ResumeJobRow = Omit<
+  JobRow,
   "description" | "created_at" | "updated_at"
 >;
 
-export type JobSpellEntity = {
+export type SpellRow = {
     id: number;
     job_id: number;
     name: string;
@@ -57,6 +57,6 @@ export type JobSpellEntity = {
     updated_at?: string | null;
 };
 
-export type JobSpellWithJobEntity = JobSpellEntity & {
+export type SpellWithJobNameRow = SpellRow & {
     job_name: string;
 };

@@ -1,6 +1,6 @@
 import { CreatePcSpellRelationInput as PcSpellRelation } from "../../domain/pc/pc";
 import { PcSpellRelationAlreadyExistsError } from "../../domain/pc/pc_error";
-import { PcSpellRelationEntity } from "../entity/pc";
+import { PcSpellRelationRow } from "../rows/pc";
 
 export class D1PCSpellRepository {
     constructor(private readonly db: D1Database){}
@@ -42,7 +42,7 @@ export class D1PCSpellRepository {
                 `
             )
             .bind(pcId)
-            .all<PcSpellRelationEntity>();
+            .all<PcSpellRelationRow>();
         
         return results
     }

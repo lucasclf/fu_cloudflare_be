@@ -1,6 +1,6 @@
 import { D1Boolean } from "../d1-utils";
 
-export type MonsterActionEntity = {
+export type MonsterActionRow = {
     id: number;
     monster_id: number;
     action_type: string;
@@ -19,7 +19,7 @@ export type MonsterActionEntity = {
     updated_at?: string | null;
 };
 
-export type MonsterSpellEntity = {
+export type MonsterSpellRow = {
     id: number;
     name: string;
     description: string;
@@ -29,7 +29,7 @@ export type MonsterSpellEntity = {
     duration: string | null;
 };
 
-export type MonsterEntity = {
+export type MonsterRow = {
     id: number;
     name: string;
     description: string;
@@ -59,7 +59,7 @@ export type MonsterEntity = {
     updated_at: string | null;
 };
 
-export type BondTargetSummaryEntity = {
+export type BondTargetSummaryRow = {
     id: number;
     name: string;
     img_key: string | null;

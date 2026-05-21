@@ -1,7 +1,7 @@
 import { CreateJobInput, Job, ResumeJob } from "../../domain/jobs/job";
 import { JobAlreadyExistsError } from "../../domain/jobs/job-errors";
 import { buildInPlaceholders, D1Boolean, fromBoolean, mapById, toBoolean, uniqueNumbers } from "../d1-utils";
-import { JobEntity, ResumeJobEntity } from "../entity/job";
+import { JobRow, ResumeJobRow } from "../rows/job";
 
 export class D1JobRepository {
 	constructor(private readonly db: D1Database) {}
@@ -32,7 +32,7 @@ export class D1JobRepository {
             ORDER BY
               name ASC
           `)
-      .all<JobEntity>();
+      .all<JobRow>();
 
     return results.map((row) => this.toJob(row));
 	}
@@ -60,7 +60,7 @@ export class D1JobRepository {
             ORDER BY
               name ASC
           `)
-			.all<ResumeJobEntity>();
+			.all<ResumeJobRow>();
 
     return results.map((row) => this.toResumeJob(row));
 	}
@@ -92,7 +92,7 @@ export class D1JobRepository {
               LIMIT 1
             `)
 			.bind(jobId)
-			.first<JobEntity>();
+			.first<JobRow>();
 
     return result ? this.toJob(result) : null;
 	}
@@ -180,14 +180,14 @@ export class D1JobRepository {
         ORDER BY name ASC
       `)
       .bind(...uniqueJobIds)
-      .all<ResumeJobEntity>();
+      .all<ResumeJobRow>();
 
     const jobs = results.map((row) => this.toResumeJob(row));
 
     return mapById(jobs);
   }
 
-  private toJob(row: JobEntity): Job {
+  private toJob(row: JobRow): Job {
     return {
         ...row,
         allows_martial_armor: toBoolean(row.allows_martial_armor),
@@ -205,7 +205,7 @@ export class D1JobRepository {
     };
   }
 
-  private toResumeJob(row: ResumeJobEntity): ResumeJob {
+  private toResumeJob(row: ResumeJobRow): ResumeJob {
     return {
         ...row,
         allows_martial_armor: toBoolean(row.allows_martial_armor),

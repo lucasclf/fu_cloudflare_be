@@ -2,7 +2,7 @@
 import { SpellAlreadyExistsError } from "../../domain/spells/spell-errors";
 import { CreateJobSpellInput, JobSpell, JobSpellWithJob } from "../../domain/spells/spells";
 import { D1Boolean, fromBoolean, uniqueNumbers, buildInPlaceholders, mapById, toBoolean } from "../d1-utils";
-import { JobSpellWithJobEntity, JobSpellEntity } from "../entity/job";
+import { SpellWithJobNameRow, SpellRow } from "../rows/job";
 
 export class D1JobSpellRepository {
 	constructor(private readonly db: D1Database) {}
@@ -61,7 +61,7 @@ export class D1JobSpellRepository {
 					ON j.id = js.job_id
 				ORDER BY j.name ASC, js.name ASC
 			`)
-			.all<JobSpellWithJobEntity>();
+			.all<SpellWithJobNameRow>();
 
 		return results.map((row) => this.toJobSpellWithJob(row));
 	}
@@ -92,7 +92,7 @@ export class D1JobSpellRepository {
 				ORDER BY job_id ASC, name ASC
 			`)
 			.bind(...uniqueJobIds)
-			.all<JobSpellEntity>();
+			.all<SpellRow>();
 
 		const grouped = new Map<number, JobSpell[]>();
 
@@ -131,14 +131,14 @@ export class D1JobSpellRepository {
 				ORDER BY name ASC
 			`)
 			.bind(...uniqueSpellIds)
-			.all<JobSpellEntity>();
+			.all<SpellRow>();
 
 		const spells = results.map((row) => this.toJobSpell(row));
 
 		return mapById(spells);
 	}
 
-  	private toJobSpell(row: JobSpellEntity): JobSpell {
+  	private toJobSpell(row: SpellRow): JobSpell {
 		return {
 			id: row.id,
 			job_id: row.job_id,
@@ -152,7 +152,7 @@ export class D1JobSpellRepository {
 		};
 	}
 
-	private toJobSpellWithJob(row: JobSpellWithJobEntity): JobSpellWithJob {
+	private toJobSpellWithJob(row: SpellWithJobNameRow): JobSpellWithJob {
 		return {
 			...this.toJobSpell(row),
 			job_name: row.job_name,

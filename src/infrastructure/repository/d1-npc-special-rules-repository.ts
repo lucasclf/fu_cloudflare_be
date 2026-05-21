@@ -1,7 +1,7 @@
 import { CreateSpecialRulesInput, NpcSpecialRules } from "../../domain/npc/npc";
 import { SpecialRulesAlreadyExistsError } from "../../domain/npc/npc_error";
 import { uniqueNumbers, buildInPlaceholders, groupByNumberKey } from "../d1-utils";
-import { NpcSpecialRulesEntity } from "../entity/npc";
+import { NpcSpecialRulesRow } from "../rows/npc";
 
 
 export class D1NpcSpecialRulesRepository {
@@ -68,14 +68,14 @@ export class D1NpcSpecialRulesRepository {
                 ORDER BY npc_id ASC, title ASC
             `)
             .bind(...uniqueNpcIds)
-            .all<NpcSpecialRulesEntity>();
+            .all<NpcSpecialRulesRow>();
 
         const rules = results.map((row) => this.toNpcSpecialRule(row));
 
         return groupByNumberKey(rules, (rule) => rule.npc_id);
     }
 
-    private toNpcSpecialRule(row: NpcSpecialRulesEntity): NpcSpecialRules {
+    private toNpcSpecialRule(row: NpcSpecialRulesRow): NpcSpecialRules {
         return {
             id: row.id,
             npc_id: row.npc_id,

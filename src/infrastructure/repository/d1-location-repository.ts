@@ -1,6 +1,6 @@
 import { CreateLocationInput, Location } from "../../domain/locations/location";
 import { LocationAlreadyExistsError } from "../../domain/locations/location-errors";
-import { LocationEntity } from "../entity/faction-location";
+import { LocationRow } from "../rows/faction-location";
 
 export class D1LocationRepository {
     constructor(private readonly db: D1Database) {}
@@ -52,7 +52,7 @@ export class D1LocationRepository {
                 FROM locations
                 ORDER BY name ASC
                 `)
-            .all<LocationEntity>();
+            .all<LocationRow>();
 
 	    return results.map((row) => this.toLocation(row));
     }
@@ -74,12 +74,12 @@ export class D1LocationRepository {
             LIMIT 1
           `)
                 .bind(id)
-                .first<LocationEntity>();
+                .first<LocationRow>();
     
             return  result ? this.toLocation(result) : null;
     }
 
-    private toLocation(row: LocationEntity): Location {
+    private toLocation(row: LocationRow): Location {
 	return {
 		...row,
 		location_type: row.location_type as Location["location_type"],

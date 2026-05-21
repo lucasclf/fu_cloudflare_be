@@ -1,6 +1,6 @@
 import { FactionLocationRelation, FactionLocationRelationType } from "../../domain/factions/faction";
 import { uniqueNumbers, buildInPlaceholders } from "../d1-utils";
-import { FactionLocationRelationEntity } from "../entity/faction-location";
+import { FactionLocationRelationRow } from "../rows/faction-location";
 
 export class D1FactionLocationRepository {
     constructor(private readonly db: D1Database) {}
@@ -22,7 +22,7 @@ export class D1FactionLocationRepository {
 				ORDER BY l.name ASC
 			`)
 			.bind(factionId)
-			.all<FactionLocationRelationEntity>();
+			.all<FactionLocationRelationRow>();
 
 		return results.map((row) => this.toFactionLocationRelation(row))
 	}
@@ -51,7 +51,7 @@ export class D1FactionLocationRepository {
 				ORDER BY fl.faction_id ASC, l.name ASC
 			`)
 			.bind(...uniqueFactionIds)
-			.all<FactionLocationRelationEntity>();
+			.all<FactionLocationRelationRow>();
 
 		const grouped = new Map<number, FactionLocationRelation[]>();
 
@@ -67,7 +67,7 @@ export class D1FactionLocationRepository {
 	}
 
 	private toFactionLocationRelation(
-		row: FactionLocationRelationEntity,
+		row: FactionLocationRelationRow,
 	): FactionLocationRelation {
 		return {
 			location_id: row.location_id,

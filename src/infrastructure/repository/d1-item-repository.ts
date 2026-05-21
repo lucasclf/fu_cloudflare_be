@@ -1,7 +1,7 @@
 import type { CreateItemInput, Item } from "../../domain/items/item";
 import { ItemAlreadyExistsError } from "../../domain/items/item-errors";
 import { buildInPlaceholders, D1Boolean, fromBoolean, mapById, toNullableBoolean, uniqueNumbers } from "../d1-utils";
-import { ItemEntity } from "../entity/item";
+import { ItemRow } from "../rows/item";
 
 export class D1ItemRepository {
 	constructor(private readonly db: D1Database) {}
@@ -36,7 +36,7 @@ export class D1ItemRepository {
               weapon_category ASC,
               name ASC
           `)
-			.all<ItemEntity>();
+			.all<ItemRow>();
 
 		return results.map((row) => this.toItem(row));
 	}
@@ -70,7 +70,7 @@ export class D1ItemRepository {
             LIMIT 1
           `)
 			.bind(name)
-			.first<ItemEntity>();
+			.first<ItemRow>();
 
 		return result ? this.toItem(result) : null;
 	}
@@ -237,14 +237,14 @@ export class D1ItemRepository {
         WHERE id IN (${placeholders})
       `)
       .bind(...uniqueItemIds)
-      .all<ItemEntity>();
+      .all<ItemRow>();
 
     const items = results.map((row) => this.toItem(row));
 
     return mapById(items);
   }
 
-  private toItem(row: ItemEntity): Item {
+  private toItem(row: ItemRow): Item {
     return {
       ...row,
       item_type: row.item_type as Item["item_type"],

@@ -1,11 +1,11 @@
-export type FactionLocationRelationEntity = {
+export type FactionLocationRelationRow = {
 	faction_id: number;
 	location_id: number;
 	location_name: string;
 	relation_type: string;
 };
 
-export type FactionEntity = {
+export type FactionRow = {
     id: number;
     name: string;
     tagline: string;
@@ -16,7 +16,7 @@ export type FactionEntity = {
     updated_at: string | null;
 };
 
-export type LocationEntity = {
+export type LocationRow = {
     id: number;
     name: string;
     tagline: string;

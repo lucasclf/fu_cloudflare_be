@@ -1,6 +1,6 @@
 import { CreatePcInventoryInput as PcInventory } from "../../domain/pc/pc";
 import { PcInventoryAlreadyExistsError } from "../../domain/pc/pc_error";
-import { PcInventoryRelationEntity } from "../entity/pc";
+import { PcInventoryRelationRow } from "../rows/pc";
 
 export class D1PCInventoryRepository {
     constructor(private readonly db: D1Database){}
@@ -45,7 +45,7 @@ export class D1PCInventoryRepository {
                 `
             )
             .bind(pcId)
-            .all<PcInventoryRelationEntity>();
+            .all<PcInventoryRelationRow>();
         
         return results
     }

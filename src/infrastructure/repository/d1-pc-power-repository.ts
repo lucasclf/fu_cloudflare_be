@@ -1,6 +1,6 @@
 import { PcPowerRelation } from "../../domain/pc/pc";
 import { PcPowerRelationAlreadyExistsError } from "../../domain/pc/pc_error";
-import { PcPowerRelationEntity } from "../entity/pc";
+import { PcPowerRelationRow } from "../rows/pc";
 
 export class D1PCPowerRepository {
     constructor(private readonly db: D1Database){}
@@ -45,7 +45,7 @@ export class D1PCPowerRepository {
                 `
             )
             .bind(pcId)
-            .all<PcPowerRelationEntity>();
+            .all<PcPowerRelationRow>();
         
         return results
     }

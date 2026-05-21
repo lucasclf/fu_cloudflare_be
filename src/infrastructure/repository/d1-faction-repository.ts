@@ -1,6 +1,6 @@
 import { CreateFactionInput, FactionBase } from "../../domain/factions/faction";
 import { FactionAlreadyExistsError } from "../../domain/factions/faction-errors";
-import { FactionEntity } from "../entity/faction-location";
+import { FactionRow } from "../rows/faction-location";
 
 export class D1FactionRepository {
     constructor(private readonly db: D1Database) {}
@@ -88,7 +88,7 @@ export class D1FactionRepository {
 				FROM factions
 				ORDER BY id ASC
 			`)
-			.all<FactionEntity>();
+			.all<FactionRow>();
 
 	    return results.map((row) => this.toFaction(row));
 	}
@@ -115,7 +115,7 @@ export class D1FactionRepository {
 		return results[0] ?? null;
 	}
 
-    private toFaction(row: FactionEntity): FactionBase  {
+    private toFaction(row: FactionRow): FactionBase  {
         return {
             ...row,
             faction_type: row.faction_type as FactionBase ["faction_type"],

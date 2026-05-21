@@ -1,7 +1,7 @@
 import { CreateNpcEquipmentInput, NpcEquipmentRelation } from "../../domain/npc/npc";
 import { EquipmentAlreadyExistsError } from "../../domain/npc/npc_error";
 import { uniqueNumbers, buildInPlaceholders, groupByNumberKey } from "../d1-utils";
-import { NpcEquipmentRelationEntity } from "../entity/npc";
+import { NpcEquipmentRelationRow } from "../rows/npc";
 
 export class D1NpcEquipmentRepository {
     constructor(private readonly db: D1Database){}
@@ -54,7 +54,7 @@ export class D1NpcEquipmentRepository {
                 ORDER BY npc_id ASC, slot ASC
             `)
             .bind(...uniqueNpcIds)
-            .all<NpcEquipmentRelationEntity>();
+            .all<NpcEquipmentRelationRow>();
 
         const equipments = results.map((row) =>
             this.toNpcEquipmentRelation(row),
@@ -64,7 +64,7 @@ export class D1NpcEquipmentRepository {
     }
 
     private toNpcEquipmentRelation(
-        row: NpcEquipmentRelationEntity,
+        row: NpcEquipmentRelationRow,
     ): NpcEquipmentRelation {
         return {
             npc_id: row.npc_id,

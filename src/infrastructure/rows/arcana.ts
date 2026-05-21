@@ -1,4 +1,4 @@
-export type ArcanaEntity = {
+export type ArcanaRow = {
     id: number;
     name: string;
     domain: string;

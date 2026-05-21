@@ -1,17 +1,17 @@
-export type NpcEquipmentRelationEntity = {
+export type NpcEquipmentRelationRow = {
     npc_id: number;
     item_id: number;
     slot: string;
 };
 
-export type NpcInventoryRelationEntity = {
+export type NpcInventoryRelationRow = {
     npc_id: number;
     item_id: number;
     relation_type: string;
     quantity: number;
 };
 
-export type NpcEntity = {
+export type NpcRow = {
     id: number;
     name: string;
     description: string;
@@ -35,7 +35,7 @@ export type NpcEntity = {
     updated_at: string | null;
 };
 
-export type NpcSummaryEntity = {
+export type NpcSummaryRow = {
     id: number;
     name: string;
     tagline: string | null;
@@ -47,13 +47,13 @@ export type NpcSummaryEntity = {
     img_key: string;
 };
 
-export type BondTargetSummaryEntity = {
+export type BondTargetSummaryRow = {
     id: number;
     name: string;
     img_key: string | null;
 };
 
-export type NpcSpecialRulesEntity = {
+export type NpcSpecialRulesRow = {
     id: number;
     npc_id: number;
     type: string;

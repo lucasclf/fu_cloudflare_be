@@ -2,7 +2,7 @@ import { CreateActionInput, Monster, MonsterAction } from "../../domain/monsters
 import { MonsterActionAlreadyExistsError } from "../../domain/monsters/monster-error";
 import { MonsterSpell } from "../../domain/spells/spells";
 import { buildInPlaceholders, D1Boolean, fromBoolean, mapById, toBoolean, uniqueNumbers } from "../d1-utils";
-import { MonsterActionEntity, MonsterSpellEntity } from "../entity/monster";
+import { MonsterActionRow, MonsterSpellRow } from "../rows/monster";
 
 export class D1MonsterActionRepository {
     constructor(private readonly db: D1Database){}
@@ -80,7 +80,7 @@ export class D1MonsterActionRepository {
             ORDER BY monster_id ASC, action_type ASC
             `)
             .bind(...monsterIds)
-            .all<MonsterActionEntity>();
+            .all<MonsterActionRow>();
 
         const grouped = new Map<number, MonsterAction[]>();
 
@@ -110,7 +110,7 @@ export class D1MonsterActionRepository {
                 WHERE action_type = 'spell'
                 ORDER BY ms.id ASC
             `)
-            .all<MonsterSpellEntity>();
+            .all<MonsterSpellRow>();
 
         return results.map((row) => this.toMonsterSpell(row));
     }
@@ -165,8 +165,8 @@ export class D1MonsterActionRepository {
         const statement = this.db.prepare(query);
 
         const { results } = hasActionTypeFilter
-            ? await statement.bind(...include).all<MonsterActionEntity>()
-            : await statement.all<MonsterActionEntity>();
+            ? await statement.bind(...include).all<MonsterActionRow>()
+            : await statement.all<MonsterActionRow>();
 
         return results.map((row) => this.toMonsterAction(row));
     }
@@ -203,14 +203,14 @@ export class D1MonsterActionRepository {
                 ORDER BY name ASC
             `)
             .bind(...uniqueMonsterActionIds)
-            .all<MonsterActionEntity>();
+            .all<MonsterActionRow>();
 
         const actions = results.map((row) => this.toMonsterAction(row));
 
         return mapById(actions);
     }
 
-    private toMonsterAction(row: MonsterActionEntity): MonsterAction {
+    private toMonsterAction(row: MonsterActionRow): MonsterAction {
         return {
             ...row,
             action_type: row.action_type as MonsterAction["action_type"],
@@ -220,7 +220,7 @@ export class D1MonsterActionRepository {
         };
     }
 
-    private toMonsterSpell(row: MonsterSpellEntity): MonsterSpell {
+    private toMonsterSpell(row: MonsterSpellRow): MonsterSpell {
         if (row.cost === null) {
             throw new Error(`Monster spell ${row.id} has null cost`);
         }

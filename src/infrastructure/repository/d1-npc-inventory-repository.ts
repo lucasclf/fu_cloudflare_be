@@ -1,7 +1,7 @@
 import { CreateNpcInventoryInput, NpcInventoryRelation } from "../../domain/npc/npc";
 import { InventoryAlreadyExistsError } from "../../domain/npc/npc_error";
 import { uniqueNumbers, buildInPlaceholders, groupByNumberKey } from "../d1-utils";
-import { NpcInventoryRelationEntity } from "../entity/npc";
+import { NpcInventoryRelationRow } from "../rows/npc";
 
 export class D1NpcInventoryRepository {
     constructor(private readonly db: D1Database){}
@@ -57,7 +57,7 @@ export class D1NpcInventoryRepository {
                 ORDER BY npc_id ASC, item_id ASC
             `)
             .bind(...uniqueNpcIds)
-            .all<NpcInventoryRelationEntity>();
+            .all<NpcInventoryRelationRow>();
 
         const inventories = results.map((row) =>
             this.toNpcInventoryRelation(row),
@@ -67,7 +67,7 @@ export class D1NpcInventoryRepository {
     }
 
     private toNpcInventoryRelation(
-        row: NpcInventoryRelationEntity,
+        row: NpcInventoryRelationRow,
     ): NpcInventoryRelation {
         return {
             npc_id: row.npc_id,

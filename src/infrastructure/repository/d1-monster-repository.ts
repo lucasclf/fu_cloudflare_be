@@ -2,7 +2,7 @@ import { CreateMonsterInput, Monster, MonsterSummary, MonsterTrait } from "../..
 import { MonsterAlreadyExistsError } from "../../domain/monsters/monster-error";
 import { BondTargetSummary } from "../../domain/pc/pc";
 import { D1Boolean, fromBoolean, uniqueNumbers, buildInPlaceholders, mapById, toBoolean } from "../d1-utils";
-import { MonsterEntity, BondTargetSummaryEntity } from "../entity/monster";
+import { MonsterRow, BondTargetSummaryRow } from "../rows/monster";
 
 export class D1MonsterRepository {
     constructor(private readonly db: D1Database) {}
@@ -94,7 +94,7 @@ export class D1MonsterRepository {
                 FROM monsters
                 ORDER BY name ASC
                 `
-            ).all<MonsterEntity>();
+            ).all<MonsterRow>();
 
         return results.map((row) => this.toMonster(row));
     }
@@ -151,7 +151,7 @@ export class D1MonsterRepository {
                 LIMIT 1
             `)
             .bind(monsterId)
-            .first<MonsterEntity>();
+            .first<MonsterRow>();
 
         return result ? this.toMonster(result) : null;
     }
@@ -176,12 +176,12 @@ export class D1MonsterRepository {
                 WHERE id IN (${placeholders})
             `)
             .bind(...uniqueMonsterIds)
-            .all<BondTargetSummaryEntity>();
+            .all<BondTargetSummaryRow>();
 
         return mapById(results);
     }
 
-    private toMonster(row: MonsterEntity): Monster {
+    private toMonster(row: MonsterRow): Monster {
         return {
             ...row,
             monster_type: row.monster_type as Monster["monster_type"],

@@ -1,7 +1,7 @@
 import { Arcana, CreateArcanaInput } from "../../domain/jobs/job";
 import { ArcanaAlreadyExistsError } from "../../domain/jobs/job-errors";
 import { uniqueNumbers, buildInPlaceholders, mapById } from "../d1-utils";
-import { ArcanaEntity } from "../entity/arcana";
+import { ArcanaRow } from "../rows/arcana";
 
 export class D1ArcanaRepository{
     constructor(private readonly db: D1Database){}
@@ -51,7 +51,7 @@ export class D1ArcanaRepository{
                 FROM arcanas
                 ORDER BY name ASC
             `)
-            .all<ArcanaEntity>();
+            .all<ArcanaRow>();
 
         return results.map((row) => this.toArcana(row));
     }
@@ -78,14 +78,14 @@ export class D1ArcanaRepository{
                 ORDER BY name ASC
             `)
             .bind(...uniqueArcanaIds)
-            .all<ArcanaEntity>();
+            .all<ArcanaRow>();
 
         const arcanas = results.map((row) => this.toArcana(row));
 
         return mapById(arcanas);
     }
 
-    private toArcana(row: ArcanaEntity): Arcana {
+    private toArcana(row: ArcanaRow): Arcana {
         return {
             id: row.id,
             name: row.name,

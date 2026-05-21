@@ -1,6 +1,6 @@
 import { PcBondInput, PcBond } from "../../domain/pc/pc";
 import { PcBondAlreadyExistsError } from "../../domain/pc/pc_error";
-import { PcBondEntity } from "../entity/pc";
+import { PcBondRow } from "../rows/pc";
 
 export class D1PCBondRepository {
     constructor(private readonly db: D1Database){}
@@ -60,12 +60,12 @@ export class D1PCBondRepository {
                 `
             )
             .bind(pcId)
-            .all<PcBondEntity>();
+            .all<PcBondRow>();
         
         return results.map((row) => this.toPcBond(row));
     }
 
-    private toPcBond(row: PcBondEntity): PcBond {
+    private toPcBond(row: PcBondRow): PcBond {
         return {
             id: row.id,
             pc_id: row.pc_id,

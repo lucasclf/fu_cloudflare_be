@@ -1,6 +1,6 @@
 import { D1Boolean } from "../d1-utils";
 
-export type ItemEntity = {
+export type ItemRow = {
 	id: number;
 	name: string;
 	item_type: string;

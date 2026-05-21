@@ -1,7 +1,7 @@
 import { CreateJobPowerInput, JobPower, JobPowerWithJob, ResumeJob } from "../../domain/jobs/job";
 import { JobPowerAlreadyExistsError } from "../../domain/jobs/job-errors";
 import { D1Boolean, fromBoolean, uniqueNumbers, buildInPlaceholders, mapById, toBoolean } from "../d1-utils";
-import { JobPowerEntity, JobPowerWithJobEntity } from "../entity/job";
+import { PowerRow, PowerWithJobNameRow } from "../rows/job";
 
 export class D1JobPowerRepository {
 	constructor(private readonly db: D1Database) {}
@@ -33,7 +33,7 @@ export class D1JobPowerRepository {
                 ORDER BY jpj.job_id ASC, jp.name ASC
             `)
             .bind(...uniqueJobIds)
-            .all<JobPowerEntity & { job_id: number }>();
+            .all<PowerRow & { job_id: number }>();
 
         const grouped = new Map<number, JobPower[]>();
 
@@ -141,7 +141,7 @@ export class D1JobPowerRepository {
                     jp.is_global
                 ORDER BY jp.id ASC
             `)
-            .all<JobPowerWithJobEntity>();
+            .all<PowerWithJobNameRow>();
 
         return results.map((row) => this.toJobPowerWithJob(row));
     }
@@ -168,14 +168,14 @@ export class D1JobPowerRepository {
                 ORDER BY name ASC
             `)
             .bind(...uniquePowerIds)
-            .all<JobPowerEntity>();
+            .all<PowerRow>();
 
         const powers = results.map((row) => this.toJobPower(row));
 
         return mapById(powers);
     }
 
-    private toJobPower(row: JobPowerEntity): JobPower {
+    private toJobPower(row: PowerRow): JobPower {
         return {
             id: row.id,
             name: row.name,
@@ -186,7 +186,7 @@ export class D1JobPowerRepository {
         };
     }
 
-    private toJobPowerWithJob(row: JobPowerWithJobEntity): JobPowerWithJob {
+    private toJobPowerWithJob(row: PowerWithJobNameRow): JobPowerWithJob {
         return {
             ...this.toJobPower(row),
             job_name: this.parseJobNames(row.job_name),

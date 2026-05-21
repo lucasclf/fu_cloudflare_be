@@ -1,6 +1,6 @@
 import { PcJobRelation } from "../../domain/pc/pc";
 import { PcJobRelationAlreadyExistsError } from "../../domain/pc/pc_error";
-import { PcJobRelationEntity } from "../entity/pc";
+import { PcJobRelationRow } from "../rows/pc";
 
 export class D1PCJobRepository {
     constructor(private readonly db: D1Database){}
@@ -44,7 +44,7 @@ export class D1PCJobRepository {
                 ORDER BY job_id ASC
             `)
             .bind(pcId)
-            .all<PcJobRelationEntity>();
+            .all<PcJobRelationRow>();
 
         return results;
     }

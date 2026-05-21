@@ -2,8 +2,8 @@ import { CreateNpcInput, Npc, NpcSummary } from "../../domain/npc/npc";
 import { NpcAlreadyExistsError } from "../../domain/npc/npc_error";
 import { BondTargetSummary } from "../../domain/pc/pc";
 import { uniqueNumbers, buildInPlaceholders, mapById } from "../d1-utils";
-import { BondTargetSummaryEntity } from "../entity/monster";
-import { NpcSummaryEntity, NpcEntity } from "../entity/npc";
+import { BondTargetSummaryRow } from "../rows/monster";
+import { NpcSummaryRow, NpcRow } from "../rows/npc";
 
 export class D1NpcRepository {
     constructor(private readonly db: D1Database){}
@@ -104,7 +104,7 @@ export class D1NpcRepository {
                 FROM NPCS
                 ORDER BY name ASC
                 `
-            ).all<NpcSummaryEntity>();
+            ).all<NpcSummaryRow>();
 
         return results.map((row) => this.toNpcSummary(row));
     }
@@ -137,7 +137,7 @@ export class D1NpcRepository {
                 `
             )
             .bind(npcId)
-            .first<NpcEntity>();
+            .first<NpcRow>();
 
         return result ? this.toNpc(result) : null;
     }
@@ -162,12 +162,12 @@ export class D1NpcRepository {
                 WHERE id IN (${placeholders})
             `)
             .bind(...uniqueNpcIds)
-            .all<BondTargetSummaryEntity>();
+            .all<BondTargetSummaryRow>();
 
         return mapById(results);
     }
 
-    private toNpc(row: NpcEntity): Npc {
+    private toNpc(row: NpcRow): Npc {
         return {
             ...row,
             dexterity_die: row.dexterity_die as Npc["dexterity_die"],
@@ -177,7 +177,7 @@ export class D1NpcRepository {
         };
     }
 
-    private toNpcSummary(row: NpcSummaryEntity): NpcSummary {
+    private toNpcSummary(row: NpcSummaryRow): NpcSummary {
         return {
             ...row,
             dexterity_die: row.dexterity_die as NpcSummary["dexterity_die"],

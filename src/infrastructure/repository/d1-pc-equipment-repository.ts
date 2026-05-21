@@ -1,6 +1,6 @@
 import { CreatePcEquipmentInput } from "../../domain/pc/pc";
 import { PcEquipmentAlreadyExistsError } from "../../domain/pc/pc_error";
-import { PcEquipmentEntity } from "../entity/pc";
+import { PcEquipmentRow } from "../rows/pc";
 
 export class D1PCEquipmentRepository {
     constructor(private readonly db: D1Database){}
@@ -51,7 +51,7 @@ export class D1PCEquipmentRepository {
                 `
             )
             .bind(pcId)
-            .first<PcEquipmentEntity>();
+            .first<PcEquipmentRow>();
         
         return result
     }

@@ -1,10 +1,10 @@
-export type PcArcanaRelationEntity = {
+export type PcArcanaRelationRow = {
     pc_id: number;
     arcana_id: number;
     description: string | null;
 };
 
-export type PcBondEntity = {
+export type PcBondRow = {
     id: number;
     pc_id: number;
     target_type: string;
@@ -19,7 +19,7 @@ export type PcBondEntity = {
     img_key: string | null;
 };
 
-export type PcEquipmentEntity = {
+export type PcEquipmentRow = {
     pc_id: number;
     main_hand: number | null;
     off_hand: number | null;
@@ -27,30 +27,30 @@ export type PcEquipmentEntity = {
     accessory: number | null;
 };
 
-export type PcInventoryRelationEntity = {
+export type PcInventoryRelationRow = {
     pc_id: number;
     item_id: number;
     quantity: number;
 };
 
-export type PcJobRelationEntity = {
+export type PcJobRelationRow = {
     pc_id: number;
     job_id: number;
     level: number;
 };
 
-export type PcMonsterSpellRelationEntity = {
+export type PcMonsterSpellRelationRow = {
     pc_id: number;
     monster_action_id: number;
 };
 
-export type PcPowerRelationEntity = {
+export type PcPowerRelationRow = {
     pc_id: number;
     power_id: number;
     level: number;
 };
 
-export type PcSpellRelationEntity = {
+export type PcSpellRelationRow = {
     pc_id: number;
     spell_id: number;
 };
