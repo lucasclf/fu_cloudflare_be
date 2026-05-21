@@ -1,18 +1,21 @@
 import type { CreateItemInput, Item } from "../domain/items/item";
 import type { D1ItemRepository } from "../infrastructure/repository/d1-item-repository";
+import { ItemRepositoryPort } from "./ports/item-ports";
 
 export class ItemService {
-	constructor(private readonly repository: D1ItemRepository) {}
+	constructor(		
+		private readonly itemRepository: ItemRepositoryPort,
+	) {}
 
 	async listItems(): Promise<Item[]> {
-		return this.repository.findAll();
+		return await this.itemRepository.findAll();
 	}
 
 	async getItemByName(itemName: string): Promise<Item | null> {
-		return this.repository.findByItemName(itemName);
+		return await this.itemRepository.findByItemName(itemName);
 	}
 
 	async createItem(input: CreateItemInput): Promise<void> {
-		await this.repository.create(input);
+		await this.itemRepository.create(input);
 	}
 }

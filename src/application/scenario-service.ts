@@ -1,13 +1,11 @@
 import { WorldEntry } from "../domain/scenario/scenario";
-import { D1FactionLocationRepository } from "../infrastructure/repository/d1-faction-location-repository";
-import { D1FactionRepository } from "../infrastructure/repository/d1-faction-repository";
-import { D1LocationRepository } from "../infrastructure/repository/d1-location-repository";
+import { LocationReaderPort, FactionReaderPort, FactionLocationReaderPort } from "./ports/scenario-ports";
 
 export class ScenarioService {
     constructor(
-        private readonly locationRepository: D1LocationRepository,
-        private readonly factionRepository: D1FactionRepository,
-		private readonly factionLocationRepository: D1FactionLocationRepository,
+		private readonly locationRepository: LocationReaderPort,
+		private readonly factionRepository: FactionReaderPort,
+		private readonly factionLocationRepository: FactionLocationReaderPort,
     ) {}
 
     async listEntities() {

@@ -95,7 +95,7 @@ export class D1MonsterActionRepository {
         return grouped;
     }
 
-    async listMonsterSpells(): Promise<MonsterSpell[]> {
+    async listSpells(): Promise<MonsterSpell[]> {
         const { results } = await this.db
             .prepare(`
                 SELECT
