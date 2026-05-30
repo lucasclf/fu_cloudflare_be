@@ -62,6 +62,11 @@ export function validateCreateJobInput(input: unknown): CreateJobInput {
 			"can_start_projects",
 			false,
 		),
+		can_cooking: readBooleanWithDefault(
+			raw,
+			"can_cooking",
+			false,
+		),
 	};
 }
 

@@ -101,10 +101,14 @@ export class PcFullAssembler {
             if (!job) {
                 throw new Error(`Job não encontrada para id=${relation.job_id}`);
             }
-
+            
             return {
                 ...job,
                 level: relation.level,
+                ignore_hp_bonus: relation.ignore_hp_bonus,
+                ignore_mp_bonus: relation.ignore_mp_bonus,
+                hp_bonus: relation.ignore_hp_bonus ? 0 : job.hp_bonus,
+                mp_bonus: relation.ignore_mp_bonus ? 0 : job.mp_bonus,
             };
         });
 

@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS jobs (
   allows_arcane INTEGER NOT NULL DEFAULT 0 CHECK (allows_arcane IN (0, 1)),
   allows_rituals INTEGER NOT NULL DEFAULT 0 CHECK (allows_rituals IN (0, 1)),
   can_start_projects INTEGER NOT NULL DEFAULT 0 CHECK (can_start_projects IN (0, 1)),
+  can_cooking INTEGER NOT NULL DEFAULT 0 CHECK (can_cooking IN (0, 1)),
 
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT

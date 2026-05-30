@@ -1,0 +1,13 @@
+-- Migration number: 0027 2026-05-25T09:03:48.132Z
+
+CREATE TABLE IF NOT EXISTS cooking_books (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_id INTEGER NOT NULL,
+    bitter INTEGER NOT NULL DEFAULT 0 CHECK (bitter IN (0, 1)),
+    sweet INTEGER NOT NULL DEFAULT 0 CHECK (sweet IN (0, 1)),
+    sour INTEGER NOT NULL DEFAULT 0 CHECK (sour IN (0, 1)),
+    salty INTEGER NOT NULL DEFAULT 0 CHECK (salty IN (0, 1)),
+    umami INTEGER NOT NULL DEFAULT 0 CHECK (umami IN (0, 1)),
+    effect TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

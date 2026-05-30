@@ -1,6 +1,6 @@
 import { ALLOWED_ATTRIBUTE_DIE } from "../domain/domain-types";
 import { ALLOWED_BOND_ADMIRATION, ALLOWED_BOND_AFFECTION, ALLOWED_BOND_LOYALTY, ALLOWED_BOND_TARGET_TYPE, CreatePcArcanaRelationInput, PcBondInput, CreatePcEquipmentInput, CreatePCInput, CreatePcInventoryInput, PcJobRelation, CreatePcMonsterSpellRelationInput, PcPowerRelation, CreatePcSpellRelationInput } from "../domain/pc/pc";
-import { ensureObject, readNumberWithDefault, readOptionalNumber, readOptionalString, readRequiredNumber, readRequiredString, validateStringEnum, validateStringNullabeEnum } from "./generic-validator";
+import { ensureObject, readBooleanWithDefault, readNumberWithDefault, readOptionalNumber, readOptionalString, readRequiredNumber, readRequiredString, validateStringEnum, validateStringNullabeEnum } from "./generic-validator";
 
 export function validateCreatePcInput(input: unknown): CreatePCInput {
     const raw = ensureObject(input)
@@ -29,6 +29,8 @@ export function validateCreatePcJobRelationInput(input: unknown): PcJobRelation 
         pc_id: readRequiredNumber(raw, "pc_id"),
         job_id: readRequiredNumber(raw, "job_id"),
         level: readRequiredNumber(raw, "level"),
+        ignore_hp_bonus: readBooleanWithDefault(raw, "ignore_hp_bonus", false),
+		ignore_mp_bonus: readBooleanWithDefault(raw, "ignore_mp_bonus", false),
     }
 }
 

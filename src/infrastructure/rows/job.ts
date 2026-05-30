@@ -34,6 +34,7 @@ export type JobRow = {
   allows_rituals: D1Boolean;
   allows_monster_spells: D1Boolean;
   can_start_projects: D1Boolean;
+  can_cooking: D1Boolean;
 
   created_at: string;
   updated_at: string | null;

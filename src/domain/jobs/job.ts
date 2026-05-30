@@ -23,6 +23,7 @@ export interface Job {
 	allows_rituals: boolean;
 	allows_monster_spells: boolean;
 	can_start_projects: boolean;
+	can_cooking: boolean;
 
 	created_at: string;
 	updated_at: string | null;
@@ -41,6 +42,7 @@ export interface ResumeJob {
 	allows_rituals: boolean;
 	allows_monster_spells: boolean;
 	can_start_projects: boolean;
+	can_cooking: boolean;
 	hp_bonus: number;
 	mp_bonus: number;
 	ip_bonus: number;
@@ -107,6 +109,7 @@ export interface CreateJobInput {
 	allows_rituals: boolean;
 	allows_monster_spells: boolean;
 	can_start_projects: boolean;
+	can_cooking: boolean;
 }
 
 export interface CreateJobQuestionInput {

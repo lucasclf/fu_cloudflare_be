@@ -6,6 +6,9 @@ CREATE TABLE IF NOT EXISTS pc_jobs (
 
     level INTEGER NOT NULL DEFAULT 1 CHECK (level >= 1 AND level <= 10),
 
+    ignore_mp_bonus INTEGER NOT NULL DEFAULT 0 CHECK (ignore_mp_bonus IN (0, 1)),
+    ignore_hp_bonus INTEGER NOT NULL DEFAULT 0 CHECK (ignore_hp_bonus IN (0, 1)),
+
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT,
 

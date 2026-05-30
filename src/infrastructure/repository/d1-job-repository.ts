@@ -26,6 +26,7 @@ export class D1JobRepository {
               allows_rituals,
               can_start_projects,
               allows_monster_spells,
+              can_cooking,
               created_at,
               updated_at
             FROM jobs
@@ -55,7 +56,8 @@ export class D1JobRepository {
               allows_arcane,
               allows_rituals,
               allows_monster_spells,
-              can_start_projects
+              can_start_projects,
+              can_cooking
             FROM jobs
             ORDER BY
               name ASC
@@ -116,9 +118,10 @@ export class D1JobRepository {
                     allows_arcane,
                     allows_rituals,
                     allows_monster_spells,
-                    can_start_projects
+                    can_start_projects,
+                    can_cooking
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `)
 				.bind(
 					input.name,
@@ -136,6 +139,7 @@ export class D1JobRepository {
           fromBoolean(input.allows_rituals),
           fromBoolean(input.allows_monster_spells),
           fromBoolean(input.can_start_projects),
+          fromBoolean(input.can_cooking),
         )
 				.run();
 		} catch (error) {
@@ -202,6 +206,7 @@ export class D1JobRepository {
         allows_rituals: toBoolean(row.allows_rituals),
         allows_monster_spells: toBoolean(row.allows_monster_spells),
         can_start_projects: toBoolean(row.can_start_projects),
+        can_cooking: toBoolean(row.can_cooking),
     };
   }
 
@@ -220,6 +225,7 @@ export class D1JobRepository {
         allows_rituals: toBoolean(row.allows_rituals),
         allows_monster_spells: toBoolean(row.allows_monster_spells),
         can_start_projects: toBoolean(row.can_start_projects),
+        can_cooking: toBoolean(row.can_cooking),
     };
   }
 }

@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS job_powers (
     is_global INTEGER NOT NULL DEFAULT 0 CHECK (is_global IN (0, 1)),
 
     max_level INTEGER NOT NULL DEFAULT 0,
+    prerequisites TEXT NULL,
 
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT

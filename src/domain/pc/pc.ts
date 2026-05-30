@@ -40,7 +40,9 @@ export interface CreatePCInput extends CreateCharacterInput {
 export interface PcJobRelation {
     pc_id: number,
     job_id: number,
-    level: number
+    level: number,
+    ignore_hp_bonus: boolean,
+	ignore_mp_bonus: boolean,
 }
 
 export interface PcPowerRelation {
@@ -161,6 +163,8 @@ export interface PcFull extends Pc {
 
 export interface PcJobInfo extends ResumeJob {
     level: number,
+    ignore_hp_bonus: boolean,
+	ignore_mp_bonus: boolean,
 }
 
 export interface PcPowerInfo extends JobPower {

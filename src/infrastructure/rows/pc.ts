@@ -1,3 +1,5 @@
+import { D1Boolean } from "../d1-utils";
+
 export type PcArcanaRelationRow = {
     pc_id: number;
     arcana_id: number;
@@ -37,6 +39,8 @@ export type PcJobRelationRow = {
     pc_id: number;
     job_id: number;
     level: number;
+    ignore_hp_bonus: D1Boolean;
+	ignore_mp_bonus: D1Boolean;
 };
 
 export type PcMonsterSpellRelationRow = {
