@@ -1,4 +1,4 @@
-# FUDB — Fábula Última Database
+﻿# FUDB — Fábula Última Database
 
 Backend da aplicação **Fábula Última**, um sistema de gerenciamento de dados para campanhas do RPG de mesa Fábula Ultima. Executado como um **Cloudflare Worker** serverless, com banco de dados **Cloudflare D1** (SQLite na edge).
 
@@ -39,8 +39,8 @@ A API possui dois contextos de acesso:
 
 | Prefixo | Descrição |
 |---------|-----------|
-| `/public/*` | Endpoints de leitura, sem autenticação |
-| `/admin/*` | Endpoints de escrita, protegidos por Bearer token |
+| `/v1/public/*` | Endpoints de leitura, sem autenticação |
+| `/v1/admin/*` | Endpoints de escrita, protegidos por Bearer token |
 
 ---
 
@@ -233,13 +233,13 @@ O servidor ficará disponível em `http://localhost:8787`.
 
 Para testar um endpoint público:
 ```bash
-curl http://localhost:8787/public/jobs
+curl http://localhost:8787/v1/public/jobs
 ```
 
 Para testar um endpoint admin:
 ```bash
 curl -H "Authorization: Bearer seu_token_local_aqui" \
-  http://localhost:8787/admin/jobs \
+  http://localhost:8787/v1/admin/jobs \
   -d '{"name":"Guardião","tagline":"...","description":"...","hp_bonus":5,...}' \
   -H "Content-Type: application/json" \
   -X POST
@@ -378,13 +378,13 @@ fudb/
 
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
-| `GET` | `/public/sessions` | — | Lista todas as sessões |
-| `GET` | `/public/sessions/:sessionNumber` | — | Busca sessão por número |
-| `POST` | `/admin/sessions` | ✅ | Cria uma nova sessão |
-| `PUT` | `/admin/sessions/:sessionNumber` | ✅ | Atualiza uma sessão existente |
-| `DELETE` | `/admin/sessions/:sessionNumber` | ✅ | Remove uma sessão |
+| `GET` | `/v1/public/sessions` | — | Lista todas as sessões |
+| `GET` | `/v1/public/sessions/:sessionNumber` | — | Busca sessão por número |
+| `POST` | `/v1/admin/sessions` | ✅ | Cria uma nova sessão |
+| `PUT` | `/v1/admin/sessions/:sessionNumber` | ✅ | Atualiza uma sessão existente |
+| `DELETE` | `/v1/admin/sessions/:sessionNumber` | ✅ | Remove uma sessão |
 
-**POST /admin/sessions — body:**
+**POST /v1/admin/sessions — body:**
 ```json
 {
   "session_number": 1,
@@ -400,13 +400,13 @@ fudb/
 
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
-| `GET` | `/public/items` | — | Lista todos os itens |
-| `GET` | `/public/items/:itemName` | — | Busca item pelo nome exato |
-| `POST` | `/admin/items` | ✅ | Cria um novo item |
+| `GET` | `/v1/public/items` | — | Lista todos os itens |
+| `GET` | `/v1/public/items/:itemName` | — | Busca item pelo nome exato |
+| `POST` | `/v1/admin/items` | ✅ | Cria um novo item |
 
 **Tipos de item (`item_type`):** `arma`, `armadura`, `escudo`, `acessorio`, `artefato`, `outros`
 
-**POST /admin/items — body (arma):**
+**POST /v1/admin/items — body (arma):**
 ```json
 {
   "name": "Espada Longa",
@@ -424,7 +424,7 @@ fudb/
 }
 ```
 
-**POST /admin/items — body (armadura):**
+**POST /v1/admin/items — body (armadura):**
 ```json
 {
   "name": "Armadura de Placas",
@@ -446,14 +446,14 @@ fudb/
 
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
-| `GET` | `/public/jobs` | — | Lista profissões (com suporte a `?include=`) |
-| `GET` | `/public/jobs/catalog` | — | Lista resumida de profissões |
-| `GET` | `/public/jobs/:id` | — | Busca profissão por ID (com suporte a `?include=`) |
-| `POST` | `/admin/jobs` | ✅ | Cria uma nova profissão |
-| `POST` | `/admin/jobs/questions` | ✅ | Adiciona pergunta de background a uma profissão |
-| `POST` | `/admin/jobs/aliases` | ✅ | Adiciona nome alternativo a uma profissão |
+| `GET` | `/v1/public/jobs` | — | Lista profissões (com suporte a `?include=`) |
+| `GET` | `/v1/public/jobs/catalog` | — | Lista resumida de profissões |
+| `GET` | `/v1/public/jobs/:id` | — | Busca profissão por ID (com suporte a `?include=`) |
+| `POST` | `/v1/admin/jobs` | ✅ | Cria uma nova profissão |
+| `POST` | `/v1/admin/jobs/questions` | ✅ | Adiciona pergunta de background a uma profissão |
+| `POST` | `/v1/admin/jobs/aliases` | ✅ | Adiciona nome alternativo a uma profissão |
 
-**Query param `?include=`** para `/public/jobs` e `/public/jobs/:id`:
+**Query param `?include=`** para `/v1/public/jobs` e `/v1/public/jobs/:id`:
 
 | Valor | Descrição |
 |-------|-----------|
@@ -461,9 +461,9 @@ fudb/
 | `powers` | Inclui poderes da profissão |
 | `spells` | Inclui feitiços e arcanas (se `allows_arcane`) |
 
-Exemplo: `GET /public/jobs/1?include=powers,spells`
+Exemplo: `GET /v1/public/jobs/1?include=powers,spells`
 
-**POST /admin/jobs — body:**
+**POST /v1/admin/jobs — body:**
 ```json
 {
   "name": "Guardião",
@@ -491,10 +491,10 @@ Exemplo: `GET /public/jobs/1?include=powers,spells`
 
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
-| `GET` | `/public/powers` | — | Lista todos os poderes com suas profissões |
-| `POST` | `/admin/powers` | ✅ | Cria um novo poder |
+| `GET` | `/v1/public/powers` | — | Lista todos os poderes com suas profissões |
+| `POST` | `/v1/admin/powers` | ✅ | Cria um novo poder |
 
-**POST /admin/powers — body:**
+**POST /v1/admin/powers — body:**
 ```json
 {
   "job_id": [1, 3],
@@ -515,10 +515,10 @@ Exemplo: `GET /public/jobs/1?include=powers,spells`
 
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
-| `GET` | `/public/spells` | — | Lista todos os feitiços |
-| `POST` | `/admin/spells` | ✅ | Cria um novo feitiço |
+| `GET` | `/v1/public/spells` | — | Lista todos os feitiços |
+| `POST` | `/v1/admin/spells` | ✅ | Cria um novo feitiço |
 
-**POST /admin/spells — body:**
+**POST /v1/admin/spells — body:**
 ```json
 {
   "job_id": 2,
@@ -537,10 +537,10 @@ Exemplo: `GET /public/jobs/1?include=powers,spells`
 
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
-| `GET` | `/public/arcanas` | — | Lista todas as arcanas |
-| `POST` | `/admin/arcanas` | ✅ | Cria uma nova arcana |
+| `GET` | `/v1/public/arcanas` | — | Lista todas as arcanas |
+| `POST` | `/v1/admin/arcanas` | ✅ | Cria uma nova arcana |
 
-**POST /admin/arcanas — body:**
+**POST /v1/admin/arcanas — body:**
 ```json
 {
   "name": "A Torre",
@@ -557,9 +557,9 @@ Exemplo: `GET /public/jobs/1?include=powers,spells`
 
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
-| `GET` | `/public/locations` | — | Lista todas as localizações |
-| `GET` | `/public/locations/:id` | — | Busca localização por ID |
-| `POST` | `/admin/locations` | ✅ | Cria uma nova localização |
+| `GET` | `/v1/public/locations` | — | Lista todas as localizações |
+| `GET` | `/v1/public/locations/:id` | — | Busca localização por ID |
+| `POST` | `/v1/admin/locations` | ✅ | Cria uma nova localização |
 
 ---
 
@@ -567,9 +567,9 @@ Exemplo: `GET /public/jobs/1?include=powers,spells`
 
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
-| `GET` | `/public/factions` | — | Lista todas as facções |
-| `GET` | `/public/factions/:factionId` | — | Busca facção por ID |
-| `POST` | `/admin/factions` | ✅ | Cria uma nova facção |
+| `GET` | `/v1/public/factions` | — | Lista todas as facções |
+| `GET` | `/v1/public/factions/:factionId` | — | Busca facção por ID |
+| `POST` | `/v1/admin/factions` | ✅ | Cria uma nova facção |
 
 ---
 
@@ -577,19 +577,19 @@ Exemplo: `GET /public/jobs/1?include=powers,spells`
 
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
-| `GET` | `/public/monsters` | — | Lista todos os monstros |
-| `GET` | `/public/monsters/summary` | — | Lista resumo dos monstros |
-| `GET` | `/public/monsters/:id` | — | Busca monstro por ID (com suporte a `?include=`) |
-| `GET` | `/public/monsters/actions` | — | Lista ações de monstros (com suporte a `?include=`) |
-| `POST` | `/admin/monsters` | ✅ | Cria um novo monstro |
-| `POST` | `/admin/monsters/traits` | ✅ | Adiciona trait a um monstro |
-| `POST` | `/admin/monsters/affinities` | ✅ | Adiciona afinidade a um monstro |
-| `POST` | `/admin/monsters/actions` | ✅ | Adiciona ação a um monstro |
+| `GET` | `/v1/public/monsters` | — | Lista todos os monstros |
+| `GET` | `/v1/public/monsters/summary` | — | Lista resumo dos monstros |
+| `GET` | `/v1/public/monsters/:id` | — | Busca monstro por ID (com suporte a `?include=`) |
+| `GET` | `/v1/public/monsters/actions` | — | Lista ações de monstros (com suporte a `?include=`) |
+| `POST` | `/v1/admin/monsters` | ✅ | Cria um novo monstro |
+| `POST` | `/v1/admin/monsters/traits` | ✅ | Adiciona trait a um monstro |
+| `POST` | `/v1/admin/monsters/affinities` | ✅ | Adiciona afinidade a um monstro |
+| `POST` | `/v1/admin/monsters/actions` | ✅ | Adiciona ação a um monstro |
 
-**Query param `?include=`** para `/public/monsters/:id`:  
+**Query param `?include=`** para `/v1/public/monsters/:id`:  
 `traits`, `affinities`, `actions`
 
-**Query param `?include=`** para `/public/monsters/actions`:  
+**Query param `?include=`** para `/v1/public/monsters/actions`:  
 `basic_attack`, `spell`, `other_action`, `special_rule`
 
 ---
@@ -598,14 +598,14 @@ Exemplo: `GET /public/jobs/1?include=powers,spells`
 
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
-| `GET` | `/public/npcs/summary` | — | Lista resumo de todos os NPCs |
-| `GET` | `/public/npcs/:id` | — | Busca NPC por ID (com suporte a `?include=`) |
-| `POST` | `/admin/npcs` | ✅ | Cria um novo NPC |
-| `POST` | `/admin/npcs/special` | ✅ | Adiciona regra especial a um NPC |
-| `POST` | `/admin/npcs/inventory` | ✅ | Adiciona item ao inventário de um NPC |
-| `POST` | `/admin/npcs/equipment` | ✅ | Define equipamento de um NPC |
+| `GET` | `/v1/public/npcs/summary` | — | Lista resumo de todos os NPCs |
+| `GET` | `/v1/public/npcs/:id` | — | Busca NPC por ID (com suporte a `?include=`) |
+| `POST` | `/v1/admin/npcs` | ✅ | Cria um novo NPC |
+| `POST` | `/v1/admin/npcs/special` | ✅ | Adiciona regra especial a um NPC |
+| `POST` | `/v1/admin/npcs/inventory` | ✅ | Adiciona item ao inventário de um NPC |
+| `POST` | `/v1/admin/npcs/equipment` | ✅ | Define equipamento de um NPC |
 
-**Query param `?include=`** para `/public/npcs/:id`:  
+**Query param `?include=`** para `/v1/public/npcs/:id`:  
 `rules`, `inventories`, `equipments`
 
 ---
@@ -614,19 +614,19 @@ Exemplo: `GET /public/jobs/1?include=powers,spells`
 
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
-| `GET` | `/public/pcs/summary` | — | Lista resumo de todos os PCs |
-| `GET` | `/public/pcs/:id` | — | Busca PC completo por ID |
-| `POST` | `/admin/pcs` | ✅ | Cria um novo PC |
-| `POST` | `/admin/pcs/jobs` | ✅ | Vincula profissão ao PC |
-| `POST` | `/admin/pcs/powers` | ✅ | Vincula poder ao PC |
-| `POST` | `/admin/pcs/spells` | ✅ | Vincula feitiço ao PC |
-| `POST` | `/admin/pcs/arcanas` | ✅ | Vincula arcana ao PC |
-| `POST` | `/admin/pcs/equipments` | ✅ | Define equipamento do PC |
-| `POST` | `/admin/pcs/inventories` | ✅ | Adiciona item ao inventário do PC |
-| `POST` | `/admin/pcs/bonds` | ✅ | Cria vínculo do PC |
-| `POST` | `/admin/pcs/monster-spells` | ✅ | Vincula feitiço de monstro ao PC |
+| `GET` | `/v1/public/pcs/summary` | — | Lista resumo de todos os PCs |
+| `GET` | `/v1/public/pcs/:id` | — | Busca PC completo por ID |
+| `POST` | `/v1/admin/pcs` | ✅ | Cria um novo PC |
+| `POST` | `/v1/admin/pcs/jobs` | ✅ | Vincula profissão ao PC |
+| `POST` | `/v1/admin/pcs/powers` | ✅ | Vincula poder ao PC |
+| `POST` | `/v1/admin/pcs/spells` | ✅ | Vincula feitiço ao PC |
+| `POST` | `/v1/admin/pcs/arcanas` | ✅ | Vincula arcana ao PC |
+| `POST` | `/v1/admin/pcs/equipments` | ✅ | Define equipamento do PC |
+| `POST` | `/v1/admin/pcs/inventories` | ✅ | Adiciona item ao inventário do PC |
+| `POST` | `/v1/admin/pcs/bonds` | ✅ | Cria vínculo do PC |
+| `POST` | `/v1/admin/pcs/monster-spells` | ✅ | Vincula feitiço de monstro ao PC |
 
-**POST /admin/pcs — body:**
+**POST /v1/admin/pcs — body:**
 ```json
 {
   "name": "Aria Ventworth",
@@ -645,7 +645,7 @@ Exemplo: `GET /public/jobs/1?include=powers,spells`
 }
 ```
 
-**POST /admin/pcs/jobs — body:**
+**POST /v1/admin/pcs/jobs — body:**
 ```json
 {
   "pc_id": 1,
@@ -656,7 +656,7 @@ Exemplo: `GET /public/jobs/1?include=powers,spells`
 }
 ```
 
-**POST /admin/pcs/bonds — body:**
+**POST /v1/admin/pcs/bonds — body:**
 ```json
 {
   "pc_id": 1,
@@ -678,7 +678,7 @@ Exemplo: `GET /public/jobs/1?include=powers,spells`
 **Atributos válidos (`dexterity_die`, `insight_die`, `might_die`, `willpower_die`):**  
 `"d6"`, `"d8"`, `"d10"`, `"d12"`
 
-**Resposta de `GET /public/pcs/:id`** inclui estatísticas calculadas automaticamente:
+**Resposta de `GET /v1/public/pcs/:id`** inclui estatísticas calculadas automaticamente:
 
 ```json
 {
@@ -718,7 +718,7 @@ Exemplo: `GET /public/jobs/1?include=powers,spells`
 
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
-| `GET` | `/public/scenario/entities` | — | Lista todas as entidades do cenário (localizações + facções + NPCs) |
+| `GET` | `/v1/public/scenario/entities` | — | Lista todas as entidades do cenário (localizações + facções + NPCs) |
 
 ---
 
@@ -763,7 +763,7 @@ Todas as respostas seguem o mesmo envelope JSON:
 
 ## Autenticação
 
-As rotas `/admin/*` exigem um Bearer token no header `Authorization`:
+As rotas `/v1/admin/*` exigem um Bearer token no header `Authorization`:
 
 ```
 Authorization: Bearer <API_TOKEN>
@@ -786,9 +786,9 @@ Os endpoints públicos de dados de referência (que mudam raramente) retornam o 
 Cache-Control: public, max-age=300, stale-while-revalidate=60
 ```
 
-Endpoints com cache habilitado: `/public/jobs`, `/public/items`, `/public/spells`, `/public/powers`, `/public/arcanas`, `/public/monsters`, `/public/locations`, `/public/factions`.
+Endpoints com cache habilitado: `/v1/public/jobs`, `/v1/public/items`, `/v1/public/spells`, `/v1/public/powers`, `/v1/public/arcanas`, `/v1/public/monsters`, `/v1/public/locations`, `/v1/public/factions`.
 
-Endpoints **sem** cache: `/public/pcs/*`, `/public/sessions`, `/public/scenario/entities`, `/public/npcs/*`.
+Endpoints **sem** cache: `/v1/public/pcs/*`, `/v1/public/sessions`, `/v1/public/scenario/entities`, `/v1/public/npcs/*`.
 
 ---
 

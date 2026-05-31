@@ -18,7 +18,7 @@
 		{
 			"binding": "fabula_ultima_db",
 			"database_name": "fabula-ultima-db",
-			"database_id": "e3afc6d6-6de1-4bf4-93d5-f780bc513e51",
+			"database_id": "1b622284-ba02-4e5a-b0d6-991ab92aa1f1",
 			"remote": true
 		}
 	],
@@ -26,7 +26,9 @@
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
 	 */
-	"placement": { "mode": "smart" }
+	"placement": {
+		"mode": "smart"
+	}
 	/**
 	 * Bindings
 	 * Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including

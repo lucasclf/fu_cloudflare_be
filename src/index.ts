@@ -49,40 +49,40 @@ app.get("/", (c) => {
 	return ok(c, { message: "API is running" });
 });
 
-app.route("/public", createPublicSessionsRoutes(createSessionService));
-app.route("/admin", createAdminSessionsRoutes(createSessionService));
+app.route("/v1/public", createPublicSessionsRoutes(createSessionService));
+app.route("/v1/admin", createAdminSessionsRoutes(createSessionService));
 
-app.route("/admin", createAdminItemsRoutes(createItemService));
-app.route("/public", createPublicItemsRoutes(createItemService));
+app.route("/v1/admin", createAdminItemsRoutes(createItemService));
+app.route("/v1/public", createPublicItemsRoutes(createItemService));
 
-app.route("/admin", createAdminJobsRoutes(createJobService));
-app.route("/public", createPublicJobsRoutes(createJobService));
+app.route("/v1/admin", createAdminJobsRoutes(createJobService));
+app.route("/v1/public", createPublicJobsRoutes(createJobService));
 
-app.route("/public", createPublicSpellsRoutes(createSpellService));
-app.route("/admin", createAdminSpellsRoutes(createSpellService));
+app.route("/v1/public", createPublicSpellsRoutes(createSpellService));
+app.route("/v1/admin", createAdminSpellsRoutes(createSpellService));
 
-app.route("/admin", createAdminPowersRoutes(createPowerService));
-app.route("/public", createPublicPowersRoutes(createPowerService));
+app.route("/v1/admin", createAdminPowersRoutes(createPowerService));
+app.route("/v1/public", createPublicPowersRoutes(createPowerService));
 
-app.route("/admin", createAdminLocationsRoutes(createLocationService));
-app.route("/public", createPublicLocationsRoutes(createLocationService));
+app.route("/v1/admin", createAdminLocationsRoutes(createLocationService));
+app.route("/v1/public", createPublicLocationsRoutes(createLocationService));
 
-app.route("/admin", createAdminFactionsRoutes(createFactionService));
-app.route("/public", createPublicFactionsRoutes(createFactionService));
+app.route("/v1/admin", createAdminFactionsRoutes(createFactionService));
+app.route("/v1/public", createPublicFactionsRoutes(createFactionService));
 
-app.route("/public", createPublicScenarioRoutes(createScenarioService));
+app.route("/v1/public", createPublicScenarioRoutes(createScenarioService));
 
-app.route("/admin", createAdminMonstersRoutes(createMonsterService));
-app.route("/public", createPublicMonstersRoutes(createMonsterService));
+app.route("/v1/admin", createAdminMonstersRoutes(createMonsterService));
+app.route("/v1/public", createPublicMonstersRoutes(createMonsterService));
 
-app.route("/admin", createAdminNpcRoutes(createNpcService))
-app.route("/public", createPublicNpcRoutes(createNpcService))
+app.route("/v1/admin", createAdminNpcRoutes(createNpcService));
+app.route("/v1/public", createPublicNpcRoutes(createNpcService));
 
-app.route("/admin", createAdminPcsRoutes(createPcService))
-app.route("/public", createPublicPcsRoutes(createPcService))
+app.route("/v1/admin", createAdminPcsRoutes(createPcService));
+app.route("/v1/public", createPublicPcsRoutes(createPcService));
 
-app.route("/admin", createAdminArcanaRoutes(createArcanaService))
-app.route("/public", createPublicArcanaRoutes(createArcanaService))
+app.route("/v1/admin", createAdminArcanaRoutes(createArcanaService));
+app.route("/v1/public", createPublicArcanaRoutes(createArcanaService));
 
 app.notFound((c) => {
 	return notFound(c, "Route not found");
