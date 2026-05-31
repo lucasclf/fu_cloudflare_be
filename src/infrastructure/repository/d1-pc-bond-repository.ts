@@ -47,6 +47,7 @@ export class D1PCBondRepository {
             .prepare(
                 `
                 SELECT
+                    id,
                     pc_id,
                     target_type,
                     target_id,
@@ -76,7 +77,7 @@ export class D1PCBondRepository {
             loyalty_axis: row.loyalty_axis as PcBond["loyalty_axis"],
             affection_axis: row.affection_axis as PcBond["affection_axis"],
             description: row.description,
-            img_key: row.img_key,
+            img_key: null, // populado pelo PcBondResolver via lookup do alvo
         };
     }
 }

@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import type { JobService } from "../../../application/job-service";
+import { staticCacheMiddleware } from "../../../middleware/cache-middleware";
 import type { Env } from "../../../types/env";
 import { notFound, ok } from "../../http";
 import { JobInclude } from "../../../domain/jobs/job";
@@ -24,6 +25,8 @@ function parseJobIncludes(include?: string): JobInclude[] {
 export function createPublicJobsRoutes(jobServiceFactory: JobServiceFactory) {
 	const routes = new Hono<{ Bindings: Env }>();
 
+	routes.use("*", staticCacheMiddleware);
+
 	routes.get("/jobs", async (c) => {
 		const includes = parseJobIncludes(c.req.query("include"));
 
@@ -34,11 +37,8 @@ export function createPublicJobsRoutes(jobServiceFactory: JobServiceFactory) {
 	});
 
 	routes.get("/jobs/catalog", async (c) => {
-		const includes = parseJobIncludes(c.req.query("include"));
-
 		const service = jobServiceFactory(c.env);
-
-		const jobs = await service.listCatalogJobs(includes);
+		const jobs = await service.listCatalogJobs();
 		return ok(c, jobs);
 	});
 

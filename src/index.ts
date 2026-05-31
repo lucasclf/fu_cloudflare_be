@@ -1,16 +1,17 @@
 import { Hono } from "hono";
+import { requestIdMiddleware } from "./middleware/request-id-middleware";
 import { createItemService } from "./composition/create-item-service";
 import { createJobService } from "./composition/create-job-service";
 import { createSessionService } from "./composition/create-session-service";
 import { corsMiddleware } from "./middleware/cors-middleware";
-import { internalServerError, notFound, ok } from "./presentation/http";
+import { notFound, ok } from "./presentation/http";
 import { createAdminItemsRoutes } from "./presentation/routes/items/admin-items-routes";
 import { createPublicItemsRoutes } from "./presentation/routes/items/public-items-routes";
 import { createAdminJobsRoutes } from "./presentation/routes/jobs/admin-jobs-routes";
 import { createPublicJobsRoutes } from "./presentation/routes/jobs/public-jobs-routes";
 import { createAdminSessionsRoutes } from "./presentation/routes/sessions/admin-sessions-routes";
 import { createPublicSessionsRoutes } from "./presentation/routes/sessions/public-sessions-routes";
-import type { Env } from "./types/env";
+import type { Env, Variables } from "./types/env";
 import { createPublicSpellsRoutes } from "./presentation/routes/spells/public-spells-routes";
 import { createAdminSpellsRoutes } from "./presentation/routes/spells/admin-spells-routes";
 import { createSpellService } from "./composition/create-spell-service";
@@ -39,9 +40,10 @@ import { createPublicArcanaRoutes } from "./presentation/routes/arcanas/public-a
 import { createArcanaService } from "./composition/create-arcana-service";
 import { handleAppError } from "./presentation/error-handler";
 
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 app.use("*", corsMiddleware);
+app.use("*", requestIdMiddleware);
 
 app.get("/", (c) => {
 	return ok(c, { message: "API is running" });

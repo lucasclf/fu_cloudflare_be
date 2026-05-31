@@ -1,8 +1,17 @@
 import type { Context } from "hono";
 import { AppError } from "../domain/app-error";
+import type { Env, Variables } from "../types/env";
 
-export function handleAppError(error: Error, c: Context): Response {
+type AppContext = Context<{ Bindings: Env; Variables: Variables }>;
+
+export function handleAppError(error: Error, c: AppContext): Response {
+	const requestId = c.get("requestId");
+
 	if (error instanceof AppError) {
+		if (error.status >= 500) {
+			console.error({ requestId, code: error.code, message: error.message });
+		}
+
 		return c.json(
 			{
 				success: false,
@@ -15,7 +24,11 @@ export function handleAppError(error: Error, c: Context): Response {
 		);
 	}
 
-	console.error(error);
+	console.error({
+		requestId,
+		error: error.message,
+		stack: error.stack,
+	});
 
 	return c.json(
 		{

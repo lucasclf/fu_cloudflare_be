@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { PcBondResolver } from "../../../src/application/pc-bond-resolver";
-import { PcFullAssembler } from "../../../src/application/pc-full-assembler.ts";
+import { PcFullAssembler } from "../../../src/application/pc-full-assembler";
 import { Item } from "../../../src/domain/items/item";
 import { ResumeJob, JobPower, Arcana } from "../../../src/domain/jobs/job";
 import { PcBase, BondTargetSummary, PcJobRelation, PcPowerRelation, CreatePcSpellRelationInput, CreatePcArcanaRelationInput, CreatePcMonsterSpellRelationInput, CreatePcEquipmentInput, CreatePcInventoryInput, PcBond } from "../../../src/domain/pc/pc";

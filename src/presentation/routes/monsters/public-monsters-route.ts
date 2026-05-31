@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { staticCacheMiddleware } from "../../../middleware/cache-middleware";
 import type { Env } from "../../../types/env";
 import { MonsterService } from "../../../application/monster-service";
 import { notFound, ok } from "../../http";
@@ -39,7 +40,9 @@ export function createPublicMonstersRoutes(
     monsterServiceFactory: MonsterServiceFactory,
 ) {
     const routes = new Hono<{ Bindings: Env }>();
-    
+
+    routes.use("*", staticCacheMiddleware);
+
     routes.get("/monsters", async (c) => {
         const service = monsterServiceFactory(c.env)
         const monsters = await service.findAll()

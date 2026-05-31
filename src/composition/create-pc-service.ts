@@ -1,6 +1,6 @@
 import { PcBondResolver } from "../application/pc-bond-resolver.js";
 import { PcCommandService } from "../application/pc-command-service.js";
-import { PcFullAssembler } from "../application/pc-full-assembler.ts";
+import { PcFullAssembler } from "../application/pc-full-assembler";
 import { PcQueryService } from "../application/pc-query-service.js";
 import { PCService } from "../application/pc-service";
 import { PcStatsCalculator } from "../domain/pc/pc-stats-calculator";
@@ -72,6 +72,7 @@ export function createPcService(env: Env): PCService {
         pcFullAssembler,
     );
     const pcCommandService = new PcCommandService(
+        pcRepository,
         pcRepository,
 		pcJobRepository,
 		pcPowerRepository,

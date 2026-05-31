@@ -34,7 +34,7 @@ export function createAdminJobsRoutes(jobServiceFactory: JobServiceFactory) {
 		const service = jobServiceFactory(c.env);
 		await service.createJobQuestion(input);
 
-		return created(c, { message: "Job created successfully" });
+		return created(c, { message: "Job question created successfully" });
 	});
 
 	routes.post("/jobs/aliases", async (c) => {

@@ -29,14 +29,8 @@ export class JobService {
 		return this.enrichJobs(jobs, includes);
 	}
 
-	async listCatalogJobs(includes: string[]): Promise<ResumeJob[]> {
-		const jobs = await this.jobRepository.findAllSummary();
-
-		if (jobs.length === 0 || includes.length === 0) {
-			return jobs;
-		}
-
-		return jobs;
+	async listCatalogJobs(): Promise<ResumeJob[]> {
+		return await this.jobRepository.findAllSummary();
 	}
 
 	async getJobById(

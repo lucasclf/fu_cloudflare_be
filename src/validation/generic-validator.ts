@@ -70,6 +70,10 @@ export function readNumberWithDefault(input: RawInput, fieldName: string) {
 export function readRequiredNumber(raw: RawInput, fieldName: string): number {
 	const value = raw[fieldName];
 
+	if (value === undefined || value === null) {
+		throw new ValidationError(`${fieldName} is required`);
+	}
+
 	if (!Number.isInteger(value)) {
 		throw new ValidationError(`${fieldName} must be an integer`);
 	}

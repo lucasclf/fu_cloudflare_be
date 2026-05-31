@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { staticCacheMiddleware } from "../../../middleware/cache-middleware";
 import type { Env } from "../../../types/env";
 import { ok } from "../../http";
 import { ArcanaService } from "../../../application/arcana-service";
@@ -7,6 +8,8 @@ type ArcanaServiceFactory = (env: Env) => ArcanaService;
 
 export function createPublicArcanaRoutes(spellServiceFactory: ArcanaServiceFactory) {
     const routes = new Hono<{ Bindings: Env }>();
+
+    routes.use("*", staticCacheMiddleware);
 
     routes.get("/arcanas", async (c) => {
         const service = spellServiceFactory(c.env);

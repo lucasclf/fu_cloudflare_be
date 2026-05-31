@@ -1,5 +1,5 @@
 import type { PcBase, PcFull, PcSummary } from "../domain/pc/pc";
-import { PcFullAssembler } from "./pc-full-assembler.ts";
+import { PcFullAssembler } from "./pc-full-assembler";
 import { PcReaderPort } from "./ports/pc-ports";
 
 

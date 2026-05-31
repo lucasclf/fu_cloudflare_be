@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { staticCacheMiddleware } from "../../../middleware/cache-middleware";
 import type { Env } from "../../../types/env";
 import { badRequest, notFound, ok } from "../../http";
 import { FactionService } from "../../../application/faction-service";
@@ -9,6 +10,8 @@ export function createPublicFactionsRoutes(
     factionServiceFactory: FactionServiceFactory,
 ) {
     const routes = new Hono<{ Bindings: Env }>();
+
+    routes.use("*", staticCacheMiddleware);
 
     routes.get("/factions", async (c) => {
 		const service = factionServiceFactory(c.env);

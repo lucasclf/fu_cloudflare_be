@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { staticCacheMiddleware } from "../../../middleware/cache-middleware";
 import type { Env } from "../../../types/env";
 import { notFound, ok } from "../../http";
 import { PowerService } from "../../../application/power-service";
@@ -7,6 +8,8 @@ type PowerServiceFactory = (env: Env) => PowerService;
 
 export function createPublicPowersRoutes(powerServiceFactory: PowerServiceFactory) {
     const routes = new Hono<{ Bindings: Env }>();
+
+    routes.use("*", staticCacheMiddleware);
 
     routes.get("/powers", async (c) => {
 

@@ -18,7 +18,6 @@ export type PcBondRow = {
     description: string | null;
     created_at?: string;
     updated_at?: string | null;
-    img_key: string | null;
 };
 
 export type PcEquipmentRow = {

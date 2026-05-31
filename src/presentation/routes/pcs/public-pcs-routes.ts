@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { PCService } from "../../../application/pc-service";
 import type { Env } from "../../../types/env";
-import { ok } from "../../http";
+import { notFound, ok } from "../../http";
 
 type PCServiceFactory = (env: Env) => PCService
 
@@ -22,6 +22,10 @@ export function createPublicPcsRoutes(
         const service = pcServiceFactory(c.env);
 
         const pc = await service.findById(pcId);
+
+        if (!pc) {
+            return notFound(c, "PC not found");
+        }
 
         return ok(c, pc);
     })

@@ -27,6 +27,10 @@ export interface PcReaderPort {
 	findById(pcId: string): Promise<PcBase | null>;
 }
 
+export interface PcExistsPort {
+	exists(pcId: number): Promise<boolean>;
+}
+
 export interface PcWriterPort {
 	create(input: CreatePCInput): Promise<void>;
 }

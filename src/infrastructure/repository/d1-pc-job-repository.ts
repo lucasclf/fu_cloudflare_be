@@ -1,6 +1,6 @@
 import { PcJobRelation } from "../../domain/pc/pc";
 import { PcJobRelationAlreadyExistsError } from "../../domain/pc/pc_error";
-import { toBoolean } from "../d1-utils";
+import { fromBoolean, toBoolean } from "../d1-utils";
 import { PcJobRelationRow } from "../rows/pc";
 
 export class D1PCJobRepository {
@@ -22,8 +22,8 @@ export class D1PCJobRepository {
                     input.pc_id,
                     input.job_id,
                     input.level,
-                    input.ignore_hp_bonus,
-                    input.ignore_mp_bonus
+                    fromBoolean(input.ignore_hp_bonus),
+                    fromBoolean(input.ignore_mp_bonus)
                 )
                 .run();
         } catch (error) {

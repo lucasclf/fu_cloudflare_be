@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { staticCacheMiddleware } from "../../../middleware/cache-middleware";
 import type { Env } from "../../../types/env";
 import { LocationService } from "../../../application/location-service";
 import { badRequest, notFound, ok } from "../../http";
@@ -7,6 +8,8 @@ type LocationServiceFactory = (env: Env) => LocationService;
 
 export function createPublicLocationsRoutes(locationServiceFactory: LocationServiceFactory) {
     const routes = new Hono<{ Bindings: Env }>();
+
+    routes.use("*", staticCacheMiddleware);
 
     routes.get("/locations", async (c) => {
         const service = locationServiceFactory(c.env);

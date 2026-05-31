@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import type { ItemService } from "../../../application/item-service";
+import { staticCacheMiddleware } from "../../../middleware/cache-middleware";
 import type { Env } from "../../../types/env";
 import { notFound, ok } from "../../http";
 
@@ -9,6 +10,8 @@ export function createPublicItemsRoutes(
 	itemServiceFactory: ItemServiceFactory,
 ) {
 	const routes = new Hono<{ Bindings: Env }>();
+
+	routes.use("*", staticCacheMiddleware);
 
 	routes.get("/items", async (c) => {
 		const service = itemServiceFactory(c.env);

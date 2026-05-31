@@ -1,7 +1,8 @@
 import { BondTargetSummary, CreatePCInput, PcBase, PcSummary } from "../../domain/pc/pc";
 import { PcAlreadyExistsError } from "../../domain/pc/pc_error";
+import type { PcExistsPort } from "../../application/ports/pc-ports";
 
-export class D1PCRepository {
+export class D1PCRepository implements PcExistsPort {
     constructor(private readonly db: D1Database){}
 
     async create(input: CreatePCInput): Promise<void> {
@@ -94,15 +95,23 @@ export class D1PCRepository {
                     img_key,
                     created_at,
                     updated_at
-                FROM PCS
+                FROM pcs
                 WHERE id = ?
-                ORDER BY name ASC
                 `
             )
             .bind(pcId)
             .first<PcBase>();
         
         return result
+    }
+
+    async exists(pcId: number): Promise<boolean> {
+        const result = await this.db
+            .prepare("SELECT 1 FROM pcs WHERE id = ? LIMIT 1")
+            .bind(pcId)
+            .first();
+
+        return result !== null;
     }
 
     async findBondTargetsByIds(
