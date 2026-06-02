@@ -1,58 +1,74 @@
-import { Hono } from "hono";
+﻿import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
-import { created } from "../../http";
-import { validateCreateActionsInput, validateCreateAffinitiesInput, validateCreateMonsterInput, validateCreateTraitInput } from "../../../validation/monster-validator";
 import { MonsterService } from "../../../application/monster-service";
 import type { Env } from "../../../types/env";
+import {
+    createMonsterSchema,
+    createMonsterTraitSchema,
+    createMonsterAffinitySchema,
+    createMonsterActionSchema,
+} from "../../../schemas/monster-schemas";
+import { badRequestResponse, conflictResponse, createdResponse } from "../../../schemas/common";
 
 type MonsterServiceFactory = (env: Env) => MonsterService;
 
-export function createAdminMonstersRoutes(
-    monsterServiceFactory: MonsterServiceFactory,
-) {
-    const routes = new Hono<{ Bindings: Env }>();
+export function createAdminMonstersRoutes(monsterServiceFactory: MonsterServiceFactory) {
+    const routes = new OpenAPIHono<{ Bindings: Env }>();
 
     routes.use("*", adminAuthMiddleware);
-    
-    routes.post("/monsters", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreateMonsterInput(rawBody);
 
-        const service = monsterServiceFactory(c.env);
-        await service.createMonster(input);
+    routes.openapi(
+        createRoute({
+            method: "post", path: "/monsters", tags: ["Monstros"],
+            security: [{ adminToken: [] }], summary: "Criar monstro",
+            request: { body: { content: { "application/json": { schema: createMonsterSchema } } } },
+            responses: { 201: createdResponse, 400: badRequestResponse, 409: conflictResponse },
+        }),
+        async (c) => {
+            const input = c.req.valid("json");
+            await monsterServiceFactory(c.env).createMonster(input);
+            return c.json({ success: true as const, data: { message: "Monster created successfully" } } as any, 201);
+        },
+    );
 
-        return created(c, { message: "Monster created successfully" });
-    });
+    routes.openapi(
+        createRoute({
+            method: "post", path: "/monsters/traits", tags: ["Monstros"],
+            security: [{ adminToken: [] }], summary: "Adicionar trait",
+            request: { body: { content: { "application/json": { schema: createMonsterTraitSchema } } } },
+            responses: { 201: createdResponse, 400: badRequestResponse },
+        }),
+        async (c) => {
+            await monsterServiceFactory(c.env).createMonsterTrait(c.req.valid("json"));
+            return c.json({ success: true as const, data: { message: "Monster Trait created successfully" } } as any, 201);
+        },
+    );
 
-    routes.post("/monsters/traits", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreateTraitInput(rawBody)
+    routes.openapi(
+        createRoute({
+            method: "post", path: "/monsters/affinities", tags: ["Monstros"],
+            security: [{ adminToken: [] }], summary: "Definir afinidades",
+            request: { body: { content: { "application/json": { schema: createMonsterAffinitySchema } } } },
+            responses: { 201: createdResponse, 400: badRequestResponse },
+        }),
+        async (c) => {
+            await monsterServiceFactory(c.env).createMonsterAffinity(c.req.valid("json"));
+            return c.json({ success: true as const, data: { message: "Monster Affinity created successfully" } } as any, 201);
+        },
+    );
 
-        const service = monsterServiceFactory(c.env);
-        await service.createMonsterTrait(input);
+    routes.openapi(
+        createRoute({
+            method: "post", path: "/monsters/actions", tags: ["Monstros"],
+            security: [{ adminToken: [] }], summary: "Adicionar ação",
+            request: { body: { content: { "application/json": { schema: createMonsterActionSchema } } } },
+            responses: { 201: createdResponse, 400: badRequestResponse },
+        }),
+        async (c) => {
+            await monsterServiceFactory(c.env).createMonsterAction(c.req.valid("json"));
+            return c.json({ success: true as const, data: { message: "Monster Action created successfully" } } as any, 201);
+        },
+    );
 
-        return created(c, { message: "Monster Trait created successfully" });
-    })
-
-    routes.post("/monsters/affinities", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreateAffinitiesInput(rawBody)
-
-        const service = monsterServiceFactory(c.env);
-        await service.createMonsterAffinity(input);
-
-        return created(c, { message: "Monster Affinity created successfully" });
-    })
-
-    routes.post("/monsters/actions", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreateActionsInput(rawBody)
-
-        const service = monsterServiceFactory(c.env);
-        await service.createMonsterAction(input);
-
-        return created(c, { message: "Monster Affinity created successfully" });
-    })
-
-    return routes
+    return routes;
 }

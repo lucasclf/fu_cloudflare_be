@@ -1,10 +1,11 @@
-import { Hono } from "hono";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { swaggerUI } from "@hono/swagger-ui";
 import { requestIdMiddleware } from "./middleware/request-id-middleware";
 import { createItemService } from "./composition/create-item-service";
 import { createJobService } from "./composition/create-job-service";
 import { createSessionService } from "./composition/create-session-service";
 import { corsMiddleware } from "./middleware/cors-middleware";
-import { notFound, ok } from "./presentation/http";
+import { ok } from "./presentation/http";
 import { createAdminItemsRoutes } from "./presentation/routes/items/admin-items-routes";
 import { createPublicItemsRoutes } from "./presentation/routes/items/public-items-routes";
 import { createAdminJobsRoutes } from "./presentation/routes/jobs/admin-jobs-routes";
@@ -43,7 +44,24 @@ import { createAuthRoutes } from "./presentation/routes/auth/auth-routes";
 import { createAdminUserRoutes } from "./presentation/routes/users/admin-user-routes";
 import { createUserService } from "./composition/create-user-service";
 
-const app = new Hono<{ Bindings: Env; Variables: Variables }>();
+const app = new OpenAPIHono<{ Bindings: Env; Variables: Variables }>({
+	defaultHook: (result, c) => {
+		if (!result.success) {
+			const firstError = result.error.issues[0];
+			const path = firstError.path.join(".");
+			const message = path
+				? `${path}: ${firstError.message}`
+				: firstError.message;
+			return c.json(
+				{
+					success: false as const,
+					error: { code: "BAD_REQUEST", message },
+				},
+				400,
+			);
+		}
+	},
+});
 
 app.use("*", corsMiddleware);
 app.use("*", requestIdMiddleware);
@@ -51,6 +69,65 @@ app.use("*", requestIdMiddleware);
 app.get("/", (c) => {
 	return ok(c, { message: "API is running" });
 });
+
+// ─── Documentação ─────────────────────────────────────────────────────────────
+
+// Spec base gerada pelo @hono/zod-openapi (rota interna)
+app.doc("/_internal/spec", {
+	openapi: "3.0.0",
+	info: {
+		title: "FUDB — Fábula Última Database",
+		version: "1.0.0",
+		description: "API backend do sistema de gerenciamento de campanhas Fábula Última.",
+	},
+	tags: [
+		{ name: "Autenticação" },
+		{ name: "Usuários" },
+		{ name: "Sessões" },
+		{ name: "Itens" },
+		{ name: "Profissões" },
+		{ name: "Poderes" },
+		{ name: "Feitiços" },
+		{ name: "Arcanas" },
+		{ name: "Localizações" },
+		{ name: "Facções" },
+		{ name: "Monstros" },
+		{ name: "NPCs" },
+		{ name: "Personagens" },
+		{ name: "Cenário" },
+	],
+});
+
+// Spec público — injeta securitySchemes que o @hono/zod-openapi não inclui via app.doc()
+app.get("/docs/spec.json", async (c) => {
+	const internalRes = await app.request("/_internal/spec");
+	const spec = (await internalRes.json()) as Record<string, unknown>;
+
+	(spec.components as Record<string, unknown>) = {
+		...((spec.components as Record<string, unknown>) ?? {}),
+		securitySchemes: {
+			adminToken: {
+				type: "http",
+				scheme: "bearer",
+				description: "Token de administração — valor de API_TOKEN no .dev.vars",
+			},
+			userToken: {
+				type: "http",
+				scheme: "bearer",
+				description: "JWT gerado pelo endpoint POST /v1/auth/login",
+			},
+		},
+	};
+
+	return c.json(spec);
+});
+
+app.get("/docs", swaggerUI({ url: "/docs/spec.json" }));
+
+// ─── Rotas ────────────────────────────────────────────────────────────────────
+
+app.route("/v1/auth", createAuthRoutes(createUserService));
+app.route("/v1/admin", createAdminUserRoutes(createUserService));
 
 app.route("/v1/public", createPublicSessionsRoutes(createSessionService));
 app.route("/v1/admin", createAdminSessionsRoutes(createSessionService));
@@ -87,16 +164,8 @@ app.route("/v1/public", createPublicPcsRoutes(createPcService));
 app.route("/v1/admin", createAdminArcanaRoutes(createArcanaService));
 app.route("/v1/public", createPublicArcanaRoutes(createArcanaService));
 
-app.route("/v1/auth", createAuthRoutes(createUserService));
-app.route("/v1/admin", createAdminUserRoutes(createUserService));
-
-app.notFound((c) => {
-	return notFound(c, "Route not found");
-});
-
 app.onError((error, c) => {
 	return handleAppError(error, c);
 });
-
 
 export default app;

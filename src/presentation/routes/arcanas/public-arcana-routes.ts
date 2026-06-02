@@ -1,21 +1,29 @@
-import { Hono } from "hono";
-import { staticCacheMiddleware } from "../../../middleware/cache-middleware";
-import type { Env } from "../../../types/env";
-import { ok } from "../../http";
+﻿import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { ArcanaService } from "../../../application/arcana-service";
+import type { Env } from "../../../types/env";
+import { arcanaListResponse } from "../../../schemas/arcana-schemas";
 
 type ArcanaServiceFactory = (env: Env) => ArcanaService;
 
-export function createPublicArcanaRoutes(spellServiceFactory: ArcanaServiceFactory) {
-    const routes = new Hono<{ Bindings: Env }>();
+export function createPublicArcanaRoutes(arcanaServiceFactory: ArcanaServiceFactory) {
+    const routes = new OpenAPIHono<{ Bindings: Env }>();
 
-    routes.use("*", staticCacheMiddleware);
+    routes.openapi(
+        createRoute({
+            method: "get",
+            path: "/arcanas",
+            tags: ["Arcanas"],
+            summary: "Listar todas as arcanas",
+            responses: {
+                200: { content: { "application/json": { schema: arcanaListResponse } }, description: "Lista de arcanas" },
+            },
+        }),
+        async (c) => {
+            const service = arcanaServiceFactory(c.env);
+            const arcanas = await service.listAll();
+            return c.json({ success: true as const, data: arcanas } as any, 200);
+        },
+    );
 
-    routes.get("/arcanas", async (c) => {
-        const service = spellServiceFactory(c.env);
-        const arcanas = await service.listAll();
-
-        return ok (c, arcanas)
-    })
     return routes;
 }

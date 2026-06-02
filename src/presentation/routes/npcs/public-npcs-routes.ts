@@ -1,56 +1,49 @@
-import { Hono } from "hono";
-import type { Env } from "../../../types/env";
+﻿import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { NpcService } from "../../../application/npc-service";
-import { badRequest, conflict, created, notFound, ok } from "../../http";
-import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
-import { ValidationError } from "../../../domain/domain-errors";
-import { NpcAlreadyExistsError, NpcNotFoundError } from "../../../domain/npc/npc_error";
-import { validateCreateNpcEquipmentInput, validateCreateNpcInput, validateCreateNpcInventoryInput, validateCreateNpcSpecialRulesInput } from "../../../validation/npc-validator";
+import type { Env } from "../../../types/env";
+import { npcSummaryListResponse, npcResponse, npcIncludeQuerySchema } from "../../../schemas/npc-schemas";
+import { idParamSchema, notFoundResponse } from "../../../schemas/common";
 import { NpcInclude } from "../../../domain/npc/npc";
 
 type NpcServiceFactory = (env: Env) => NpcService;
 
-const allowedIncludes: NpcInclude[] = [ "rules", "inventories", "equipments"];
-
-function parseJobIncludes(include?: string): NpcInclude[] {
-    if (!include) {
-        return [];
-    }
-
-    return include
-        .split(",")
-        .map((value) => value.trim())
-        .filter((value): value is NpcInclude =>
-            allowedIncludes.includes(value as NpcInclude),
-        );
+const allowedIncludes: NpcInclude[] = ["rules", "inventories", "equipments"];
+function parseNpcIncludes(include?: string): NpcInclude[] {
+    if (!include) return [];
+    return include.split(",").map((v) => v.trim()).filter((v): v is NpcInclude => allowedIncludes.includes(v as NpcInclude));
 }
 
 export function createPublicNpcRoutes(npcServiceFactory: NpcServiceFactory) {
-    const routes = new Hono<{ Bindings: Env }>();
+    const routes = new OpenAPIHono<{ Bindings: Env }>();
 
-    routes.get("/npcs", async (c) => {
-        const service = await npcServiceFactory(c.env);
-        const npcs = service.findAll();
+    routes.openapi(
+        createRoute({
+            method: "get", path: "/npcs/summary", tags: ["NPCs"], summary: "Listar resumo de NPCs",
+            responses: { 200: { content: { "application/json": { schema: npcSummaryListResponse } }, description: "Resumos" } },
+        }),
+        async (c) => {
+            return c.json({ success: true as const, data: await npcServiceFactory(c.env).findAllSummary() });
+        },
+    );
 
-        return ok(c, npcs);
-    })
+    routes.openapi(
+        createRoute({
+            method: "get", path: "/npcs/:id", tags: ["NPCs"], summary: "Buscar NPC por ID",
+            description: "Use `?include=rules,inventories,equipments`",
+            request: { params: idParamSchema, query: npcIncludeQuerySchema },
+            responses: {
+                200: { content: { "application/json": { schema: npcResponse } }, description: "NPC" },
+                404: notFoundResponse,
+            },
+        }),
+        async (c) => {
+            const { id } = c.req.valid("param");
+            const { include } = c.req.valid("query");
+            const npc = await npcServiceFactory(c.env).findById(id, parseNpcIncludes(include));
+            if (!npc) return c.json({ success: false as const, error: { code: "NOT_FOUND", message: "NPC not found" } }, 404) as any;
+            return c.json({ success: true as const, data: npc } as any, 200);
+        },
+    );
 
-    routes.get("/npcs/summary", async (c) => {
-        const service = npcServiceFactory(c.env);
-        const npcs = await service.findAllSummary();
-
-        return ok(c, npcs);
-    })
-
-    routes.get("/npcs/:id{[0-9]+}", async (c) => {
-        const npcId = c.req.param("id");
-		const include = parseJobIncludes(c.req.query("include"));
-
-        const service = npcServiceFactory(c.env);
-        const npcs = await service.findById(npcId, include);
-
-        return ok(c, npcs);
-    })
-
-    return routes
+    return routes;
 }

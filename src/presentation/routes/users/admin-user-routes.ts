@@ -1,36 +1,70 @@
-import { Hono } from "hono";
+﻿import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import type { UserService } from "../../../application/user-service";
 import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
 import type { Env } from "../../../types/env";
-import { validateCreateUserInput } from "../../../validation/user-validator";
-import { created, noContent, ok } from "../../http";
+import { createUserSchema, userListResponse } from "../../../schemas/user-schemas";
+import {
+    badRequestResponse,
+    conflictResponse,
+    createdResponse,
+    noContentResponse,
+    notFoundResponse,
+    idParamSchema,
+} from "../../../schemas/common";
 
 type UserServiceFactory = (env: Env) => UserService;
 
 export function createAdminUserRoutes(userServiceFactory: UserServiceFactory) {
-    const routes = new Hono<{ Bindings: Env }>();
+    const routes = new OpenAPIHono<{ Bindings: Env }>();
 
     routes.use("*", adminAuthMiddleware);
 
-    routes.get("/users", async (c) => {
-        const service = userServiceFactory(c.env);
-        return ok(c, await service.listUsers());
-    });
+    routes.openapi(
+        createRoute({
+            method: "get",
+            path: "/users",
+            tags: ["Usuários"],
+            security: [{ adminToken: [] }],
+            summary: "Listar usuários",
+            responses: { 200: { content: { "application/json": { schema: userListResponse } }, description: "Lista de usuários" } },
+        }),
+        async (c) => {
+            return c.json({ success: true as const, data: await userServiceFactory(c.env).listUsers() });
+        },
+    );
 
-    routes.post("/users", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreateUserInput(rawBody);
-        const service = userServiceFactory(c.env);
-        await service.createUser(input);
-        return created(c, { message: "User created successfully" });
-    });
+    routes.openapi(
+        createRoute({
+            method: "post",
+            path: "/users",
+            tags: ["Usuários"],
+            security: [{ adminToken: [] }],
+            summary: "Criar usuário",
+            request: { body: { content: { "application/json": { schema: createUserSchema } } } },
+            responses: { 201: createdResponse, 400: badRequestResponse, 409: conflictResponse },
+        }),
+        async (c) => {
+            await userServiceFactory(c.env).createUser(c.req.valid("json"));
+            return c.json({ success: true as const, data: { message: "User created successfully" } } as any, 201);
+        },
+    );
 
-    routes.delete("/users/:id{[0-9]+}", async (c) => {
-        const id = c.req.param("id");
-        const service = userServiceFactory(c.env);
-        await service.deleteUser(id);
-        return noContent(c);
-    });
+    routes.openapi(
+        createRoute({
+            method: "delete",
+            path: "/users/:id",
+            tags: ["Usuários"],
+            security: [{ adminToken: [] }],
+            summary: "Remover usuário",
+            request: { params: idParamSchema },
+            responses: { 204: noContentResponse, 404: notFoundResponse },
+        }),
+        async (c) => {
+            const { id } = c.req.valid("param");
+            await userServiceFactory(c.env).deleteUser(id);
+            return c.body(null, 204);
+        },
+    );
 
     return routes;
 }

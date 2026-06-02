@@ -1,108 +1,66 @@
-import { Hono } from "hono";
+﻿import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { PCService } from "../../../application/pc-service";
 import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
-import { validateCreatePcArcanaRelationInput, validateCreatePcBondInput, validateCreatePcEquipmentInput, validateCreatePcInput, validateCreatePcInventoryInput, validateCreatePcJobRelationInput, validateCreatePcMonsterSpellRelationInput, validateCreatePcPowerRelationInput, validateCreatePcSpellRelationInput } from "../../../validation/pc-validator";
 import type { Env } from "../../../types/env";
-import { created } from "../../http";
+import {
+    createPcSchema, createPcJobRelationSchema, createPcPowerRelationSchema,
+    createPcSpellRelationSchema, createPcArcanaRelationSchema, createPcEquipmentSchema,
+    createPcInventorySchema, createPcBondSchema, createPcMonsterSpellSchema,
+} from "../../../schemas/pc-schemas";
+import { badRequestResponse, conflictResponse, createdResponse, notFoundResponse } from "../../../schemas/common";
 
-type PCServiceFactory = (env: Env) => PCService
+type PCServiceFactory = (env: Env) => PCService;
 
-export function createAdminPcsRoutes (
-    pcServiceFactory: PCServiceFactory
-) {
-    const routes = new Hono<{ Bindings: Env }>();
-    
+export function createAdminPcsRoutes(pcServiceFactory: PCServiceFactory) {
+    const routes = new OpenAPIHono<{ Bindings: Env }>();
+
     routes.use("*", adminAuthMiddleware);
 
-    routes.post("/pcs", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreatePcInput(rawBody);
+    routes.openapi(
+        createRoute({ method: "post", path: "/pcs", tags: ["Personagens"],
+            security: [{ adminToken: [] }], summary: "Criar PC", request: { body: { content: { "application/json": { schema: createPcSchema } } } }, responses: { 201: createdResponse, 400: badRequestResponse, 409: conflictResponse } }),
+        async (c) => { await pcServiceFactory(c.env).createPc(c.req.valid("json")); return c.json({ success: true as const, data: { message: "PC created successfully" } } as any, 201); },
+    );
+    routes.openapi(
+        createRoute({ method: "post", path: "/pcs/jobs", tags: ["Personagens"],
+            security: [{ adminToken: [] }], summary: "Vincular profissão ao PC", request: { body: { content: { "application/json": { schema: createPcJobRelationSchema } } } }, responses: { 201: createdResponse, 400: badRequestResponse, 409: conflictResponse, 404: notFoundResponse } }),
+        async (c) => { await pcServiceFactory(c.env).createPcJobRelation(c.req.valid("json")); return c.json({ success: true as const, data: { message: "PC-Job Relation created successfully" } } as any, 201); },
+    );
+    routes.openapi(
+        createRoute({ method: "post", path: "/pcs/powers", tags: ["Personagens"],
+            security: [{ adminToken: [] }], summary: "Vincular poder ao PC", request: { body: { content: { "application/json": { schema: createPcPowerRelationSchema } } } }, responses: { 201: createdResponse, 400: badRequestResponse, 409: conflictResponse, 404: notFoundResponse } }),
+        async (c) => { await pcServiceFactory(c.env).createPcPowerRelation(c.req.valid("json")); return c.json({ success: true as const, data: { message: "PC-Power Relation created successfully" } } as any, 201); },
+    );
+    routes.openapi(
+        createRoute({ method: "post", path: "/pcs/spells", tags: ["Personagens"],
+            security: [{ adminToken: [] }], summary: "Vincular feitiço ao PC", request: { body: { content: { "application/json": { schema: createPcSpellRelationSchema } } } }, responses: { 201: createdResponse, 400: badRequestResponse, 409: conflictResponse, 404: notFoundResponse } }),
+        async (c) => { await pcServiceFactory(c.env).createPcSpellRelation(c.req.valid("json")); return c.json({ success: true as const, data: { message: "PC-Spell Relation created successfully" } } as any, 201); },
+    );
+    routes.openapi(
+        createRoute({ method: "post", path: "/pcs/arcanas", tags: ["Personagens"],
+            security: [{ adminToken: [] }], summary: "Vincular arcana ao PC", request: { body: { content: { "application/json": { schema: createPcArcanaRelationSchema } } } }, responses: { 201: createdResponse, 400: badRequestResponse, 409: conflictResponse, 404: notFoundResponse } }),
+        async (c) => { await pcServiceFactory(c.env).createPcArcanaRelation(c.req.valid("json")); return c.json({ success: true as const, data: { message: "PC-Arcana Relation created successfully" } } as any, 201); },
+    );
+    routes.openapi(
+        createRoute({ method: "post", path: "/pcs/equipments", tags: ["Personagens"],
+            security: [{ adminToken: [] }], summary: "Definir equipamento do PC", request: { body: { content: { "application/json": { schema: createPcEquipmentSchema } } } }, responses: { 201: createdResponse, 400: badRequestResponse, 404: notFoundResponse } }),
+        async (c) => { await pcServiceFactory(c.env).createPcEquipment(c.req.valid("json")); return c.json({ success: true as const, data: { message: "PC-Equipment created successfully" } } as any, 201); },
+    );
+    routes.openapi(
+        createRoute({ method: "post", path: "/pcs/inventories", tags: ["Personagens"],
+            security: [{ adminToken: [] }], summary: "Adicionar item ao inventário", request: { body: { content: { "application/json": { schema: createPcInventorySchema } } } }, responses: { 201: createdResponse, 400: badRequestResponse, 404: notFoundResponse } }),
+        async (c) => { await pcServiceFactory(c.env).createPcInventory(c.req.valid("json")); return c.json({ success: true as const, data: { message: "PC-Inventory created successfully" } } as any, 201); },
+    );
+    routes.openapi(
+        createRoute({ method: "post", path: "/pcs/bonds", tags: ["Personagens"],
+            security: [{ adminToken: [] }], summary: "Criar vínculo do PC", request: { body: { content: { "application/json": { schema: createPcBondSchema } } } }, responses: { 201: createdResponse, 400: badRequestResponse, 409: conflictResponse, 404: notFoundResponse } }),
+        async (c) => { await pcServiceFactory(c.env).createPcBond(c.req.valid("json")); return c.json({ success: true as const, data: { message: "PC-Bond created successfully" } } as any, 201); },
+    );
+    routes.openapi(
+        createRoute({ method: "post", path: "/pcs/monster-spells", tags: ["Personagens"],
+            security: [{ adminToken: [] }], summary: "Vincular feitiço de monstro ao PC", request: { body: { content: { "application/json": { schema: createPcMonsterSpellSchema } } } }, responses: { 201: createdResponse, 400: badRequestResponse, 409: conflictResponse, 404: notFoundResponse } }),
+        async (c) => { await pcServiceFactory(c.env).createPcMonsterSpellRelation(c.req.valid("json")); return c.json({ success: true as const, data: { message: "PC-Monster-Spell Relation created successfully" } } as any, 201); },
+    );
 
-        const service = pcServiceFactory(c.env);
-        await service.createPc(input);
-
-        return created(c, { message: "PC created successfully" });
-    })
-
-    routes.post("/pcs/jobs", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreatePcJobRelationInput(rawBody);
-
-        const service = pcServiceFactory(c.env);
-        await service.createPcJobRelation(input);
-
-        return created(c, { message: "PC-Job Relation created successfully" });
-    })
-
-    routes.post("/pcs/powers", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreatePcPowerRelationInput(rawBody);
-
-        const service = pcServiceFactory(c.env);
-        await service.createPcPowerRelation(input);
-
-        return created(c, { message: "PC-Power Relation created successfully" });
-    })
-
-    routes.post("/pcs/spells", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreatePcSpellRelationInput(rawBody);
-
-        const service = pcServiceFactory(c.env);
-        await service.createPcSpellRelation(input);
-
-        return created(c, { message: "PC-Spell Relation created successfully" });
-    })
-
-    routes.post("/pcs/arcanas", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreatePcArcanaRelationInput(rawBody);
-
-        const service = pcServiceFactory(c.env);
-        await service.createPcArcanaRelation(input);
-
-        return created(c, { message: "PC-Arcana Relation created successfully" });
-    })
-
-    routes.post("/pcs/equipments", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreatePcEquipmentInput(rawBody);
-
-        const service = pcServiceFactory(c.env);
-        await service.createPcEquipment(input);
-
-        return created(c, { message: "PC-Equipment created successfully" });
-    })
-
-    routes.post("/pcs/inventories", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreatePcInventoryInput(rawBody);
-
-        const service = pcServiceFactory(c.env);
-        await service.createPcInventory(input);
-
-        return created(c, { message: "PC-Inventory created successfully" });
-    })
-    
-    routes.post("/pcs/bonds", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreatePcBondInput(rawBody);
-
-        const service = pcServiceFactory(c.env);
-        await service.createPcBond(input);
-
-        return created(c, { message: "PC-Bond created successfully" });
-    })
-
-    routes.post("/pcs/monster-spells", async (c) => {
-        const rawBody = await c.req.json();
-        const input = validateCreatePcMonsterSpellRelationInput(rawBody);
-
-        const service = pcServiceFactory(c.env);
-        await service.createPcMonsterSpellRelation(input);
-
-        return created(c, { message: "PC-Monster-Spell Relation created successfully" });
-    })
-
-    return routes
+    return routes;
 }

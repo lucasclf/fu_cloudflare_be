@@ -1,41 +1,52 @@
-import { Hono } from "hono";
-import { staticCacheMiddleware } from "../../../middleware/cache-middleware";
-import type { Env } from "../../../types/env";
-import { badRequest, notFound, ok } from "../../http";
+﻿import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { FactionService } from "../../../application/faction-service";
+import type { Env } from "../../../types/env";
+import { factionListResponse, factionResponse, factionIdParamSchema } from "../../../schemas/faction-schemas";
+import { badRequestResponse, notFoundResponse } from "../../../schemas/common";
 
 type FactionServiceFactory = (env: Env) => FactionService;
 
-export function createPublicFactionsRoutes(
-    factionServiceFactory: FactionServiceFactory,
-) {
-    const routes = new Hono<{ Bindings: Env }>();
+export function createPublicFactionsRoutes(factionServiceFactory: FactionServiceFactory) {
+    const routes = new OpenAPIHono<{ Bindings: Env }>();
 
-    routes.use("*", staticCacheMiddleware);
+    routes.openapi(
+        createRoute({
+            method: "get",
+            path: "/factions",
+            tags: ["Facções"],
+            summary: "Listar facções",
+            responses: {
+                200: { content: { "application/json": { schema: factionListResponse } }, description: "Lista" },
+            },
+        }),
+        async (c) => {
+            const service = factionServiceFactory(c.env);
+            const factions = await service.listFactions();
+            return c.json({ success: true as const, data: factions } as any, 200);
+        },
+    );
 
-    routes.get("/factions", async (c) => {
-		const service = factionServiceFactory(c.env);
-		const items = await service.listFactions();
+    routes.openapi(
+        createRoute({
+            method: "get",
+            path: "/factions/:factionId",
+            tags: ["Facções"],
+            summary: "Buscar facção por ID",
+            request: { params: factionIdParamSchema },
+            responses: {
+                200: { content: { "application/json": { schema: factionResponse } }, description: "Facção" },
+                400: badRequestResponse,
+                404: notFoundResponse,
+            },
+        }),
+        async (c) => {
+            const { factionId } = c.req.valid("param");
+            const service = factionServiceFactory(c.env);
+            const faction = await service.getFactionById(Number(factionId));
+            if (!faction) return c.json({ success: false as const, error: { code: "NOT_FOUND", message: "Faction not found" } }, 404) as any;
+            return c.json({ success: true as const, data: faction } as any, 200);
+        },
+    );
 
-		return ok(c, items);
-	});
-
-	routes.get("/factions/:factionId", async (c) => {
-		const factionId = Number(c.req.param("factionId"));
-                
-        if (!Number.isInteger(factionId) || factionId < 0) {
-            return badRequest(c, "Invalid faction ID");
-        }
-        
-		const service = factionServiceFactory(c.env);
-		const item = await service.getFactionById(factionId);
-
-		if (!item) {
-			return notFound(c, "Faction not found");
-		}
-
-		return ok(c, item);
-	});
-
-	return routes;
+    return routes;
 }

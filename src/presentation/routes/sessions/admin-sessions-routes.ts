@@ -1,64 +1,97 @@
-import { Hono } from "hono";
+﻿import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import type { SessionService } from "../../../application/session-service";
 import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
 import type { Env } from "../../../types/env";
 import {
-	validateCreateSessionInput,
-	validateUpdateSessionInput,
-} from "../../../validation/session-validator";
+    createSessionSchema,
+    updateSessionSchema,
+    sessionParamSchema,
+} from "../../../schemas/session-schemas";
 import {
-	badRequest,
-	created,
-	noContent,
-	ok,
-} from "../../http";
+    badRequestResponse,
+    conflictResponse,
+    createdResponse,
+    noContentResponse,
+    notFoundResponse,
+    okMessageResponse,
+} from "../../../schemas/common";
 
 type SessionServiceFactory = (env: Env) => SessionService;
 
-export function createAdminSessionsRoutes(
-	sessionServiceFactory: SessionServiceFactory,
-) {
-	const routes = new Hono<{ Bindings: Env }>();
+export function createAdminSessionsRoutes(sessionServiceFactory: SessionServiceFactory) {
+    const routes = new OpenAPIHono<{ Bindings: Env }>();
 
-	routes.use("*", adminAuthMiddleware);
+    routes.use("*", adminAuthMiddleware);
 
-	routes.post("/sessions", async (c) => {
-		const rawBody = await c.req.json();
-		const input = validateCreateSessionInput(rawBody);
+    routes.openapi(
+        createRoute({
+            method: "post",
+            path: "/sessions",
+            tags: ["Sessões"],
+            security: [{ adminToken: [] }],
+            summary: "Criar sessão",
+            request: { body: { content: { "application/json": { schema: createSessionSchema } } } },
+            responses: {
+                201: createdResponse,
+                400: badRequestResponse,
+                409: conflictResponse,
+            },
+        }),
+        async (c) => {
+            const input = c.req.valid("json");
+            const service = sessionServiceFactory(c.env);
+            await service.createSession(input);
+            return c.json({ success: true as const, data: { message: "Session created successfully" } } as any, 201);
+        },
+    );
 
-		const service = sessionServiceFactory(c.env);
-		await service.createSession(input);
+    routes.openapi(
+        createRoute({
+            method: "put",
+            path: "/sessions/:sessionNumber",
+            tags: ["Sessões"],
+            security: [{ adminToken: [] }],
+            summary: "Atualizar sessão",
+            request: {
+                params: sessionParamSchema,
+                body: { content: { "application/json": { schema: updateSessionSchema } } },
+            },
+            responses: {
+                200: okMessageResponse,
+                400: badRequestResponse,
+                404: notFoundResponse,
+            },
+        }),
+        async (c) => {
+            const { sessionNumber } = c.req.valid("param");
+            const input = c.req.valid("json");
+            const service = sessionServiceFactory(c.env);
+            await service.updateSession(Number(sessionNumber), input);
+            return c.json({ success: true as const, data: { message: "Session updated successfully" } } as any, 200);
+        },
+    );
 
-		return created(c, { message: "Session created successfully" });
-	});
+    routes.openapi(
+        createRoute({
+            method: "delete",
+            path: "/sessions/:sessionNumber",
+            tags: ["Sessões"],
+            security: [{ adminToken: [] }],
+            summary: "Remover sessão",
+            request: { params: sessionParamSchema },
+            responses: {
+                204: noContentResponse,
+                400: badRequestResponse,
+                404: notFoundResponse,
+            },
+        }),
+        async (c) => {
+            const { sessionNumber } = c.req.valid("param");
+            const service = sessionServiceFactory(c.env);
+            await service.deleteSession(Number(sessionNumber));
+            return c.body(null, 204);
+        },
+    );
 
-	routes.put("/sessions/:sessionNumber", async (c) => {
-		const sessionNumber = Number(c.req.param("sessionNumber"));
-
-		if (!Number.isInteger(sessionNumber) || sessionNumber < 0) {
-			return badRequest(c, "Invalid session number");
-		}
-
-		const rawBody = await c.req.json();
-		const input = validateUpdateSessionInput(rawBody);
-
-		const service = sessionServiceFactory(c.env);
-		await service.updateSession(sessionNumber, input);
-
-		return ok(c, { message: "Session updated successfully" });
-	});
-
-	routes.delete("/sessions/:sessionNumber", async (c) => {
-		const sessionNumber = Number(c.req.param("sessionNumber"));
-
-		if (!Number.isInteger(sessionNumber) || sessionNumber < 0) {
-			return badRequest(c, "Invalid session number");
-		}
-		const service = sessionServiceFactory(c.env);
-		await service.deleteSession(sessionNumber);
-
-		return noContent(c);
-	});
-
-	return routes;
+    return routes;
 }

@@ -1,52 +1,74 @@
-import { Hono } from "hono";
+﻿import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import type { JobService } from "../../../application/job-service";
 import { adminAuthMiddleware } from "../../../middleware/admin-auth-middleware";
 import type { Env } from "../../../types/env";
-import { created } from "../../http";
 import {
-	validateCreateJobAliasesInput,
-	validateCreateJobInput,
-	validateCreateJobQuestionsInput,
-} from "../../../validation/job-validator";
-
+    createJobSchema,
+    createJobQuestionSchema,
+    createJobAliasSchema,
+} from "../../../schemas/job-schemas";
+import { badRequestResponse, conflictResponse, createdResponse } from "../../../schemas/common";
 
 type JobServiceFactory = (env: Env) => JobService;
 
 export function createAdminJobsRoutes(jobServiceFactory: JobServiceFactory) {
-	const routes = new Hono<{ Bindings: Env }>();
+    const routes = new OpenAPIHono<{ Bindings: Env }>();
 
-	routes.use("*", adminAuthMiddleware);
+    routes.use("*", adminAuthMiddleware);
 
-	routes.post("/jobs", async (c) => {
-		const rawBody = await c.req.json();
-		const input = validateCreateJobInput(rawBody);
+    routes.openapi(
+        createRoute({
+            method: "post",
+            path: "/jobs",
+            tags: ["Profissões"],
+            security: [{ adminToken: [] }],
+            summary: "Criar profissão",
+            request: { body: { content: { "application/json": { schema: createJobSchema } } } },
+            responses: { 201: createdResponse, 400: badRequestResponse, 409: conflictResponse },
+        }),
+        async (c) => {
+            const input = c.req.valid("json");
+            const service = jobServiceFactory(c.env);
+            await service.createJob(input);
+            return c.json({ success: true as const, data: { message: "Job created successfully" } } as any, 201);
+        },
+    );
 
-		const service = jobServiceFactory(c.env);
-		await service.createJob(input);
+    routes.openapi(
+        createRoute({
+            method: "post",
+            path: "/jobs/questions",
+            tags: ["Profissões"],
+            security: [{ adminToken: [] }],
+            summary: "Adicionar pergunta de background",
+            request: { body: { content: { "application/json": { schema: createJobQuestionSchema } } } },
+            responses: { 201: createdResponse, 400: badRequestResponse },
+        }),
+        async (c) => {
+            const input = c.req.valid("json");
+            const service = jobServiceFactory(c.env);
+            await service.createJobQuestion(input);
+            return c.json({ success: true as const, data: { message: "Job question created successfully" } } as any, 201);
+        },
+    );
 
-		return created(c, { message: "Job created successfully" });
-	});
+    routes.openapi(
+        createRoute({
+            method: "post",
+            path: "/jobs/aliases",
+            tags: ["Profissões"],
+            security: [{ adminToken: [] }],
+            summary: "Adicionar nome alternativo",
+            request: { body: { content: { "application/json": { schema: createJobAliasSchema } } } },
+            responses: { 201: createdResponse, 400: badRequestResponse, 409: conflictResponse },
+        }),
+        async (c) => {
+            const input = c.req.valid("json");
+            const service = jobServiceFactory(c.env);
+            await service.createJobAlias(input);
+            return c.json({ success: true as const, data: { message: "Job alias created successfully" } } as any, 201);
+        },
+    );
 
-	routes.post("/jobs/questions", async (c) => {
-		const rawBody = await c.req.json();
-		const input = validateCreateJobQuestionsInput(rawBody);
-
-		const service = jobServiceFactory(c.env);
-		await service.createJobQuestion(input);
-
-		return created(c, { message: "Job question created successfully" });
-	});
-
-	routes.post("/jobs/aliases", async (c) => {
-		const rawBody = await c.req.json();
-		const input = validateCreateJobAliasesInput(rawBody);
-
-		const service = jobServiceFactory(c.env);
-		await service.createJobAlias(input);
-
-		return created(c, { message: "Job alias created successfully" });
-	
-	});
-
-	return routes
+    return routes;
 }
