@@ -39,6 +39,9 @@ import { createAdminArcanaRoutes } from "./presentation/routes/arcanas/admin-arc
 import { createPublicArcanaRoutes } from "./presentation/routes/arcanas/public-arcana-routes";
 import { createArcanaService } from "./composition/create-arcana-service";
 import { handleAppError } from "./presentation/error-handler";
+import { createAuthRoutes } from "./presentation/routes/auth/auth-routes";
+import { createAdminUserRoutes } from "./presentation/routes/users/admin-user-routes";
+import { createUserService } from "./composition/create-user-service";
 
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -83,6 +86,9 @@ app.route("/v1/public", createPublicPcsRoutes(createPcService));
 
 app.route("/v1/admin", createAdminArcanaRoutes(createArcanaService));
 app.route("/v1/public", createPublicArcanaRoutes(createArcanaService));
+
+app.route("/v1/auth", createAuthRoutes(createUserService));
+app.route("/v1/admin", createAdminUserRoutes(createUserService));
 
 app.notFound((c) => {
 	return notFound(c, "Route not found");

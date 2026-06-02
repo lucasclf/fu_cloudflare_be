@@ -1,0 +1,871 @@
+{
+    "info": {
+        "name": "FUDB — Fábula Última Database",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        { "key": "baseUrl", "value": "http://localhost:8787", "type": "string" },
+        { "key": "adminToken", "value": "", "type": "string", "description": "Bearer token do arquivo .dev.vars (API_TOKEN)" },
+        { "key": "userToken", "value": "", "type": "string", "description": "JWT gerado automaticamente pelo endpoint de login" }
+    ],
+    "item": [
+
+        {
+            "name": "🔐 Autenticação",
+            "item": [
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const body = pm.response.json();",
+                                    "    pm.collectionVariables.set('userToken', body.data.token);",
+                                    "    console.log('userToken salvo com sucesso');",
+                                    "} else {",
+                                    "    console.warn('Login falhou. Token não atualizado.');",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Content-Type", "value": "application/json" }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"admin@exemplo.com\",\n    \"password\": \"sua_senha_aqui\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/v1/auth/login",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["v1", "auth", "login"]
+                        }
+                    }
+                }
+            ]
+        },
+
+        {
+            "name": "👥 Usuários",
+            "item": [
+                {
+                    "name": "Listar usuários",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+                        "url": { "raw": "{{baseUrl}}/v1/admin/users", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "users"] }
+                    }
+                },
+                {
+                    "name": "Criar usuário",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"jogador@exemplo.com\",\n    \"password\": \"senha_segura_123\",\n    \"display_name\": \"Nome do Jogador\",\n    \"is_super_user\": false\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/users", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "users"] }
+                    }
+                },
+                {
+                    "name": "Remover usuário",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+                        "url": { "raw": "{{baseUrl}}/v1/admin/users/1", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "users", "1"] }
+                    }
+                }
+            ]
+        },
+
+        {
+            "name": "📋 Sessões",
+            "item": [
+                {
+                    "name": "Listar sessões",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/sessions", "host": ["{{baseUrl}}"], "path": ["v1", "public", "sessions"] }
+                    }
+                },
+                {
+                    "name": "Buscar sessão por número",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/sessions/1", "host": ["{{baseUrl}}"], "path": ["v1", "public", "sessions", "1"] }
+                    }
+                },
+                {
+                    "name": "Criar sessão",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"session_number\": 1,\n    \"title\": \"O Início da Jornada\",\n    \"summary\": \"Os heróis se encontram pela primeira vez em Crossbell.\",\n    \"notes\": null,\n    \"played_at\": \"2026-01-15\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/sessions", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "sessions"] }
+                    }
+                },
+                {
+                    "name": "Atualizar sessão",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"O Início da Jornada (revisado)\",\n    \"summary\": \"Resumo atualizado.\",\n    \"notes\": \"Nota interna.\",\n    \"played_at\": \"2026-01-15\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/sessions/1", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "sessions", "1"] }
+                    }
+                },
+                {
+                    "name": "Remover sessão",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+                        "url": { "raw": "{{baseUrl}}/v1/admin/sessions/1", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "sessions", "1"] }
+                    }
+                }
+            ]
+        },
+
+        {
+            "name": "🎒 Itens",
+            "item": [
+                {
+                    "name": "Listar itens",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/items", "host": ["{{baseUrl}}"], "path": ["v1", "public", "items"] }
+                    }
+                },
+                {
+                    "name": "Buscar item por nome",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/items/Espada Longa", "host": ["{{baseUrl}}"], "path": ["v1", "public", "items", "Espada Longa"] }
+                    }
+                },
+                {
+                    "name": "Criar item — arma",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Espada Longa\",\n    \"item_type\": \"arma\",\n    \"description\": \"Uma espada de aço temperado.\",\n    \"img_key\": null,\n    \"cost\": 200,\n    \"weapon_category\": \"espada\",\n    \"accuracy\": \"+1\",\n    \"damage\": \"HR+6\",\n    \"damage_type\": \"fisico\",\n    \"grip\": \"one_handed\",\n    \"distance\": \"corpo_a_corpo\",\n    \"is_martial\": false\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/items", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "items"] }
+                    }
+                },
+                {
+                    "name": "Criar item — armadura",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Cota de Malha\",\n    \"item_type\": \"armadura\",\n    \"description\": \"Armadura de anéis metálicos entrelaçados.\",\n    \"img_key\": null,\n    \"cost\": 150,\n    \"defense_dice\": \"DES\",\n    \"defense_bonus\": 2,\n    \"magic_defense_dice\": \"AST\",\n    \"magic_defense_bonus\": 0,\n    \"initiative\": \"-1\",\n    \"is_martial\": true\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/items", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "items"] }
+                    }
+                }
+            ]
+        },
+
+        {
+            "name": "💼 Profissões",
+            "item": [
+                {
+                    "name": "Listar profissões",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/v1/public/jobs",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["v1", "public", "jobs"],
+                            "query": [
+                                { "key": "include", "value": "background,powers,spells", "disabled": true }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Catálogo de profissões",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/jobs/catalog", "host": ["{{baseUrl}}"], "path": ["v1", "public", "jobs", "catalog"] }
+                    }
+                },
+                {
+                    "name": "Buscar profissão por ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/v1/public/jobs/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["v1", "public", "jobs", "1"],
+                            "query": [
+                                { "key": "include", "value": "background,powers,spells", "disabled": true }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Criar profissão",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Guardião\",\n    \"tagline\": \"Protetor das fronteiras\",\n    \"description\": \"Especialista em defesa e proteção.\",\n    \"img_key\": null,\n    \"hp_bonus\": 5,\n    \"mp_bonus\": 0,\n    \"ip_bonus\": 1,\n    \"allows_martial_armor\": true,\n    \"allows_martial_shield\": true,\n    \"allows_martial_ranged_weapon\": false,\n    \"allows_martial_melee_weapon\": true,\n    \"allows_arcane\": false,\n    \"allows_rituals\": false,\n    \"allows_monster_spells\": false,\n    \"can_start_projects\": false,\n    \"can_cooking\": false\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/jobs", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "jobs"] }
+                    }
+                },
+                {
+                    "name": "Adicionar pergunta de background",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"job_id\": 1,\n    \"question\": \"Quem você jurou proteger?\",\n    \"sort_order\": 1\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/jobs/questions", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "jobs", "questions"] }
+                    }
+                },
+                {
+                    "name": "Adicionar nome alternativo",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"job_id\": 1,\n    \"alias\": \"Paladino\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/jobs/aliases", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "jobs", "aliases"] }
+                    }
+                }
+            ]
+        },
+
+        {
+            "name": "⚡ Poderes",
+            "item": [
+                {
+                    "name": "Listar poderes",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/powers", "host": ["{{baseUrl}}"], "path": ["v1", "public", "powers"] }
+                    }
+                },
+                {
+                    "name": "Criar poder",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"job_id\": [1],\n    \"name\": \"Escudo de Aço\",\n    \"description\": \"Quando equipar um escudo, ganhe +2 de Defesa.\",\n    \"type\": \"common\",\n    \"max_level\": 1,\n    \"is_global\": false\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/powers", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "powers"] }
+                    }
+                }
+            ]
+        },
+
+        {
+            "name": "🔮 Feitiços",
+            "item": [
+                {
+                    "name": "Listar feitiços",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/spells", "host": ["{{baseUrl}}"], "path": ["v1", "public", "spells"] }
+                    }
+                },
+                {
+                    "name": "Criar feitiço",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"job_id\": 1,\n    \"name\": \"Raio Sagrado\",\n    \"description\": \"Dispara um raio de energia sagrada.\",\n    \"is_offensive\": true,\n    \"cost\": \"20 PM\",\n    \"target\": \"Um inimigo\",\n    \"duration\": \"Instantânea\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/spells", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "spells"] }
+                    }
+                }
+            ]
+        },
+
+        {
+            "name": "🌟 Arcanas",
+            "item": [
+                {
+                    "name": "Listar arcanas",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/arcanas", "host": ["{{baseUrl}}"], "path": ["v1", "public", "arcanas"] }
+                    }
+                },
+                {
+                    "name": "Criar arcana",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"A Torre\",\n    \"domain\": \"Ruína e Isolamento\",\n    \"merge_effect\": \"Você e os aliados próximos ganham Imunidade a Empurrar.\",\n    \"dismiss_effect\": \"Todos os inimigos na cena recebem a condição Confuso.\",\n    \"special_rule\": null\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/arcanas", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "arcanas"] }
+                    }
+                }
+            ]
+        },
+
+        {
+            "name": "📍 Localizações",
+            "item": [
+                {
+                    "name": "Listar localizações",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/locations", "host": ["{{baseUrl}}"], "path": ["v1", "public", "locations"] }
+                    }
+                },
+                {
+                    "name": "Buscar localização por ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/locations/1", "host": ["{{baseUrl}}"], "path": ["v1", "public", "locations", "1"] }
+                    }
+                },
+                {
+                    "name": "Criar localização",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Crossbell\",\n    \"tagline\": \"Cidade do cruzamento\",\n    \"description\": \"Uma cidade livre entre dois impérios rivais.\",\n    \"img_key\": null,\n    \"location_type\": \"city\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/locations", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "locations"] }
+                    }
+                }
+            ]
+        },
+
+        {
+            "name": "🏰 Facções",
+            "item": [
+                {
+                    "name": "Listar facções",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/factions", "host": ["{{baseUrl}}"], "path": ["v1", "public", "factions"] }
+                    }
+                },
+                {
+                    "name": "Buscar facção por ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/factions/1", "host": ["{{baseUrl}}"], "path": ["v1", "public", "factions", "1"] }
+                    }
+                },
+                {
+                    "name": "Criar facção",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Ordem dos Guardiões\",\n    \"tagline\": \"Protegemos o que outros abandonam\",\n    \"description\": \"Uma ordem de cavaleiros dedicados à proteção dos inocentes.\",\n    \"img_key\": null,\n    \"faction_type\": \"order\",\n    \"faction_location_relation\": [\n        { \"location_id\": 1, \"relation_type\": \"headquarters\" }\n    ]\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/factions", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "factions"] }
+                    }
+                }
+            ]
+        },
+
+        {
+            "name": "👹 Monstros",
+            "item": [
+                {
+                    "name": "Listar monstros",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/monsters", "host": ["{{baseUrl}}"], "path": ["v1", "public", "monsters"] }
+                    }
+                },
+                {
+                    "name": "Listar resumo de monstros",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/monsters/summary", "host": ["{{baseUrl}}"], "path": ["v1", "public", "monsters", "summary"] }
+                    }
+                },
+                {
+                    "name": "Buscar monstro por ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/v1/public/monsters/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["v1", "public", "monsters", "1"],
+                            "query": [
+                                { "key": "include", "value": "traits,affinities,actions", "disabled": true }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Listar ações de monstros",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/v1/public/monsters/actions",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["v1", "public", "monsters", "actions"],
+                            "query": [
+                                { "key": "include", "value": "spell", "disabled": true }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Criar monstro",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Lobo das Sombras\",\n    \"description\": \"Um lobo corrompido pelas trevas.\",\n    \"monster_type\": \"beast\",\n    \"level\": 10,\n    \"dexterity_die\": \"d10\",\n    \"insight_die\": \"d6\",\n    \"might_die\": \"d10\",\n    \"willpower_die\": \"d6\",\n    \"hp\": 50,\n    \"mp\": 20,\n    \"initiative\": 6,\n    \"defense\": 10,\n    \"magic_defense\": 8,\n    \"is_villain\": false,\n    \"ultima_points\": 0,\n    \"strategy\": \"Ataca o alvo mais fraco.\",\n    \"equipment\": null,\n    \"source_page\": null,\n    \"img_key\": null\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/monsters", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "monsters"] }
+                    }
+                },
+                {
+                    "name": "Adicionar trait",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"monster_id\": 1,\n    \"trait\": \"Visão noturna: ignora penalidades de escuridão.\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/monsters/traits", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "monsters", "traits"] }
+                    }
+                },
+                {
+                    "name": "Definir afinidades",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"monster_id\": 1,\n    \"physical\": \"normal\",\n    \"air\": \"normal\",\n    \"bolt\": \"normal\",\n    \"dark\": \"resistant\",\n    \"earth\": \"normal\",\n    \"fire\": \"vulnerable\",\n    \"ice\": \"normal\",\n    \"light\": \"vulnerable\",\n    \"poison\": \"immune\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/monsters/affinities", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "monsters", "affinities"] }
+                    }
+                },
+                {
+                    "name": "Adicionar ação",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"monster_id\": 1,\n    \"action_type\": \"basic_attack\",\n    \"action_icon\": \"melee\",\n    \"name\": \"Mordida das Sombras\",\n    \"description\": \"Ataca com presas imbuídas de trevas.\",\n    \"check_formula\": \"DES + VIG\",\n    \"accuracy_bonus\": 0,\n    \"damage_type\": \"dark\",\n    \"cost\": null,\n    \"target\": \"Um inimigo\",\n    \"duration\": null,\n    \"is_offensive\": true\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/monsters/actions", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "monsters", "actions"] }
+                    }
+                }
+            ]
+        },
+
+        {
+            "name": "🎭 NPCs",
+            "item": [
+                {
+                    "name": "Listar resumo de NPCs",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/npcs/summary", "host": ["{{baseUrl}}"], "path": ["v1", "public", "npcs", "summary"] }
+                    }
+                },
+                {
+                    "name": "Buscar NPC por ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/v1/public/npcs/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["v1", "public", "npcs", "1"],
+                            "query": [
+                                { "key": "include", "value": "rules,inventories,equipments", "disabled": true }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Criar NPC",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Aldric, o Ferreiro\",\n    \"description\": \"Um ferreiro idoso com braços como troncos de árvore.\",\n    \"tagline\": \"O ferro nunca mente\",\n    \"level\": null,\n    \"dexterity_die\": \"d8\",\n    \"insight_die\": \"d8\",\n    \"might_die\": \"d10\",\n    \"willpower_die\": \"d6\",\n    \"hp\": null,\n    \"mp\": null,\n    \"initiative\": null,\n    \"defense\": null,\n    \"magic_defense\": null,\n    \"img_key\": null\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/npcs", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "npcs"] }
+                    }
+                },
+                {
+                    "name": "Adicionar regra especial",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"npc_id\": 1,\n    \"type\": \"passive\",\n    \"title\": \"Mestre do Ferro\",\n    \"description\": \"Pode identificar qualquer arma ou armadura apenas pelo toque.\",\n    \"metadata\": null\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/npcs/special", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "npcs", "special"] }
+                    }
+                },
+                {
+                    "name": "Adicionar inventário ao NPC",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"npc_id\": 1,\n    \"item_id\": 1,\n    \"relation_type\": \"shop_stock\",\n    \"quantity\": 3\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/npcs/inventory", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "npcs", "inventory"] }
+                    }
+                },
+                {
+                    "name": "Definir equipamento do NPC",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"npc_id\": 1,\n    \"slot\": \"main_hand\",\n    \"item_id\": 1\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/npcs/equipment", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "npcs", "equipment"] }
+                    }
+                }
+            ]
+        },
+
+        {
+            "name": "🦸 Personagens (PCs)",
+            "item": [
+                {
+                    "name": "Listar resumo de PCs",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/pcs/summary", "host": ["{{baseUrl}}"], "path": ["v1", "public", "pcs", "summary"] }
+                    }
+                },
+                {
+                    "name": "Buscar PC completo por ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/pcs/1", "host": ["{{baseUrl}}"], "path": ["v1", "public", "pcs", "1"] }
+                    }
+                },
+                {
+                    "name": "Criar PC",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Aria Ventworth\",\n    \"description\": \"Uma jovem maga de origem nobre que renegou sua família.\",\n    \"tagline\": \"A Chama que Nunca Se Apaga\",\n    \"pronouns\": \"ela/dela\",\n    \"origin\": \"Capital do Império\",\n    \"identity\": \"Herdeira renegada\",\n    \"theme\": \"Redenção pelo conhecimento\",\n    \"dexterity_die\": \"d8\",\n    \"insight_die\": \"d10\",\n    \"might_die\": \"d6\",\n    \"willpower_die\": \"d10\",\n    \"money\": 150,\n    \"img_key\": null\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/pcs", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "pcs"] }
+                    }
+                },
+                {
+                    "name": "Vincular profissão ao PC",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"pc_id\": 1,\n    \"job_id\": 1,\n    \"level\": 5,\n    \"ignore_hp_bonus\": false,\n    \"ignore_mp_bonus\": false\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/pcs/jobs", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "pcs", "jobs"] }
+                    }
+                },
+                {
+                    "name": "Vincular poder ao PC",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"pc_id\": 1,\n    \"power_id\": 1,\n    \"level\": 2\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/pcs/powers", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "pcs", "powers"] }
+                    }
+                },
+                {
+                    "name": "Vincular feitiço ao PC",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"pc_id\": 1,\n    \"spell_id\": 1\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/pcs/spells", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "pcs", "spells"] }
+                    }
+                },
+                {
+                    "name": "Vincular arcana ao PC",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"pc_id\": 1,\n    \"arcana_id\": 1,\n    \"description\": \"Encontrou a arcana nas ruínas de uma torre abandonada.\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/pcs/arcanas", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "pcs", "arcanas"] }
+                    }
+                },
+                {
+                    "name": "Definir equipamento do PC",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"pc_id\": 1,\n    \"main_hand\": 1,\n    \"off_hand\": null,\n    \"armor\": 2,\n    \"accessory\": null\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/pcs/equipments", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "pcs", "equipments"] }
+                    }
+                },
+                {
+                    "name": "Adicionar item ao inventário do PC",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"pc_id\": 1,\n    \"item_id\": 3,\n    \"quantity\": 2\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/pcs/inventories", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "pcs", "inventories"] }
+                    }
+                },
+                {
+                    "name": "Criar vínculo do PC",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"pc_id\": 1,\n    \"target_type\": \"npc\",\n    \"target_id\": 1,\n    \"target_name\": null,\n    \"admiration_axis\": \"admiration\",\n    \"loyalty_axis\": \"loyalty\",\n    \"affection_axis\": null,\n    \"description\": \"Mestre e mentora desde a infância.\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/pcs/bonds", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "pcs", "bonds"] }
+                    }
+                },
+                {
+                    "name": "Criar vínculo freeform do PC",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"pc_id\": 1,\n    \"target_type\": \"freeform\",\n    \"target_id\": null,\n    \"target_name\": \"Aldeões de Crossbell\",\n    \"admiration_axis\": null,\n    \"loyalty_axis\": \"loyalty\",\n    \"affection_axis\": \"affection\",\n    \"description\": \"Protegeu-os durante o ataque.\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/pcs/bonds", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "pcs", "bonds"] }
+                    }
+                },
+                {
+                    "name": "Vincular feitiço de monstro ao PC",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"pc_id\": 1,\n    \"monster_action_id\": 1\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": { "raw": "{{baseUrl}}/v1/admin/pcs/monster-spells", "host": ["{{baseUrl}}"], "path": ["v1", "admin", "pcs", "monster-spells"] }
+                    }
+                }
+            ]
+        },
+
+        {
+            "name": "🗺️ Cenário",
+            "item": [
+                {
+                    "name": "Listar entidades do cenário",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": { "raw": "{{baseUrl}}/v1/public/scenario/entities", "host": ["{{baseUrl}}"], "path": ["v1", "public", "scenario", "entities"] }
+                    }
+                }
+            ]
+        }
+
+    ]
+}
