@@ -35,12 +35,15 @@ O FUDB expõe uma API HTTP que serve como backend para o wiki/painel da campanha
 - **NPCs** — com regras especiais, inventário e equipamento
 - **Localizações, Facções, Arcanas, Feitiços, Poderes e Sessões**
 
-A API possui dois contextos de acesso:
+A API possui quatro contextos de acesso:
 
-| Prefixo | Descrição |
-|---------|-----------|
-| `/v1/public/*` | Endpoints de leitura, sem autenticação |
-| `/v1/admin/*` | Endpoints de escrita, protegidos por Bearer token |
+| Prefixo | Auth | Descrição |
+|---------|------|-----------|
+| `/v1/public/*` | — | Endpoints de leitura, sem autenticação |
+| `/v1/admin/*` | Bearer token estático (`API_TOKEN`) | Endpoints de escrita administrativos |
+| `/v1/auth/*` | — | Registro e login de usuários |
+| `/v1/pcs/:pcId/*` | JWT do dono do PC | Modificação de relações do próprio PC |
+| `/v1/campaigns/*` | JWT de membro da campanha | Endpoints de campanha (leitura e escrita contextual) |
 
 ---
 
@@ -81,7 +84,10 @@ Request HTTP
     ↓
 cors-middleware → request-id-middleware
     ↓
-[adminAuthMiddleware] (apenas rotas /admin)
+[adminAuthMiddleware]     — apenas /v1/admin/*  (Bearer API_TOKEN)
+[userAuthMiddleware]      — /v1/pcs/* e /v1/campaigns/*  (JWT)
+[pcOwnerMiddleware]       — /v1/pcs/:pcId/*  (valida pcs.user_id === userId)
+[campaignMemberMiddleware]— /v1/campaigns/*  (valida membership e role)
     ↓
 Route handler → validação de input
     ↓
@@ -129,20 +135,24 @@ npm run db:migrate:local
 
 ## Variáveis de Ambiente e Secrets
 
-### Secret obrigatório
-
-O único secret necessário é o token de autenticação das rotas admin.
+### Secrets obrigatórios
 
 **Em produção** (via Wrangler):
 ```bash
-npx wrangler secret put API_TOKEN
-# Digite o valor do token quando solicitado
+npx wrangler secret put API_TOKEN   # token estático das rotas /admin
+npx wrangler secret put JWT_SECRET  # chave de assinatura dos tokens de usuário
 ```
 
 **Em desenvolvimento local**, crie o arquivo `.dev.vars` na raiz do projeto:
 ```env
 API_TOKEN=seu_token_local_aqui
+JWT_SECRET=sua_chave_jwt_local_aqui
 ```
+
+| Secret | Uso |
+|--------|-----|
+| `API_TOKEN` | Autenticação das rotas `/v1/admin/*` (Bearer token estático) |
+| `JWT_SECRET` | Assinatura e verificação dos tokens JWT de usuário |
 
 > O arquivo `.dev.vars` é ignorado pelo git e nunca deve ser commitado.
 
@@ -610,23 +620,24 @@ Exemplo: `GET /v1/public/jobs/1?include=powers,spells`
 
 ---
 
-### Personagens Jogáveis `/pcs`
+### Personagens Jogáveis
+
+#### Leitura pública
 
 | Método | Rota | Auth | Descrição |
 |--------|------|------|-----------|
 | `GET` | `/v1/public/pcs/summary` | — | Lista resumo de todos os PCs |
 | `GET` | `/v1/public/pcs/:id` | — | Busca PC completo por ID |
-| `POST` | `/v1/admin/pcs` | ✅ | Cria um novo PC |
-| `POST` | `/v1/admin/pcs/jobs` | ✅ | Vincula profissão ao PC |
-| `POST` | `/v1/admin/pcs/powers` | ✅ | Vincula poder ao PC |
-| `POST` | `/v1/admin/pcs/spells` | ✅ | Vincula feitiço ao PC |
-| `POST` | `/v1/admin/pcs/arcanas` | ✅ | Vincula arcana ao PC |
-| `POST` | `/v1/admin/pcs/equipments` | ✅ | Define equipamento do PC |
-| `POST` | `/v1/admin/pcs/inventories` | ✅ | Adiciona item ao inventário do PC |
-| `POST` | `/v1/admin/pcs/bonds` | ✅ | Cria vínculo do PC |
-| `POST` | `/v1/admin/pcs/monster-spells` | ✅ | Vincula feitiço de monstro ao PC |
 
-**POST /v1/admin/pcs — body:**
+#### Criação (contexto de campanha)
+
+A criação de um PC é feita dentro de uma campanha. O `user_id` é inferido do JWT — nunca vem do body.
+
+| Método | Rota | Auth | Descrição |
+|--------|------|------|-----------|
+| `POST` | `/v1/campaigns/:campaignId/pcs` | JWT membro | Cria PC e vincula à campanha automaticamente |
+
+**Body:**
 ```json
 {
   "name": "Aria Ventworth",
@@ -645,10 +656,24 @@ Exemplo: `GET /v1/public/jobs/1?include=powers,spells`
 }
 ```
 
-**POST /v1/admin/pcs/jobs — body:**
+#### Relações do PC (dono ou super_user)
+
+Rotas protegidas por `userAuthMiddleware` + `pcOwnerMiddleware`. Retornam `403` se o JWT não pertencer ao dono do PC. O `pc_id` vai na URL — não no body.
+
+| Método | Rota | Auth | Descrição |
+|--------|------|------|-----------|
+| `POST` | `/v1/pcs/:pcId/jobs` | JWT dono | Vincula profissão ao PC |
+| `POST` | `/v1/pcs/:pcId/powers` | JWT dono | Vincula poder ao PC |
+| `POST` | `/v1/pcs/:pcId/spells` | JWT dono | Vincula feitiço ao PC |
+| `POST` | `/v1/pcs/:pcId/arcanas` | JWT dono | Vincula arcana ao PC |
+| `POST` | `/v1/pcs/:pcId/equipments` | JWT dono | Define equipamento do PC |
+| `POST` | `/v1/pcs/:pcId/inventories` | JWT dono | Adiciona item ao inventário do PC |
+| `POST` | `/v1/pcs/:pcId/bonds` | JWT dono | Cria vínculo do PC |
+| `POST` | `/v1/pcs/:pcId/monster-spells` | JWT dono | Vincula feitiço de monstro ao PC |
+
+**POST /v1/pcs/:pcId/jobs — body:**
 ```json
 {
-  "pc_id": 1,
   "job_id": 2,
   "level": 5,
   "ignore_hp_bonus": false,
@@ -656,10 +681,9 @@ Exemplo: `GET /v1/public/jobs/1?include=powers,spells`
 }
 ```
 
-**POST /v1/admin/pcs/bonds — body:**
+**POST /v1/pcs/:pcId/bonds — body:**
 ```json
 {
-  "pc_id": 1,
   "target_type": "npc",
   "target_id": 3,
   "target_name": null,
@@ -674,6 +698,15 @@ Exemplo: `GET /v1/public/jobs/1?include=powers,spells`
 > Para `freeform`, `target_id` deve ser `null` e `target_name` obrigatório.  
 > Para os demais, `target_id` é obrigatório.  
 > Pelo menos um dos eixos (`admiration_axis`, `loyalty_axis`, `affection_axis`) deve ser não-nulo.
+
+#### Quem pode modificar relações de um PC
+
+| Perfil | Pode? | Como |
+|--------|-------|------|
+| Dono do PC | ✅ | JWT com `pcs.user_id === userId` |
+| Super-user | ✅ | JWT com `isSuperUser === true` |
+| Master de campanha | ❌ | Sem acesso às rotas `/v1/pcs/*` |
+| Outro jogador | ❌ | |
 
 **Atributos válidos (`dexterity_die`, `insight_die`, `might_die`, `willpower_die`):**  
 `"d6"`, `"d8"`, `"d10"`, `"d12"`
@@ -763,18 +796,48 @@ Todas as respostas seguem o mesmo envelope JSON:
 
 ## Autenticação
 
-As rotas `/v1/admin/*` exigem um Bearer token no header `Authorization`:
+### Bearer token estático — rotas `/v1/admin/*`
 
 ```
 Authorization: Bearer <API_TOKEN>
 ```
 
-A comparação é feita com `timingSafeEqual` de `node:crypto` para mitigar timing attacks.
+A comparação é feita com `timingSafeEqual` de `node:crypto` para mitigar timing attacks. Respostas inválidas retornam `401` com o header:
 
-Respostas de autenticação inválida retornam `401` com o header:
 ```
 WWW-Authenticate: Bearer realm="secure-area"
 ```
+
+### JWT de usuário — rotas `/v1/pcs/*` e `/v1/campaigns/*`
+
+O token JWT é obtido via `POST /v1/auth/login` e enviado no mesmo header:
+
+```
+Authorization: Bearer <JWT>
+```
+
+O `userAuthMiddleware` verifica a assinatura com `JWT_SECRET` e confirma que o usuário ainda existe no banco. Em seguida, injeta `userId`, `userEmail` e `isSuperUser` nas variáveis do contexto Hono.
+
+**Endpoints de autenticação:**
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `POST` | `/v1/auth/register` | Cria um novo usuário |
+| `POST` | `/v1/auth/login` | Autentica e retorna JWT |
+
+**POST /v1/auth/login — body:**
+```json
+{ "email": "usuario@exemplo.com", "password": "senha" }
+```
+
+**Resposta:**
+```json
+{ "success": true, "data": { "token": "<JWT>" } }
+```
+
+### Autorização de ownership — rotas `/v1/pcs/:pcId/*`
+
+O `pcOwnerMiddleware` (aplicado após `userAuthMiddleware`) verifica que `pcs.user_id` é igual ao `userId` do JWT. Super-users passam sem verificação. Retorna `404` se o PC não existir, `403` se não for o dono.
 
 ---
 
