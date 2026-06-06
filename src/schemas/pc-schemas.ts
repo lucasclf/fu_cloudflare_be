@@ -109,6 +109,7 @@ export const createPcSchema = z.object({
     willpower_die: attributeDieSchema,
     money: z.number().int().min(0).default(0),
     img_key: z.string().nullable().optional().default(null),
+    // user_id nunca vem do body — é sempre injetado pelo handler via JWT
 });
 
 export const createPcJobRelationSchema = z.object({

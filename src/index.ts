@@ -33,9 +33,9 @@ import { createPublicMonstersRoutes } from "./presentation/routes/monsters/publi
 import { createNpcService } from "./composition/create-npc-service";
 import { createAdminNpcRoutes } from "./presentation/routes/npcs/admin-npcs-routes";
 import { createPublicNpcRoutes } from "./presentation/routes/npcs/public-npcs-routes";
-import { createAdminPcsRoutes } from "./presentation/routes/pcs/admin-pcs-routes";
 import { createPcService } from "./composition/create-pc-service";
 import { createPublicPcsRoutes } from "./presentation/routes/pcs/public-pcs-routes";
+import { createPcRelationRoutes } from "./presentation/routes/pcs/pc-relation-routes";
 import { createAdminArcanaRoutes } from "./presentation/routes/arcanas/admin-arcana-routes";
 import { createPublicArcanaRoutes } from "./presentation/routes/arcanas/public-arcana-routes";
 import { createArcanaService } from "./composition/create-arcana-service";
@@ -43,6 +43,14 @@ import { handleAppError } from "./presentation/error-handler";
 import { createAuthRoutes } from "./presentation/routes/auth/auth-routes";
 import { createAdminUserRoutes } from "./presentation/routes/users/admin-user-routes";
 import { createUserService } from "./composition/create-user-service";
+import { createAdminCampaignRoutes } from "./presentation/routes/campaigns/admin-campaign-routes";
+import { createAdminCampaignMemberRoutes } from "./presentation/routes/campaigns/admin-campaign-member-routes";
+import { createCampaignRoutes } from "./presentation/routes/campaigns/campaign-routes";
+import { createUserCampaignRoutes } from "./presentation/routes/campaigns/user-campaign-routes";
+import { createCampaignService } from "./composition/create-campaign-service";
+import { createCampaignMemberService } from "./composition/create-campaign-member-service";
+import { createCampaignEntityService } from "./composition/create-campaign-entity-service";
+import { createCampaignReadService } from "./composition/create-campaign-read-service";
 
 const app = new OpenAPIHono<{ Bindings: Env; Variables: Variables }>({
 	defaultHook: (result, c) => {
@@ -95,6 +103,7 @@ app.doc("/_internal/spec", {
 		{ name: "NPCs" },
 		{ name: "Personagens" },
 		{ name: "Cenário" },
+		{ name: "Campanhas" },
 	],
 });
 
@@ -158,11 +167,17 @@ app.route("/v1/public", createPublicMonstersRoutes(createMonsterService));
 app.route("/v1/admin", createAdminNpcRoutes(createNpcService));
 app.route("/v1/public", createPublicNpcRoutes(createNpcService));
 
-app.route("/v1/admin", createAdminPcsRoutes(createPcService));
 app.route("/v1/public", createPublicPcsRoutes(createPcService));
+app.route("/v1/pcs", createPcRelationRoutes(createPcService));
 
 app.route("/v1/admin", createAdminArcanaRoutes(createArcanaService));
 app.route("/v1/public", createPublicArcanaRoutes(createArcanaService));
+
+// ─── Campanhas ────────────────────────────────────────────────────────────────
+app.route("/v1/admin", createAdminCampaignRoutes(createCampaignService));
+app.route("/v1/admin", createAdminCampaignMemberRoutes(createCampaignMemberService));
+app.route("/v1/campaigns", createUserCampaignRoutes(createCampaignService, createCampaignMemberService));
+app.route("/v1/campaigns", createCampaignRoutes(createCampaignReadService, createCampaignEntityService, createPcService, createCampaignMemberService));
 
 app.onError((error, c) => {
 	return handleAppError(error, c);

@@ -1,5 +1,5 @@
 import { ValidationError } from "../domain/domain-errors";
-import { CreatePcArcanaRelationInput, PcBondInput, CreatePcEquipmentInput, CreatePCInput, CreatePcInventoryInput, PcJobRelation, CreatePcMonsterSpellRelationInput, PcPowerRelation, CreatePcSpellRelationInput, PcFull, PcSummary } from "../domain/pc/pc";
+import { CreatePcArcanaRelationInput, PcBondInput, CreatePcEquipmentInput, CreatePCInput, CreatePcInventoryInput, PcJobRelation, CreatePcMonsterSpellRelationInput, PcPowerRelation, CreatePcSpellRelationInput, PcFull, PcSummary, UpdatePCInput } from "../domain/pc/pc";
 import { D1MonsterActionRepository } from "../infrastructure/repository/d1-monster-action-repository";
 import { D1PCArcanaRepository } from "../infrastructure/repository/d1-pc-arcana-repository";
 import { D1PCBondRepository } from "../infrastructure/repository/d1-pc-bond-repository";
@@ -19,8 +19,8 @@ export class PCService {
         private readonly pcCommandService: PcCommandService,
     ){}
 
-    async createPc(input: CreatePCInput): Promise<void> {
-        await this.pcCommandService.createPc(input);
+    async createPc(input: CreatePCInput): Promise<number> {
+        return await this.pcCommandService.createPc(input);
     }
 
     async createPcJobRelation(input: PcJobRelation): Promise<void> {
@@ -57,6 +57,10 @@ export class PCService {
 
     async findAllSummary(): Promise<PcSummary[]> {
         return await this.pcQueryService.findAllSummary();
+    }
+
+    async updatePc(pcId: string, input: UpdatePCInput): Promise<void> {
+        await this.pcCommandService.updatePc(pcId, input);
     }
 
     async findById(pcId: string): Promise<PcFull | null> {

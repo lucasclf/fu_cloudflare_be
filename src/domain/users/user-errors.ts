@@ -7,6 +7,13 @@ export class UserAlreadyExistsError extends ConflictAppError {
     }
 }
 
+export class NicknameAlreadyTakenError extends ConflictAppError {
+    constructor(nickname: string) {
+        super(`Nickname already taken: ${nickname}`);
+        this.name = "NicknameAlreadyTakenError";
+    }
+}
+
 export class UserNotFoundError extends NotFoundAppError {
     constructor(identifier: string | number) {
         super(`User not found: ${identifier}`);

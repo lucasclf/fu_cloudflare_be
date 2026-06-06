@@ -34,8 +34,11 @@ export interface CreatePCInput extends CreateCharacterInput {
     origin: string,
     identity: string,
     theme: string,
-    money: number
+    money: number,
+    user_id: number, // sempre injetado pelo handler via JWT, nunca vem do body
 }
+
+export type UpdatePCInput = Omit<CreatePCInput, "user_id">;
 
 export interface PcJobRelation {
     pc_id: number,
@@ -122,6 +125,7 @@ export interface Pc extends Character {
     identity: string | null,
     theme: string | null,
     money: number,
+    user_id: number,
     pc_capacities: PcCapacities,
 }
 
@@ -187,4 +191,5 @@ export interface PcInventory {
 
 export interface PcBase extends PC {
     id: number,
+    user_id: number,
 }

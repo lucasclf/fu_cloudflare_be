@@ -18,7 +18,8 @@ export function validateCreatePcInput(input: unknown): CreatePCInput {
         origin: readRequiredString(raw, "origin"),
         identity: readRequiredString(raw, "identity"),
         theme: readRequiredString(raw, "theme"),
-        money: readNumberWithDefault(raw, "money")
+        money: readNumberWithDefault(raw, "money"),
+        user_id: 0, // placeholder — sobrescrito pelo handler via JWT antes de chegar ao repositório
     }
 }
 

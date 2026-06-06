@@ -11,7 +11,9 @@ export function validateCreateUserInput(input: unknown): CreateUserInput {
 
     return {
         email: readRequiredString(raw, "email"),
-        display_name: readOptionalString(raw, "display_name"),
+        name: readRequiredString(raw, "name"),
+        nickname: readRequiredString(raw, "nickname"),
+        img_key: readOptionalString(raw, "img_key"),
         password: readRequiredString(raw, "password"),
         is_super_user: readBooleanWithDefault(raw, "is_super_user", false),
     };

@@ -4,6 +4,7 @@ import type {
 	CreatePcArcanaRelationInput,
 	CreatePcEquipmentInput,
 	CreatePCInput,
+	UpdatePCInput,
 	CreatePcInventoryInput,
 	CreatePcMonsterSpellRelationInput,
 	CreatePcSpellRelationInput,
@@ -28,8 +29,13 @@ export class PcCommandService {
 		private readonly monsterActionRepository: MonsterActionValidationPort,
 	) {}
 
-	async createPc(input: CreatePCInput): Promise<void> {
-		await this.pcRepository.create(input);
+	async createPc(input: CreatePCInput): Promise<number> {
+		return await this.pcRepository.create(input);
+	}
+
+	async updatePc(pcId: string, input: UpdatePCInput): Promise<void> {
+		await this.validatePcExists(Number(pcId));
+		await this.pcRepository.update(pcId, input);
 	}
 
 	async createPcJobRelation(input: PcJobRelation): Promise<void> {

@@ -2,7 +2,9 @@ import type { User } from "../../domain/users/user";
 
 export interface CreateUserRepositoryInput {
     email: string;
-    display_name: string | null;
+    name: string;
+    nickname: string;
+    img_key: string | null;
     password_hash: string;
     is_super_user: boolean;
 }

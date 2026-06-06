@@ -13,7 +13,7 @@ export const sessionSchema = z.object({
 });
 
 export const createSessionSchema = z.object({
-    session_number: z.number().int().positive(),
+    session_number: z.number().int().min(0),
     title: z.string().nullable().optional().default(null),
     summary: z.string().min(1),
     notes: z.string().nullable().optional().default(null),

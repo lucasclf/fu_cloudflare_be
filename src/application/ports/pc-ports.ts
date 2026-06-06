@@ -6,6 +6,7 @@ import type {
 	CreatePcArcanaRelationInput,
 	CreatePcEquipmentInput,
 	CreatePCInput,
+	UpdatePCInput,
 	CreatePcInventoryInput,
 	CreatePcMonsterSpellRelationInput,
 	CreatePcSpellRelationInput,
@@ -32,7 +33,8 @@ export interface PcExistsPort {
 }
 
 export interface PcWriterPort {
-	create(input: CreatePCInput): Promise<void>;
+	create(input: CreatePCInput): Promise<number>;
+	update(pcId: string, input: UpdatePCInput): Promise<void>;
 }
 
 export interface PcBondTargetReaderPort {

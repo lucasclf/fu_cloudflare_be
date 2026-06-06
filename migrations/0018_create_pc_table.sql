@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS pcs (
 
     pronouns TEXT,
     tagline TEXT,
-    
+
     origin TEXT,
     identity TEXT,
     theme TEXT,
@@ -22,9 +22,11 @@ CREATE TABLE IF NOT EXISTS pcs (
 
     img_key TEXT,
 
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT
 );
 
-CREATE INDEX IF NOT EXISTS idx_characters_name
-ON pcs (name);
+CREATE INDEX IF NOT EXISTS idx_pcs_name    ON pcs (name);
+CREATE INDEX IF NOT EXISTS idx_pcs_user_id ON pcs (user_id);

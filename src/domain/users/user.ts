@@ -1,7 +1,9 @@
 export interface User {
     id: number;
     email: string;
-    display_name: string | null;
+    name: string;
+    nickname: string;
+    img_key: string | null;
     is_super_user: boolean;
     created_at: string;
     updated_at: string | null;
@@ -9,7 +11,9 @@ export interface User {
 
 export interface CreateUserInput {
     email: string;
-    display_name: string | null;
+    name: string;
+    nickname: string;
+    img_key: string | null;
     password: string;
     is_super_user: boolean;
 }

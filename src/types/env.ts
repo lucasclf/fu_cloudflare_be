@@ -9,4 +9,5 @@ export interface Variables {
 	userId?: number;
 	userEmail?: string;
 	isSuperUser?: boolean;
+	campaignRole?: "master" | "player" | "super_user";
 }

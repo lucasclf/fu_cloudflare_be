@@ -18,7 +18,9 @@ export class UserService {
         const password_hash = await hashPassword(input.password);
         await this.userRepository.create({
             email: input.email,
-            display_name: input.display_name,
+            name: input.name,
+            nickname: input.nickname,
+            img_key: input.img_key,
             password_hash,
             is_super_user: input.is_super_user,
         });
