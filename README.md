@@ -147,14 +147,27 @@ npx wrangler secret put JWT_SECRET  # chave de assinatura dos tokens de usuário
 ```env
 API_TOKEN=seu_token_local_aqui
 JWT_SECRET=sua_chave_jwt_local_aqui
+
+# Cookie de sessão — substitua os valores de produção do wrangler.jsonc
+# para o ambiente local (HTTP não aceita Secure=true)
+AUTH_COOKIE_ENABLED=true
+AUTH_COOKIE_SECURE=false
+AUTH_COOKIE_SAMESITE=Lax
 ```
 
-| Secret | Uso |
-|--------|-----|
-| `API_TOKEN` | Autenticação das rotas `/v1/admin/*` (Bearer token estático) |
-| `JWT_SECRET` | Assinatura e verificação dos tokens JWT de usuário |
+| Secret / Var | Tipo | Uso |
+|---|---|---|
+| `API_TOKEN` | Secret | Autenticação das rotas `/v1/admin/*` (Bearer token estático) |
+| `JWT_SECRET` | Secret | Assinatura e verificação dos tokens JWT de usuário |
+| `AUTH_COOKIE_ENABLED` | Var | `"true"` habilita `Set-Cookie` no login e leitura via cookie no middleware |
+| `AUTH_COOKIE_SECURE` | Var | `"true"` em produção (HTTPS), `"false"` em dev local (HTTP) |
+| `AUTH_COOKIE_SAMESITE` | Var | `Lax` (padrão e recomendado quando front e back estão no mesmo domínio registrável) |
+| `AUTH_COOKIE_NAME` | Var (opcional) | Nome do cookie — padrão `"token"` |
+| `AUTH_COOKIE_DOMAIN` | Var (opcional) | Atributo `Domain=` do cookie — omitir para cookie host-only (mais restritivo) |
+| `AUTH_COOKIE_MAX_AGE` | Var (opcional) | `Max-Age` em segundos — padrão `2592000` (30 dias, igual ao JWT) |
 
 > O arquivo `.dev.vars` é ignorado pelo git e nunca deve ser commitado.
+> Os valores de produção de `AUTH_COOKIE_*` ficam em `wrangler.jsonc` no bloco `vars` (valores não-sensíveis).
 
 ### Binding D1
 
@@ -810,29 +823,53 @@ WWW-Authenticate: Bearer realm="secure-area"
 
 ### JWT de usuário — rotas `/v1/pcs/*` e `/v1/campaigns/*`
 
-O token JWT é obtido via `POST /v1/auth/login` e enviado no mesmo header:
+O token JWT é obtido via `POST /v1/auth/login` e pode ser enviado de dois modos (suportados em paralelo):
+
+**Modo 1 — cookie HttpOnly (padrão para clientes browser):**
+
+O cookie `token` é definido automaticamente pelo backend no login (quando `AUTH_COOKIE_ENABLED=true`) e enviado pelo navegador em cada requisição — nenhum código JavaScript toca no JWT. Este é o modo mais seguro: o cookie é `HttpOnly; Secure; SameSite=Lax`, portanto inacessível a scripts maliciosos (XSS não consegue exfiltrar o token).
+
+**Modo 2 — header Authorization: Bearer (para clientes não-browser):**
 
 ```
 Authorization: Bearer <JWT>
 ```
 
-O `userAuthMiddleware` verifica a assinatura com `JWT_SECRET` e confirma que o usuário ainda existe no banco. Em seguida, injeta `userId`, `userEmail` e `isSuperUser` nas variáveis do contexto Hono.
+O `userAuthMiddleware` aceita ambos os modos, com prioridade para o header `Authorization` quando presente. Se ausente e `AUTH_COOKIE_ENABLED=true`, lê o token do cookie. Se nenhum dos dois estiver presente, retorna `401`.
+
+O middleware verifica a assinatura com `JWT_SECRET`, confirma que o usuário ainda existe no banco e injeta `userId`, `userEmail` e `isSuperUser` nas variáveis do contexto Hono.
 
 **Endpoints de autenticação:**
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| `POST` | `/v1/auth/register` | Cria um novo usuário |
-| `POST` | `/v1/auth/login` | Autentica e retorna JWT |
+| Método | Rota | Auth | Descrição |
+|--------|------|------|-----------|
+| `POST` | `/v1/auth/register` | — | Cria uma conta de usuário comum (sem `is_super_user`) |
+| `POST` | `/v1/auth/login` | — | Autentica, retorna JWT no corpo e seta cookie de sessão |
+| `POST` | `/v1/auth/logout` | — | Invalida o cookie de sessão (`Set-Cookie: token=; Max-Age=0`) |
+
+**POST /v1/auth/register — body:**
+```json
+{ "email": "usuario@exemplo.com", "name": "Nome", "nickname": "apelido", "password": "senha123" }
+```
+
+**Resposta (201):**
+```json
+{ "success": true, "data": { "message": "Cadastro realizado com sucesso." } }
+```
 
 **POST /v1/auth/login — body:**
 ```json
-{ "email": "usuario@exemplo.com", "password": "senha" }
+{ "email": "usuario@exemplo.com", "password": "senha123" }
 ```
 
-**Resposta:**
+**Resposta (200):** retorna token e dados do usuário. Quando `AUTH_COOKIE_ENABLED=true`, também emite `Set-Cookie: token=<JWT>; HttpOnly; Secure; SameSite=Lax; Path=/`.
 ```json
-{ "success": true, "data": { "token": "<JWT>" } }
+{ "success": true, "data": { "token": "<JWT>", "user": { "id": 1, "email": "...", "name": "..." } } }
+```
+
+**Erro de credenciais (401):** código estável para o cliente identificar o tipo de falha:
+```json
+{ "success": false, "error": { "code": "INVALID_CREDENTIALS", "message": "E-mail ou senha inválidos." } }
 ```
 
 ### Autorização de ownership — rotas `/v1/pcs/:pcId/*`

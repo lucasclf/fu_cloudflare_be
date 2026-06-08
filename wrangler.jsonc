@@ -28,6 +28,16 @@
 	 */
 	"placement": {
 		"mode": "smart"
+	},
+	// Cookie de sessão HttpOnly — valores de produção (domínio same-site com o FUWEB).
+	// Para desenvolvimento local, sobrescreva em .dev.vars:
+	//   AUTH_COOKIE_ENABLED=true
+	//   AUTH_COOKIE_SECURE=false   ← HTTP local não aceita Secure=true
+	//   AUTH_COOKIE_SAMESITE=Lax
+	"vars": {
+		"AUTH_COOKIE_ENABLED": "true",
+		"AUTH_COOKIE_SECURE": "true",
+		"AUTH_COOKIE_SAMESITE": "Lax"
 	}
 	/**
 	 * Bindings
