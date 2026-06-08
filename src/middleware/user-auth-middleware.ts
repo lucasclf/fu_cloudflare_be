@@ -1,7 +1,9 @@
 import type { MiddlewareHandler } from "hono";
+import { getCookie } from "hono/cookie";
 import { D1UserRepository } from "../infrastructure/repository/d1-user-repository";
 import { verifyJwt } from "../utils/jwt";
 import { unauthorized } from "../presentation/http";
+import { getAuthCookieConfig } from "../utils/auth-cookie";
 import type { Env, Variables } from "../types/env";
 
 export const userAuthMiddleware: MiddlewareHandler<{
@@ -10,11 +12,22 @@ export const userAuthMiddleware: MiddlewareHandler<{
 }> = async (c, next) => {
     const authHeader = c.req.header("Authorization");
 
-    if (!authHeader?.startsWith("Bearer ")) {
+    // Ordem de precedência: 1) Authorization: Bearer; 2) cookie de sessão
+    // (somente se AUTH_COOKIE_ENABLED) — nunca outras fontes (query string etc.).
+    let token: string | undefined;
+    if (authHeader?.startsWith("Bearer ")) {
+        token = authHeader.slice(7);
+    } else if (!authHeader) {
+        const cookieConfig = getAuthCookieConfig(c.env);
+        if (cookieConfig.enabled) {
+            token = getCookie(c, cookieConfig.name);
+        }
+    }
+
+    if (!token) {
         return unauthorized(c, "Authentication required");
     }
 
-    const token = authHeader.slice(7);
     const payload = await verifyJwt(token, c.env.JWT_SECRET);
 
     if (!payload) {

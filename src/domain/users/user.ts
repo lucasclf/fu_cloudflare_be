@@ -18,6 +18,14 @@ export interface CreateUserInput {
     is_super_user: boolean;
 }
 
+// Cadastro público — nunca inclui is_super_user nem img_key (ver registerUserSchema).
+export interface RegisterUserInput {
+    email: string;
+    name: string;
+    nickname: string;
+    password: string;
+}
+
 export interface LoginInput {
     email: string;
     password: string;

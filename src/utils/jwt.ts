@@ -6,7 +6,7 @@ export type JwtPayload = {
     exp: number;
 };
 
-const EXPIRY_SECONDS = 30 * 24 * 60 * 60; // 30 dias
+export const EXPIRY_SECONDS = 30 * 24 * 60 * 60; // 30 dias
 
 function toBase64Url(bytes: Uint8Array): string {
     return btoa(String.fromCharCode(...bytes))

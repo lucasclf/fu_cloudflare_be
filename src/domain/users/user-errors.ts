@@ -2,14 +2,14 @@ import { ConflictAppError, NotFoundAppError } from "../app-error";
 
 export class UserAlreadyExistsError extends ConflictAppError {
     constructor(email: string) {
-        super(`User already exists: ${email}`);
+        super(`E-mail já cadastrado: ${email}`);
         this.name = "UserAlreadyExistsError";
     }
 }
 
 export class NicknameAlreadyTakenError extends ConflictAppError {
     constructor(nickname: string) {
-        super(`Nickname already taken: ${nickname}`);
+        super(`Apelido já cadastrado: ${nickname}`);
         this.name = "NicknameAlreadyTakenError";
     }
 }

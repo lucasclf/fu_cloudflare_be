@@ -1,4 +1,4 @@
-import type { AuthResult, CreateUserInput, LoginInput, User } from "../domain/users/user";
+import type { AuthResult, CreateUserInput, LoginInput, RegisterUserInput, User } from "../domain/users/user";
 import { UserNotFoundError } from "../domain/users/user-errors";
 import { hashPassword, verifyPassword } from "../utils/password";
 import { signJwt } from "../utils/jwt";
@@ -23,6 +23,22 @@ export class UserService {
             img_key: input.img_key,
             password_hash,
             is_super_user: input.is_super_user,
+        });
+    }
+
+    /**
+     * Cadastro público (self-service). is_super_user e img_key são fixados
+     * aqui — nunca derivam do input do cliente — para que um usuário comum
+     * jamais consiga se autopromover, mesmo manipulando o corpo da requisição.
+     */
+    async register(input: RegisterUserInput): Promise<void> {
+        await this.createUser({
+            email: input.email,
+            name: input.name,
+            nickname: input.nickname,
+            password: input.password,
+            img_key: null,
+            is_super_user: false,
         });
     }
 
