@@ -26,6 +26,8 @@ import type { MonsterSpell, Spell } from "../../domain/spells/spells";
 export interface PcReaderPort {
 	findAllSummary(): Promise<PcSummary[]>;
 	findById(pcId: string): Promise<PcBase | null>;
+	findAccessibleSummary(userId: number): Promise<PcSummary[]>;
+	canUserAccessPc(pcId: string, userId: number): Promise<boolean>;
 }
 
 export interface PcExistsPort {

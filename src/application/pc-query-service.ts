@@ -13,6 +13,14 @@ export class PcQueryService {
 		return await this.pcRepository.findAllSummary();
 	}
 
+	async findAccessibleSummary(userId: number): Promise<PcSummary[]> {
+		return await this.pcRepository.findAccessibleSummary(userId);
+	}
+
+	async canUserAccess(pcId: string, userId: number): Promise<boolean> {
+		return await this.pcRepository.canUserAccessPc(pcId, userId);
+	}
+
 	async findById(pcId: string): Promise<PcFull | null> {
 		const pcBase = await this.pcRepository.findById(pcId);
 

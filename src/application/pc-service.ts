@@ -59,6 +59,14 @@ export class PCService {
         return await this.pcQueryService.findAllSummary();
     }
 
+    async findAccessibleSummary(userId: number): Promise<PcSummary[]> {
+        return await this.pcQueryService.findAccessibleSummary(userId);
+    }
+
+    async canUserAccessPc(pcId: string, userId: number): Promise<boolean> {
+        return await this.pcQueryService.canUserAccess(pcId, userId);
+    }
+
     async updatePc(pcId: string, input: UpdatePCInput): Promise<void> {
         await this.pcCommandService.updatePc(pcId, input);
     }
