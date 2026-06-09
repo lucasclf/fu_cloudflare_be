@@ -8,7 +8,7 @@ import {
     monsterActionListResponse,
     monsterIncludeQuerySchema,
 } from "../../../schemas/monster-schemas";
-import { idParamSchema, notFoundResponse } from "../../../schemas/common";
+import { idParamSchema, notFoundResponse, scopeQuerySchema } from "../../../schemas/common";
 import { MonsterActionIncludes, MonsterInclude } from "../../../domain/monsters/monster";
 
 type MonsterServiceFactory = (env: Env) => MonsterService;
@@ -49,11 +49,13 @@ export function createPublicMonstersRoutes(monsterServiceFactory: MonsterService
             path: "/monsters/summary",
             tags: ["Monstros"],
             summary: "Listar resumo de monstros",
+            request: { query: scopeQuerySchema },
             responses: { 200: { content: { "application/json": { schema: monsterSummaryListResponse } }, description: "Resumos" } },
         }),
         async (c) => {
+            const { scope } = c.req.valid("query");
             const service = monsterServiceFactory(c.env);
-            return c.json({ success: true as const, data: await service.findAllSummaries() } as any, 200);
+            return c.json({ success: true as const, data: await service.findAllSummaries(scope === "global") } as any, 200);
         },
     );
 

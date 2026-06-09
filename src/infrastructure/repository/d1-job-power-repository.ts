@@ -113,7 +113,10 @@ export class D1JobPowerRepository {
         }
     }
 
-    async findAll(): Promise<JobPowerWithJob[]> {
+    async findAll(globalOnly?: boolean): Promise<JobPowerWithJob[]> {
+        const globalFilter = globalOnly
+            ? "WHERE jp.id NOT IN (SELECT entity_id FROM campaign_entities WHERE entity_type = 'power')"
+            : "";
         const { results } = await this.db
             .prepare(`
                 SELECT
@@ -132,6 +135,7 @@ export class D1JobPowerRepository {
                     ON jpj.power_id = jp.id
                 LEFT JOIN jobs j
                     ON j.id = jpj.job_id
+                ${globalFilter}
                 GROUP BY
                     jp.id,
                     jp.name,

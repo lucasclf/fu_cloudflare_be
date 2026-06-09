@@ -45,6 +45,7 @@ export const userAuthMiddleware: MiddlewareHandler<{
     c.set("userId", user.id);
     c.set("userEmail", user.email);
     c.set("isSuperUser", user.is_super_user);
+    c.set("currentUser", user);
 
     await next();
 };

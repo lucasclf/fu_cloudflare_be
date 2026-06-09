@@ -17,7 +17,7 @@ import type { BondTargetSummary } from "../../domain/pc/pc";
 
 export interface MonsterReaderPort {
 	findAll(): Promise<Monster[]>;
-	findAllSummary(): Promise<MonsterSummary[]>;
+	findAllSummary(globalOnly?: boolean): Promise<MonsterSummary[]>;
 	findById(monsterId: string): Promise<Monster | null>;
 
 	findBondTargetsByIds(

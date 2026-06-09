@@ -46,6 +46,14 @@ export class D1UserRepository implements UserRepositoryPort {
         return result ? this.toUser(result) : null;
     }
 
+    async findByNickname(nickname: string): Promise<User | null> {
+        const result = await this.db
+            .prepare(`SELECT ${SELECT_FIELDS} FROM users WHERE nickname = ? LIMIT 1`)
+            .bind(nickname)
+            .first<Omit<UserRow, "password_hash">>();
+        return result ? this.toUser(result) : null;
+    }
+
     async findPasswordHashByEmail(email: string): Promise<string | null> {
         const result = await this.db
             .prepare("SELECT password_hash FROM users WHERE email = ? LIMIT 1")

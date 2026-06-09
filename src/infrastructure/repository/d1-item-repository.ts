@@ -6,7 +6,10 @@ import { ItemRow } from "../rows/item";
 export class D1ItemRepository {
 	constructor(private readonly db: D1Database) {}
 
-	async findAll(): Promise<Item[]> {
+	async findAll(globalOnly?: boolean): Promise<Item[]> {
+		const globalFilter = globalOnly
+			? "WHERE id NOT IN (SELECT entity_id FROM campaign_entities WHERE entity_type = 'item')"
+			: "";
 		const { results } = await this.db
 			.prepare(`
             SELECT
@@ -31,6 +34,7 @@ export class D1ItemRepository {
               created_at,
               updated_at
             FROM items
+            ${globalFilter}
             ORDER BY
               item_type ASC,
               weapon_category ASC,

@@ -1,4 +1,4 @@
-import type { AddCampaignMemberInput, CampaignMember, CampaignRole } from "../domain/campaigns/campaign-member";
+import type { AddCampaignMemberInput, CampaignMember, CampaignRole, UserCampaignSummary } from "../domain/campaigns/campaign-member";
 import { MemberNotFoundError } from "../domain/campaigns/campaign-member-errors";
 import { CampaignNotFoundError } from "../domain/campaigns/campaign-errors";
 import type { CampaignReaderPort } from "./ports/campaign-ports";
@@ -9,6 +9,18 @@ export class CampaignMemberService {
         private readonly campaignRepo: CampaignReaderPort,
         private readonly memberRepo: CampaignMemberRepositoryPort,
     ) {}
+
+    async findByUserAndCampaign(userId: number, campaignId: number): Promise<CampaignMember | null> {
+        return await this.memberRepo.findByUserAndCampaign(userId, campaignId);
+    }
+
+    async listMyCampaigns(userId: number): Promise<UserCampaignSummary[]> {
+        return await this.memberRepo.findCampaignsByUserId(userId);
+    }
+
+    async countMasterCampaigns(userId: number): Promise<number> {
+        return await this.memberRepo.countMasterCampaigns(userId);
+    }
 
     async listMembers(campaignId: number): Promise<CampaignMember[]> {
         await this.assertCampaignExists(campaignId);

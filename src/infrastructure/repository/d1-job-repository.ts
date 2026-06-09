@@ -6,7 +6,10 @@ import { JobRow, ResumeJobRow } from "../rows/job";
 export class D1JobRepository {
 	constructor(private readonly db: D1Database) {}
 
-	async findAll(): Promise<Job[]> {
+	async findAll(globalOnly?: boolean): Promise<Job[]> {
+		const globalFilter = globalOnly
+			? "WHERE id NOT IN (SELECT entity_id FROM campaign_entities WHERE entity_type = 'job')"
+			: "";
 		const { results } = await this.db
 			.prepare(`
             SELECT
@@ -30,6 +33,7 @@ export class D1JobRepository {
               created_at,
               updated_at
             FROM jobs
+            ${globalFilter}
             ORDER BY
               name ASC
           `)
@@ -38,7 +42,10 @@ export class D1JobRepository {
     return results.map((row) => this.toJob(row));
 	}
 
-	async findAllSummary(): Promise<ResumeJob[]> {
+	async findAllSummary(globalOnly?: boolean): Promise<ResumeJob[]> {
+		const globalFilter = globalOnly
+			? "WHERE id NOT IN (SELECT entity_id FROM campaign_entities WHERE entity_type = 'job')"
+			: "";
 		const { results } = await this.db
 			.prepare(`
             SELECT
@@ -59,6 +66,7 @@ export class D1JobRepository {
               can_start_projects,
               can_cooking
             FROM jobs
+            ${globalFilter}
             ORDER BY
               name ASC
           `)

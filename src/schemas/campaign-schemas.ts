@@ -2,6 +2,7 @@ import { z } from "zod";
 import { successResponseSchema } from "./common";
 import { CAMPAIGN_ROLES } from "../domain/campaigns/campaign-member";
 import { ENTITY_TYPES } from "../domain/campaigns/campaign-entity";
+import { INVITATION_STATUSES } from "../domain/campaigns/invitation";
 
 // ─── Campaign ─────────────────────────────────────────────────────────────────
 
@@ -26,6 +27,17 @@ export const campaignIdParamSchema = z.object({
 
 export const campaignListResponse = successResponseSchema(z.array(campaignSchema));
 export const campaignResponse = successResponseSchema(campaignSchema);
+
+export const userCampaignSummarySchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    description: z.string().nullable(),
+    img_key: z.string().nullable(),
+    role: z.enum(CAMPAIGN_ROLES),
+    joined_at: z.string(),
+});
+
+export const userCampaignListResponse = successResponseSchema(z.array(userCampaignSummarySchema));
 
 // ─── Members ──────────────────────────────────────────────────────────────────
 
@@ -108,3 +120,49 @@ export const pcParamSchema = campaignIdParamSchema.extend({
 });
 
 export const campaignPcListResponse = successResponseSchema(z.array(campaignPcSchema));
+
+// ─── Invitations ──────────────────────────────────────────────────────────────
+
+export const invitationStatusSchema = z.enum(INVITATION_STATUSES);
+
+export const sendInvitationSchema = z
+    .object({
+        invitee_email:    z.string().email().optional(),
+        invitee_nickname: z.string().min(1).optional(),
+    })
+    .refine(
+        (d) => d.invitee_email !== undefined || d.invitee_nickname !== undefined,
+        { message: "Informe invitee_email ou invitee_nickname" },
+    );
+
+export const invitationWithInviteeSchema = z.object({
+    id:               z.number(),
+    campaign_id:      z.number(),
+    invitee_id:       z.number(),
+    invitee_name:     z.string(),
+    invitee_nickname: z.string(),
+    status:           invitationStatusSchema,
+    created_at:       z.string(),
+    updated_at:       z.string().nullable(),
+});
+
+export const invitationSummarySchema = z.object({
+    id:               z.number(),
+    status:           invitationStatusSchema,
+    campaign_id:      z.number(),
+    campaign_name:    z.string(),
+    inviter_name:     z.string(),
+    inviter_nickname: z.string(),
+    created_at:       z.string(),
+});
+
+export const invitationIdParamSchema = campaignIdParamSchema.extend({
+    invitationId: z.string().regex(/^\d+$/, "invitationId must be a positive integer"),
+});
+
+export const standaloneInvitationIdParamSchema = z.object({
+    invitationId: z.string().regex(/^\d+$/, "invitationId must be a positive integer"),
+});
+
+export const campaignInvitationListResponse  = successResponseSchema(z.array(invitationWithInviteeSchema));
+export const invitationSummaryListResponse   = successResponseSchema(z.array(invitationSummarySchema));

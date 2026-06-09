@@ -40,3 +40,4 @@ export const authResultSchema = successResponseSchema(z.object({
 }));
 
 export const userListResponse = successResponseSchema(z.array(userSchema));
+export const meResponse = successResponseSchema(userSchema);

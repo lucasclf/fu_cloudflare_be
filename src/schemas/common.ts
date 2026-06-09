@@ -72,3 +72,9 @@ export const okMessageResponse = {
     },
     description: "Operação realizada com sucesso",
 };
+
+// ─── Query params compartilhados ─────────────────────────────────────────────
+
+export const scopeQuerySchema = z.object({
+    scope: z.enum(["global"]).optional(),
+});

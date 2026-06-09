@@ -43,7 +43,10 @@ export class D1JobSpellRepository {
 		}
 	}
 
-	async findAll(): Promise<JobSpellWithJob[]> {
+	async findAll(globalOnly?: boolean): Promise<JobSpellWithJob[]> {
+		const globalFilter = globalOnly
+			? "WHERE js.id NOT IN (SELECT entity_id FROM campaign_entities WHERE entity_type = 'spell')"
+			: "";
 		const { results } = await this.db
 			.prepare(`
 				SELECT
@@ -59,6 +62,7 @@ export class D1JobSpellRepository {
 				FROM job_spells js
 				INNER JOIN jobs j
 					ON j.id = js.job_id
+				${globalFilter}
 				ORDER BY j.name ASC, js.name ASC
 			`)
 			.all<SpellWithJobNameRow>();

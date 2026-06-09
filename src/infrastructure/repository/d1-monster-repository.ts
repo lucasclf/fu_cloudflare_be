@@ -99,13 +99,16 @@ export class D1MonsterRepository {
         return results.map((row) => this.toMonster(row));
     }
 
-    async findAllSummary(): Promise<MonsterSummary[]> {
+    async findAllSummary(globalOnly?: boolean): Promise<MonsterSummary[]> {
+        const globalFilter = globalOnly
+            ? "WHERE id NOT IN (SELECT entity_id FROM campaign_entities WHERE entity_type = 'monster')"
+            : "";
         const { results } = await this.db
             .prepare(
                 `
                 SELECT
-                    id,   
-                    name,   
+                    id,
+                    name,
                     level,
                     monster_type,
                     dexterity_die,
@@ -115,10 +118,11 @@ export class D1MonsterRepository {
                     img_key,
                     is_villain
                 FROM monsters
+                ${globalFilter}
                 ORDER BY level ASC
                 `
             ).all<MonsterSummary>();
-        
+
         return results;
     }
 

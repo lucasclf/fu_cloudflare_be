@@ -2,7 +2,7 @@
 import type { ItemService } from "../../../application/item-service";
 import type { Env } from "../../../types/env";
 import { itemListResponse, itemResponse, itemNameParamSchema } from "../../../schemas/item-schemas";
-import { notFoundResponse } from "../../../schemas/common";
+import { notFoundResponse, scopeQuerySchema } from "../../../schemas/common";
 
 type ItemServiceFactory = (env: Env) => ItemService;
 
@@ -15,13 +15,15 @@ export function createPublicItemsRoutes(itemServiceFactory: ItemServiceFactory) 
             path: "/items",
             tags: ["Itens"],
             summary: "Listar todos os itens",
+            request: { query: scopeQuerySchema },
             responses: {
                 200: { content: { "application/json": { schema: itemListResponse } }, description: "Lista de itens" },
             },
         }),
         async (c) => {
+            const { scope } = c.req.valid("query");
             const service = itemServiceFactory(c.env);
-            const items = await service.listItems();
+            const items = await service.listItems(scope === "global");
             return c.json({ success: true as const, data: items } as any, 200);
         },
     );

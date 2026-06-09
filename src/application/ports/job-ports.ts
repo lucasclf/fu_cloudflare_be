@@ -14,8 +14,8 @@ import type {
 import { JobSpell } from "../../domain/spells/spells";
 
 export interface JobReaderPort {
-	findAll(): Promise<Job[]>;
-	findAllSummary(): Promise<ResumeJob[]>;
+	findAll(globalOnly?: boolean): Promise<Job[]>;
+	findAllSummary(globalOnly?: boolean): Promise<ResumeJob[]>;
 	findById(jobId: string): Promise<Job | null>;
 	findSummaryByIds(jobIds: number[]): Promise<Map<number, ResumeJob>>;
 }

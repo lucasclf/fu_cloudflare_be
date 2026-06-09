@@ -51,6 +51,9 @@ import { createCampaignService } from "./composition/create-campaign-service";
 import { createCampaignMemberService } from "./composition/create-campaign-member-service";
 import { createCampaignEntityService } from "./composition/create-campaign-entity-service";
 import { createCampaignReadService } from "./composition/create-campaign-read-service";
+import { createCampaignInvitationService } from "./composition/create-campaign-invitation-service";
+import { createCampaignInvitationRoutes } from "./presentation/routes/campaigns/campaign-invitation-routes";
+import { createUserInvitationRoutes } from "./presentation/routes/invitations/user-invitation-routes";
 
 const app = new OpenAPIHono<{ Bindings: Env; Variables: Variables }>({
 	defaultHook: (result, c) => {
@@ -104,6 +107,7 @@ app.doc("/_internal/spec", {
 		{ name: "Personagens" },
 		{ name: "Cenário" },
 		{ name: "Campanhas" },
+		{ name: "Convites" },
 	],
 });
 
@@ -178,6 +182,10 @@ app.route("/v1/admin", createAdminCampaignRoutes(createCampaignService));
 app.route("/v1/admin", createAdminCampaignMemberRoutes(createCampaignMemberService));
 app.route("/v1/campaigns", createUserCampaignRoutes(createCampaignService, createCampaignMemberService));
 app.route("/v1/campaigns", createCampaignRoutes(createCampaignReadService, createCampaignEntityService, createPcService, createCampaignMemberService));
+app.route("/v1/campaigns", createCampaignInvitationRoutes(createCampaignInvitationService));
+
+// ─── Convites ─────────────────────────────────────────────────────────────────
+app.route("/v1/invitations", createUserInvitationRoutes(createCampaignInvitationService));
 
 app.onError((error, c) => {
 	return handleAppError(error, c);

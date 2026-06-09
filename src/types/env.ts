@@ -12,10 +12,13 @@ export interface Env {
 	AUTH_COOKIE_MAX_AGE?: string;
 }
 
+import type { User } from "../domain/users/user";
+
 export interface Variables {
 	requestId: string;
 	userId?: number;
 	userEmail?: string;
 	isSuperUser?: boolean;
 	campaignRole?: "master" | "player" | "super_user";
+	currentUser?: User;
 }

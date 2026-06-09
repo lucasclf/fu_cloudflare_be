@@ -19,8 +19,8 @@ export class JobService {
 		private readonly arcanaRepository: ArcanaRepositoryPort,
 	) {}
 
-	async listJobs(includes: string[]): Promise<Job[] | JobFull[]> {
-		const jobs = await this.jobRepository.findAll();
+	async listJobs(includes: string[], globalOnly?: boolean): Promise<Job[] | JobFull[]> {
+		const jobs = await this.jobRepository.findAll(globalOnly);
 
 		if (jobs.length === 0 || includes.length === 0) {
 			return jobs;
@@ -29,8 +29,8 @@ export class JobService {
 		return this.enrichJobs(jobs, includes);
 	}
 
-	async listCatalogJobs(): Promise<ResumeJob[]> {
-		return await this.jobRepository.findAllSummary();
+	async listCatalogJobs(globalOnly?: boolean): Promise<ResumeJob[]> {
+		return await this.jobRepository.findAllSummary(globalOnly);
 	}
 
 	async getJobById(

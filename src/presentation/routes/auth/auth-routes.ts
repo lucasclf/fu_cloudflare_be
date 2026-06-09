@@ -1,8 +1,8 @@
 ﻿import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { setCookie, deleteCookie } from "hono/cookie";
 import type { UserService } from "../../../application/user-service";
-import type { Env } from "../../../types/env";
-import { loginSchema, authResultSchema, registerUserSchema } from "../../../schemas/user-schemas";
+import type { Env, Variables } from "../../../types/env";
+import { loginSchema, authResultSchema, registerUserSchema, meResponse } from "../../../schemas/user-schemas";
 import {
     badRequestResponse,
     conflictResponse,
@@ -11,11 +11,12 @@ import {
     unauthorizedResponse,
 } from "../../../schemas/common";
 import { getAuthCookieConfig } from "../../../utils/auth-cookie";
+import { userAuthMiddleware } from "../../../middleware/user-auth-middleware";
 
 type UserServiceFactory = (env: Env) => UserService;
 
 export function createAuthRoutes(userServiceFactory: UserServiceFactory) {
-    const routes = new OpenAPIHono<{ Bindings: Env }>();
+    const routes = new OpenAPIHono<{ Bindings: Env; Variables: Variables }>();
 
     routes.openapi(
         createRoute({
@@ -82,6 +83,28 @@ export function createAuthRoutes(userServiceFactory: UserServiceFactory) {
                 { success: true as const, data: { message: "Cadastro realizado com sucesso." } } as any,
                 201,
             );
+        },
+    );
+
+    routes.use("/me", userAuthMiddleware);
+
+    routes.openapi(
+        createRoute({
+            method: "get",
+            path: "/me",
+            tags: ["Autenticação"],
+            summary: "Perfil do usuário autenticado",
+            description: "Retorna os dados do usuário cujo JWT está no cookie de sessão. Use para restaurar a sessão após refresh de página.",
+            security: [{ userToken: [] }],
+            responses: {
+                200: { content: { "application/json": { schema: meResponse } }, description: "Dados do usuário" },
+                401: unauthorizedResponse,
+            },
+        }),
+        async (c) => {
+            const user = c.get("currentUser");
+            if (!user) return c.json({ success: false as const, error: { code: "UNAUTHORIZED", message: "Authentication required" } }, 401) as any;
+            return c.json({ success: true as const, data: user } as any, 200);
         },
     );
 

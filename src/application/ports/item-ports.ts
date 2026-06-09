@@ -4,7 +4,7 @@ import type {
 } from "../../domain/items/item";
 
 export interface ItemReaderPort {
-	findAll(): Promise<Item[]>;
+	findAll(globalOnly?: boolean): Promise<Item[]>;
 	findByItemName(itemName: string): Promise<Item | null>;
 }
 

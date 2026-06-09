@@ -1,4 +1,4 @@
-import type { AddCampaignMemberInput, CampaignMember, CampaignRole } from "../../domain/campaigns/campaign-member";
+import type { AddCampaignMemberInput, CampaignMember, CampaignRole, UserCampaignSummary } from "../../domain/campaigns/campaign-member";
 import { MemberAlreadyExistsError } from "../../domain/campaigns/campaign-member-errors";
 import type { CampaignMemberRepositoryPort } from "../../application/ports/campaign-member-ports";
 
@@ -18,6 +18,28 @@ export class D1CampaignMemberRepository implements CampaignMemberRepositoryPort 
             .prepare("SELECT id, campaign_id, user_id, role, created_at, updated_at FROM campaign_members WHERE user_id = ? AND campaign_id = ? LIMIT 1")
             .bind(userId, campaignId)
             .first<CampaignMember>();
+    }
+
+    async countMasterCampaigns(userId: number): Promise<number> {
+        const row = await this.db
+            .prepare("SELECT COUNT(*) AS total FROM campaign_members WHERE user_id = ? AND role = 'master'")
+            .bind(userId)
+            .first<{ total: number }>();
+        return row?.total ?? 0;
+    }
+
+    async findCampaignsByUserId(userId: number): Promise<UserCampaignSummary[]> {
+        const { results } = await this.db
+            .prepare(`
+                SELECT c.id, c.name, c.description, c.img_key, cm.role, cm.created_at AS joined_at
+                FROM campaign_members cm
+                JOIN campaigns c ON c.id = cm.campaign_id
+                WHERE cm.user_id = ?
+                ORDER BY CASE cm.role WHEN 'master' THEN 0 ELSE 1 END, c.name ASC
+            `)
+            .bind(userId)
+            .all<UserCampaignSummary>();
+        return results;
     }
 
     async add(input: AddCampaignMemberInput): Promise<void> {

@@ -29,8 +29,8 @@ export class MonsterService {
         return await this.monsterRepository.findAll();
     }
 
-    async findAllSummaries(): Promise<MonsterSummary[]> {
-        return await this.monsterRepository.findAllSummary();
+    async findAllSummaries(globalOnly?: boolean): Promise<MonsterSummary[]> {
+        return await this.monsterRepository.findAllSummary(globalOnly);
     }
 
     async findById(

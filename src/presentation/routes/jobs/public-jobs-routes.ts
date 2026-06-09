@@ -10,7 +10,7 @@ import {
     jobIncludeQuerySchema,
     jobJobIdParamSchema,
 } from "../../../schemas/job-schemas";
-import { notFoundResponse } from "../../../schemas/common";
+import { notFoundResponse, scopeQuerySchema } from "../../../schemas/common";
 
 type JobServiceFactory = (env: Env) => JobService;
 
@@ -20,6 +20,8 @@ function parseJobIncludes(include?: string): JobInclude[] {
     if (!include) return [];
     return include.split(",").map((v) => v.trim()).filter((v): v is JobInclude => allowedIncludes.includes(v as JobInclude));
 }
+
+const jobListQuerySchema = jobIncludeQuerySchema.extend({ scope: z.enum(["global"]).optional() });
 
 export function createPublicJobsRoutes(jobServiceFactory: JobServiceFactory) {
     const routes = new OpenAPIHono<{ Bindings: Env }>();
@@ -31,15 +33,15 @@ export function createPublicJobsRoutes(jobServiceFactory: JobServiceFactory) {
             tags: ["Profissões"],
             summary: "Listar profissões",
             description: "Use `?include=background,powers,spells` para enriquecer os dados.",
-            request: { query: jobIncludeQuerySchema },
+            request: { query: jobListQuerySchema },
             responses: {
                 200: { content: { "application/json": { schema: jobListResponse } }, description: "Lista de profissões" },
             },
         }),
         async (c) => {
-            const { include } = c.req.valid("query");
+            const { include, scope } = c.req.valid("query");
             const service = jobServiceFactory(c.env);
-            const jobs = await service.listJobs(parseJobIncludes(include));
+            const jobs = await service.listJobs(parseJobIncludes(include), scope === "global");
             return c.json({ success: true as const, data: jobs } as any, 200);
         },
     );
@@ -50,13 +52,15 @@ export function createPublicJobsRoutes(jobServiceFactory: JobServiceFactory) {
             path: "/jobs/catalog",
             tags: ["Profissões"],
             summary: "Catálogo resumido de profissões",
+            request: { query: scopeQuerySchema },
             responses: {
                 200: { content: { "application/json": { schema: jobCatalogResponse } }, description: "Catálogo" },
             },
         }),
         async (c) => {
+            const { scope } = c.req.valid("query");
             const service = jobServiceFactory(c.env);
-            const jobs = await service.listCatalogJobs();
+            const jobs = await service.listCatalogJobs(scope === "global");
             return c.json({ success: true as const, data: jobs } as any, 200);
         },
     );

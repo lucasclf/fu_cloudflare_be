@@ -7,8 +7,8 @@ export class ItemService {
 		private readonly itemRepository: ItemRepositoryPort,
 	) {}
 
-	async listItems(): Promise<Item[]> {
-		return await this.itemRepository.findAll();
+	async listItems(globalOnly?: boolean): Promise<Item[]> {
+		return await this.itemRepository.findAll(globalOnly);
 	}
 
 	async getItemByName(itemName: string): Promise<Item | null> {

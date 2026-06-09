@@ -4,6 +4,8 @@ export type AppErrorCode =
 	| "BAD_REQUEST"
 	| "NOT_FOUND"
 	| "CONFLICT"
+	| "CAMPAIGN_LIMIT_REACHED"
+	| "FORBIDDEN"
 	| "INTERNAL_ERROR";
 
 export abstract class AppError extends Error {
@@ -32,6 +34,12 @@ export class NotFoundAppError extends AppError {
 export class ConflictAppError extends AppError {
 	constructor(message: string) {
 		super(message, 409, "CONFLICT");
+	}
+}
+
+export class ForbiddenAppError extends AppError {
+	constructor(message = "Forbidden") {
+		super(message, 403, "FORBIDDEN");
 	}
 }
 

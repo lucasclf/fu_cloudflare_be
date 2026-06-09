@@ -15,3 +15,12 @@ export interface AddCampaignMemberInput {
     user_id: number;
     role: CampaignRole;
 }
+
+export interface UserCampaignSummary {
+    id: number;
+    name: string;
+    description: string | null;
+    img_key: string | null;
+    role: CampaignRole;
+    joined_at: string;
+}

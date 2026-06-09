@@ -12,7 +12,7 @@ export class PowerService {
         await this.jobPowerRepository.create(input);
     }
 
-    async listPowers(): Promise<JobPowerWithJob[]> {
-        return await this.jobPowerRepository.findAll();
+    async listPowers(globalOnly?: boolean): Promise<JobPowerWithJob[]> {
+        return await this.jobPowerRepository.findAll(globalOnly);
     }
 }
