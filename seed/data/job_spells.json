@@ -1,0 +1,344 @@
+[
+  {
+    "name": "Arma Elemental",
+    "description": "Você imbui a arma com energia elemental. Escolha um tipo de dano: ar, fogo, gelo, raio ou terra. Enquanto este feitiço durar, todo o dano causado pela arma torna-se do tipo escolhido. Se estiver com essa arma equipada ao lançar este feitiço, você pode fazer um ataque livre com ela como parte da mesma ação. Este feitiço só pode ser lançado em armas equipadas de criaturas voluntárias.",
+    "job_id": "Elementalista",
+    "is_offensive": false,
+    "cost": "10",
+    "target": "Uma arma",
+    "duration": "Cena"
+  },
+  {
+    "name": "Clarão",
+    "description": "Você canaliza um único raio de fogo na direção do adversário a uma temperatura tão alta que é capaz de superar as defesas dele, causando (RA + 25) pontos de dano de fogo ao alvo atingido por este feitiço (esse dano ignora Resistências).",
+    "job_id": "Elementalista",
+    "is_offensive": true,
+    "cost": "20",
+    "target": "Uma criatura",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Fulgur",
+    "description": "Você manipula eletricidade para criar uma onda de raios crepitantes, causando (RA + 15) pontos de dano de raio a cada alvo atingido por este feitiço. Oportunidade: alvos atingidos pelo feitiço também ficam atordoados.",
+    "job_id": "Elementalista",
+    "is_offensive": true,
+    "cost": "10 × A",
+    "target": "Até três criaturas",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Glacies",
+    "description": "Você cobre os adversários com uma densa camada de gelo, causando (RA + 15) pontos de dano de gelo a cada alvo atingido por este feitiço. Oportunidade: alvos atingidos pelo feitiço também ficam lentos.",
+    "job_id": "Elementalista",
+    "is_offensive": true,
+    "cost": "10 × A",
+    "target": "Até três criaturas",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Golpe de Sobrevoo",
+    "description": "O vento carrega seus ataques pelo campo de batalha. Faça um ataque livre com uma arma corpo a corpo equipada. Esse ataque também pode ter como alvo criaturas que não podem ser acertadas por ataques corpo a corpo. Se você usou uma arma das categorias espada, lança ou luta para fazer esse ataque, ele causa 5 pontos de dano adicional. Um alvo voador atingido por este ataque é imediatamente forçado a pousar.",
+    "job_id": "Elementalista",
+    "is_offensive": false,
+    "cost": "10",
+    "target": "Pessoal",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Iceberg",
+    "description": "Um pilar mágico de gelo envolve o adversário, repentinamente baixando a temperatura dele a um nível crítico. Você causa (RA + 25) pontos de dano de gelo ao alvo (esse dano ignora Resistências).",
+    "job_id": "Elementalista",
+    "is_offensive": true,
+    "cost": "20",
+    "target": "Uma criatura",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Ignis",
+    "description": "Você conjura chamas no ar e libera uma chuva de fogo contra os inimigos, causando (RA + 15) pontos de dano de fogo a cada alvo atingido por este feitiço. Oportunidade: cada alvo atingido pelo feitiço fica abalado.",
+    "job_id": "Elementalista",
+    "is_offensive": true,
+    "cost": "10 × A",
+    "target": "Até três criaturas",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Mortalha Elemental",
+    "description": "Você manipula energia mágica e protege os alvos contra a fúria dos elementos. Escolha um tipo de dano: ar, fogo, gelo, raio ou terra. Enquanto este feitiço durar, cada alvo se torna Resistente ao tipo de dano escolhido.",
+    "job_id": "Elementalista",
+    "is_offensive": false,
+    "cost": "5 × A",
+    "target": "Até três criaturas",
+    "duration": "Cena"
+  },
+  {
+    "name": "Pedregulho",
+    "description": "Você invoca uma rocha colossal em direção ao inimigo, causando (RA + 25) pontos de dano de terra ao alvo deste feitiço (este dano ignora Resistências).",
+    "job_id": "Elementalista",
+    "is_offensive": true,
+    "cost": "20",
+    "target": "Uma criatura",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Raio",
+    "description": "Você lança um relâmpago contra o adversário, causando (RA + 25) pontos de dano de raio ao alvo atingido por este feitiço (este dano ignora Resistências).",
+    "job_id": "Elementalista",
+    "is_offensive": true,
+    "cost": "20",
+    "target": "Uma criatura",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Terra",
+    "description": "Pináculos de rocha pontiaguda irrompem do chão e cercam os inimigos, causando (RA + 15) pontos de dano de terra a cada alvo atingido por este feitiço. Criaturas voando, flutuando, caindo ou suspensas no ar de outra forma não podem ser alvo deste feitiço. Oportunidade: alvos atingidos pelo feitiço fazem uma ação a menos no próximo turno deles (mínimo de zero ações).",
+    "job_id": "Elementalista",
+    "is_offensive": true,
+    "cost": "10 × A",
+    "target": "Até três criaturas",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Ventus",
+    "description": "Você invoca o poder dos ventos contra o inimigo, causando (RA + 15) pontos de dano de ar a cada alvo atingido por este feitiço. Oportunidade: alvos voadores atingidos pelo feitiço são imediatamente forçados a pousar.",
+    "job_id": "Elementalista",
+    "is_offensive": true,
+    "cost": "10 × A",
+    "target": "Até três criaturas",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Vórtice",
+    "description": "Você ataca um inimigo com ventos de alta pressão, causando (RA + 25) pontos de dano de ar ao alvo deste feitiço (este dano ignora Resistências).",
+    "job_id": "Elementalista",
+    "is_offensive": true,
+    "cost": "20",
+    "target": "Uma criatura",
+    "duration": "Cena"
+  },
+  {
+    "name": "Aceleração",
+    "description": "No final de cada um dos seus turnos, o alvo pode escolher uma opção: fazer um ataque livre com a arma equipada; ou fazer a ação Feitiço sem gastar uma ação, lançando um feitiço com custo total de PM igual ou menor que 10 (pagando este custo). O feitiço termina quando o mesmo alvo usa seu efeito uma segunda vez.",
+    "job_id": "Entropista",
+    "is_offensive": false,
+    "cost": "20",
+    "target": "Uma criatura",
+    "duration": "Cena"
+  },
+  {
+    "name": "Anomalia",
+    "description": "Você altera a essência natural do alvo. Enquanto este feitiço durar, se o alvo fosse sofrer dano de um tipo contra o qual é Absorvedor ou Imune, em vez disso é considerado Vulnerável àquele dano. Quando isso acontecer, o feitiço termina.",
+    "job_id": "Entropista",
+    "is_offensive": true,
+    "cost": "20",
+    "target": "Uma criatura",
+    "duration": "Cena"
+  },
+  {
+    "name": "Apostar",
+    "description": "Você invoca um vórtice de energia caótica. Role seu dado atual de Vontade uma vez para cada 10 PM gastos enquanto lança este feitiço e escolha um dos resultados: este resultado determina os efeitos do feitiço. 1: Você perde metade dos PV atuais e metade dos PM atuais. 2-3: Cada criatura presente na cena, incluindo você, fica envenenada. 4-6: Cada criatura presente na cena, incluindo você, fica lenta. 7-8: Escolha até três criaturas que você possa ver; cada uma delas recupera 50 PV e todas as condições. 9+: Escolha um número qualquer de criaturas que você possa ver e cause 30 pontos de dano a cada uma. O tipo de dano é definido rolando um d6: 1. ar; 2. raio; 3. trevas; 4. terra; 5. fogo; 6. veneno.",
+    "job_id": "Entropista",
+    "is_offensive": false,
+    "cost": "até 20",
+    "target": "Especial",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Arma das Trevas",
+    "description": "Você imbui a arma com energia das trevas. Enquanto este feitiço durar, o dano causado pela arma torna-se de trevas. Se estiver com essa arma equipada ao lançar este feitiço, você pode fazer um ataque livre com ela como parte da mesma ação. Este feitiço só pode ser lançado em armas equipadas de criaturas voluntárias.",
+    "job_id": "Entropista",
+    "is_offensive": false,
+    "cost": "5",
+    "target": "Uma arma equipada",
+    "duration": "Cena"
+  },
+  {
+    "name": "Dissipar",
+    "description": "Você remove toda magia de uma criatura. Se o alvo estiver sob efeito de um ou mais feitiços com duração “Cena”, os efeitos desses feitiços terminam.",
+    "job_id": "Entropista",
+    "is_offensive": false,
+    "cost": "10",
+    "target": "Uma criatura",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Drenar Espírito",
+    "description": "Você consome a psique de uma criatura. O alvo perde (RA + 20) PM. Você recupera PM igual à metade dos PM totais perdidos pelo alvo (se o alvo não tem mais Pontos de Mana, você não recupera PM).",
+    "job_id": "Entropista",
+    "is_offensive": true,
+    "cost": "5",
+    "target": "Uma criatura",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Drenar Vigor",
+    "description": "Você rouba a força vital de outra criatura, causando (RA + 15) pontos de dano de trevas ao alvo deste feitiço. Você recupera PV igual à metade da perda de PV causada por este feitiço (se o alvo não tem mais Pontos de Vida, você não recupera PV).",
+    "job_id": "Entropista",
+    "is_offensive": true,
+    "cost": "10",
+    "target": "Uma criatura",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Divinação",
+    "description": "Você tem um breve vislumbre do futuro. Enquanto este feitiço durar, quando uma criatura que você possa ver faz um teste, se o resultado não for uma falha crítica ou um sucesso crítico, você pode forçá-la a rolar ambos os dados novamente. O feitiço termina após você forçar duas novas rolagens.",
+    "job_id": "Entropista",
+    "is_offensive": false,
+    "cost": "10",
+    "target": "Pessoal",
+    "duration": "Cena"
+  },
+  {
+    "name": "Espelhar",
+    "description": "Você distorce as leis mágicas. Enquanto este feitiço durar, se um feitiço ofensivo for lançado contra o alvo, a criatura que o lançou se torna o alvo em seu lugar (outros alvos são escolhidos normalmente). Quando isso acontecer, o feitiço termina.",
+    "job_id": "Entropista",
+    "is_offensive": false,
+    "cost": "10",
+    "target": "Uma criatura",
+    "duration": "Cena"
+  },
+  {
+    "name": "Parar",
+    "description": "Você aprisiona o adversário em um círculo de tempo e espaço alterados. O alvo faz uma ação a menos no próximo turno dele (até o mínimo de 0 ação).",
+    "job_id": "Entropista",
+    "is_offensive": true,
+    "cost": "10",
+    "target": "Uma criatura",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Umbra",
+    "description": "Uma tempestade de energia das trevas transforma matéria em cinzas. Você causa (RA + 15) pontos de dano de trevas a cada alvo deste feitiço. Oportunidade: alvos atingidos pelo feitiço também ficam fracos.",
+    "job_id": "Entropista",
+    "is_offensive": true,
+    "cost": "10 × A",
+    "target": "Até três criaturas",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Ômega",
+    "description": "Você invoca a ruína contra o adversário, transformando força em fraqueza. O alvo perde uma quantidade de PV igual a (20 + metade do nível do alvo).",
+    "job_id": "Entropista",
+    "is_offensive": true,
+    "cost": "15",
+    "target": "Uma criatura",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Alucinação",
+    "description": "Você altera os sentidos dos inimigos, fazendo-os vivenciar alucinações bizarras ou assustadoras. Escolha abalado ou atordoado: cada alvo atingido é afligido pela condição escolhida.",
+    "job_id": "Espiritualista",
+    "is_offensive": true,
+    "cost": "5 × A",
+    "target": "Até três criaturas",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Arma Espiritual",
+    "description": "Você imbui a arma com a energia purificadora de seu espírito. Enquanto este feitiço durar, todo o dano causado pela arma torna-se do tipo luz. Se estiver com essa arma equipada quando lançar este feitiço, você poderá fazer um ataque livre com ela como parte da mesma ação. Este feitiço só pode ser lançado em armas equipadas de criaturas voluntárias.",
+    "job_id": "Espiritualista",
+    "is_offensive": false,
+    "cost": "5",
+    "target": "Uma arma equipada",
+    "duration": "Cena"
+  },
+  {
+    "name": "Aura",
+    "description": "Você projeta a alma para fora do corpo e a instrui a cercar os alvos, protegendo-os de magias perigosas. Enquanto este feitiço durar, a Defesa Mágica dos alvos se torna 12 (um alvo ainda pode usar sua própria Def.M se for maior que 12). Se você estiver no 20° nível ou acima, este valor aumenta para 13; se estiver no 40° nível ou acima, aumenta para 14.",
+    "job_id": "Espiritualista",
+    "is_offensive": false,
+    "cost": "5 × A",
+    "target": "Até três criaturas",
+    "duration": "Cena"
+  },
+  {
+    "name": "Barreira",
+    "description": "Você projeta a alma para fora do corpo e a transforma em uma barreira para proteger os alvos contra ataques. Enquanto este feitiço durar, a Defesa dos alvos se torna 12 (um alvo ainda pode usar sua própria Defesa se for maior que 12). Se você estiver no 20° nível ou acima, este valor aumenta para 13; se estiver no 40° nível ou acima, aumenta para 14.",
+    "job_id": "Espiritualista",
+    "is_offensive": false,
+    "cost": "5 × A",
+    "target": "Até três criaturas",
+    "duration": "Cena"
+  },
+  {
+    "name": "Bastião Espiritual",
+    "description": "Você protege os alvos com energia mágica. Escolha um tipo de dano entre luz, trevas ou veneno. Enquanto este feitiço durar, cada alvo se torna Resistente ao dano escolhido.",
+    "job_id": "Espiritualista",
+    "is_offensive": false,
+    "cost": "5 × A",
+    "target": "Até três criaturas",
+    "duration": "Cena"
+  },
+  {
+    "name": "Curar",
+    "description": "Você revigora seus companheiros, aliviando suas dores e curando sua fadiga. Cada alvo recupera 40 PV. Se você estiver no 20° nível ou acima, esta quantidade aumenta para 50 PV; se estiver no 40° nível ou acima, esta quantidade aumenta para 60 PV.",
+    "job_id": "Espiritualista",
+    "is_offensive": false,
+    "cost": "10 × A",
+    "target": "Até três criaturas",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Despertar",
+    "description": "Você permite que uma criatura concentre a própria energia vital para fazer o que antes não era capaz. Escolha um Atributo: Destreza, Vigor, Astúcia ou Vontade. Enquanto este feitiço durar, o alvo considera o dado do Atributo escolhido como se fosse um passo maior (máximo de d12).",
+    "job_id": "Espiritualista",
+    "is_offensive": false,
+    "cost": "20",
+    "target": "Uma criatura",
+    "duration": "Cena"
+  },
+  {
+    "name": "Enfurecer",
+    "description": "Você faz uma criatura perder a compostura e agir em total descontrole. O alvo fica enfurecido e não pode fazer Guarda ou Feitiço até o fim do próximo turno dele.",
+    "job_id": "Espiritualista",
+    "is_offensive": true,
+    "cost": "10",
+    "target": "Uma criatura",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Lux",
+    "description": "Você foca sua energia interior em uma barragem de raios solares cegantes, causando (RA + 15) pontos de dano de luz a cada alvo atingido por este feitiço. Oportunidade: alvos atingidos pelo feitiço também ficam atordoados.",
+    "job_id": "Espiritualista",
+    "is_offensive": true,
+    "cost": "10 × A",
+    "target": "Até três criaturas",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Piedade",
+    "description": "Você fortalece a coragem de uma criatura contra sofrimento e desespero. Enquanto este feitiço durar, se o alvo ficaria com 0 PV, em vez disso fica com exatamente 1 PV. Quando isso acontecer, o feitiço termina.",
+    "job_id": "Espiritualista",
+    "is_offensive": false,
+    "cost": "20",
+    "target": "Uma criatura",
+    "duration": "Cena"
+  },
+  {
+    "name": "Purificar",
+    "description": "Você fortifica e purifica a energia da alma que flui por seus companheiros. Todos os alvos se recuperam de todas as condições.",
+    "job_id": "Espiritualista",
+    "is_offensive": false,
+    "cost": "5 × A",
+    "target": "Até três criaturas",
+    "duration": "Instantânea"
+  },
+  {
+    "name": "Reforçar",
+    "description": "Você protege os alvos contra ataques que corromperiam seu corpo e espírito. Escolha abalado, atordoado, enfurecido, envenenado, fraco ou lento. Enquanto este feitiço durar, cada alvo se torna imune à condição escolhida.",
+    "job_id": "Espiritualista",
+    "is_offensive": false,
+    "cost": "5 × A",
+    "target": "Até três criaturas",
+    "duration": "Cena"
+  },
+  {
+    "name": "Torpor",
+    "description": "Você sufoca a energia da alma que flui pelos corpos dos adversários, dificultando seus movimentos. Escolha fraco ou lento: cada alvo atingido é afligido pela condição escolhida.",
+    "job_id": "Espiritualista",
+    "is_offensive": true,
+    "cost": "5 × A",
+    "target": "Até três criaturas",
+    "duration": "Instantânea"
+  }
+]

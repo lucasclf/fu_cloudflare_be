@@ -1,0 +1,946 @@
+[
+  {
+    "monster_id": "Lanterna Arcana",
+    "trait": "brilhante"
+  },
+  {
+    "monster_id": "Lanterna Arcana",
+    "trait": "mágica"
+  },
+  {
+    "monster_id": "Lanterna Arcana",
+    "trait": "minúscula"
+  },
+  {
+    "monster_id": "Lanterna Arcana",
+    "trait": "solícita"
+  },
+  {
+    "monster_id": "Gárgula",
+    "trait": "flutuante"
+  },
+  {
+    "monster_id": "Gárgula",
+    "trait": "sagaz"
+  },
+  {
+    "monster_id": "Gárgula",
+    "trait": "vigilante"
+  },
+  {
+    "monster_id": "Gárgula",
+    "trait": "vinculada a um local"
+  },
+  {
+    "monster_id": "Soldado Tecnomágico",
+    "trait": "impiedoso"
+  },
+  {
+    "monster_id": "Soldado Tecnomágico",
+    "trait": "leal"
+  },
+  {
+    "monster_id": "Soldado Tecnomágico",
+    "trait": "previsível"
+  },
+  {
+    "monster_id": "Soldado Tecnomágico",
+    "trait": "vigilante"
+  },
+  {
+    "monster_id": "Tilintalhaço",
+    "trait": "barulhento"
+  },
+  {
+    "monster_id": "Tilintalhaço",
+    "trait": "pequeno"
+  },
+  {
+    "monster_id": "Tilintalhaço",
+    "trait": "sinistro"
+  },
+  {
+    "monster_id": "Tilintalhaço",
+    "trait": "vingativo"
+  },
+  {
+    "monster_id": "Ave-Navalha",
+    "trait": "armada"
+  },
+  {
+    "monster_id": "Ave-Navalha",
+    "trait": "leal"
+  },
+  {
+    "monster_id": "Ave-Navalha",
+    "trait": "rápida"
+  },
+  {
+    "monster_id": "Ave-Navalha",
+    "trait": "voadora"
+  },
+  {
+    "monster_id": "Golem de Bronze",
+    "trait": "alto"
+  },
+  {
+    "monster_id": "Golem de Bronze",
+    "trait": "lento"
+  },
+  {
+    "monster_id": "Golem de Bronze",
+    "trait": "poderoso"
+  },
+  {
+    "monster_id": "Golem de Bronze",
+    "trait": "tilintante"
+  },
+  {
+    "monster_id": "Golem Florestal",
+    "trait": "alto"
+  },
+  {
+    "monster_id": "Golem Florestal",
+    "trait": "inflamável"
+  },
+  {
+    "monster_id": "Golem Florestal",
+    "trait": "sem emoção"
+  },
+  {
+    "monster_id": "Golem Florestal",
+    "trait": "solitário"
+  },
+  {
+    "monster_id": "Diabrete",
+    "trait": "covarde"
+  },
+  {
+    "monster_id": "Diabrete",
+    "trait": "depravado"
+  },
+  {
+    "monster_id": "Diabrete",
+    "trait": "maquiavélico"
+  },
+  {
+    "monster_id": "Diabrete",
+    "trait": "sagaz"
+  },
+  {
+    "monster_id": "Roda de Raios",
+    "trait": "brilhante"
+  },
+  {
+    "monster_id": "Roda de Raios",
+    "trait": "cruel"
+  },
+  {
+    "monster_id": "Roda de Raios",
+    "trait": "rápida"
+  },
+  {
+    "monster_id": "Roda de Raios",
+    "trait": "risonha"
+  },
+  {
+    "monster_id": "Uivante-Sombrio",
+    "trait": "fantasma"
+  },
+  {
+    "monster_id": "Uivante-Sombrio",
+    "trait": "grande"
+  },
+  {
+    "monster_id": "Uivante-Sombrio",
+    "trait": "silencioso"
+  },
+  {
+    "monster_id": "Uivante-Sombrio",
+    "trait": "sobrenatural"
+  },
+  {
+    "monster_id": "Equidna",
+    "trait": "deslizante"
+  },
+  {
+    "monster_id": "Equidna",
+    "trait": "esperta"
+  },
+  {
+    "monster_id": "Equidna",
+    "trait": "erudita"
+  },
+  {
+    "monster_id": "Equidna",
+    "trait": "inimaginável"
+  },
+  {
+    "monster_id": "Fada-Bolota",
+    "trait": "brilhante"
+  },
+  {
+    "monster_id": "Fada-Bolota",
+    "trait": "brincalhona"
+  },
+  {
+    "monster_id": "Fada-Bolota",
+    "trait": "curiosa"
+  },
+  {
+    "monster_id": "Fada-Bolota",
+    "trait": "gentil"
+  },
+  {
+    "monster_id": "Fragmento Caótico",
+    "trait": "alienígena"
+  },
+  {
+    "monster_id": "Fragmento Caótico",
+    "trait": "espalha trevas"
+  },
+  {
+    "monster_id": "Fragmento Caótico",
+    "trait": "faminto"
+  },
+  {
+    "monster_id": "Fragmento Caótico",
+    "trait": "pequeno"
+  },
+  {
+    "monster_id": "Grenado",
+    "trait": "brilhante"
+  },
+  {
+    "monster_id": "Grenado",
+    "trait": "escaldante"
+  },
+  {
+    "monster_id": "Grenado",
+    "trait": "instável"
+  },
+  {
+    "monster_id": "Grenado",
+    "trait": "instigável"
+  },
+  {
+    "monster_id": "Lodo Estático",
+    "trait": "estático"
+  },
+  {
+    "monster_id": "Lodo Estático",
+    "trait": "faminto"
+  },
+  {
+    "monster_id": "Lodo Estático",
+    "trait": "lento"
+  },
+  {
+    "monster_id": "Lodo Estático",
+    "trait": "mole"
+  },
+  {
+    "monster_id": "Floco-Espinho",
+    "trait": "flutuante"
+  },
+  {
+    "monster_id": "Floco-Espinho",
+    "trait": "gélida"
+  },
+  {
+    "monster_id": "Floco-Espinho",
+    "trait": "giratória"
+  },
+  {
+    "monster_id": "Floco-Espinho",
+    "trait": "medo de calor"
+  },
+  {
+    "monster_id": "Ninfa",
+    "trait": "cautelosa"
+  },
+  {
+    "monster_id": "Ninfa",
+    "trait": "rápida"
+  },
+  {
+    "monster_id": "Ninfa",
+    "trait": "sábia"
+  },
+  {
+    "monster_id": "Ninfa",
+    "trait": "territorial"
+  },
+  {
+    "monster_id": "Javarrocha",
+    "trait": "destrutivo"
+  },
+  {
+    "monster_id": "Javarrocha",
+    "trait": "enorme"
+  },
+  {
+    "monster_id": "Javarrocha",
+    "trait": "irritadiço"
+  },
+  {
+    "monster_id": "Javarrocha",
+    "trait": "rochoso"
+  },
+  {
+    "monster_id": "Morcego-Vampiro",
+    "trait": "agressivo"
+  },
+  {
+    "monster_id": "Morcego-Vampiro",
+    "trait": "barulhento"
+  },
+  {
+    "monster_id": "Morcego-Vampiro",
+    "trait": "esperto"
+  },
+  {
+    "monster_id": "Morcego-Vampiro",
+    "trait": "medo de luz"
+  },
+  {
+    "monster_id": "Rato Gigante",
+    "trait": "faminto"
+  },
+  {
+    "monster_id": "Rato Gigante",
+    "trait": "feroz"
+  },
+  {
+    "monster_id": "Rato Gigante",
+    "trait": "medo de fogo"
+  },
+  {
+    "monster_id": "Rato Gigante",
+    "trait": "rápido"
+  },
+  {
+    "monster_id": "Uivante-Cinzento",
+    "trait": "esperto"
+  },
+  {
+    "monster_id": "Uivante-Cinzento",
+    "trait": "leal"
+  },
+  {
+    "monster_id": "Uivante-Cinzento",
+    "trait": "perceptivo"
+  },
+  {
+    "monster_id": "Uivante-Cinzento",
+    "trait": "vigilante"
+  },
+  {
+    "monster_id": "Talhagarta",
+    "trait": "lenta"
+  },
+  {
+    "monster_id": "Talhagarta",
+    "trait": "pesada"
+  },
+  {
+    "monster_id": "Talhagarta",
+    "trait": "resiliente"
+  },
+  {
+    "monster_id": "Talhagarta",
+    "trait": "territorial"
+  },
+  {
+    "monster_id": "Vigmiga-Bombardeira",
+    "trait": "explosiva"
+  },
+  {
+    "monster_id": "Vigmiga-Bombardeira",
+    "trait": "inflamável"
+  },
+  {
+    "monster_id": "Vigmiga-Bombardeira",
+    "trait": "irracional"
+  },
+  {
+    "monster_id": "Vigmiga-Bombardeira",
+    "trait": "territorial"
+  },
+  {
+    "monster_id": "Peixe-Espinho",
+    "trait": "agressivo"
+  },
+  {
+    "monster_id": "Peixe-Espinho",
+    "trait": "pele grossa"
+  },
+  {
+    "monster_id": "Peixe-Espinho",
+    "trait": "pequeno"
+  },
+  {
+    "monster_id": "Peixe-Espinho",
+    "trait": "rápido"
+  },
+  {
+    "monster_id": "Urso-Solar",
+    "trait": "enorme"
+  },
+  {
+    "monster_id": "Urso-Solar",
+    "trait": "esperto"
+  },
+  {
+    "monster_id": "Urso-Solar",
+    "trait": "pacífico"
+  },
+  {
+    "monster_id": "Urso-Solar",
+    "trait": "peludo"
+  },
+  {
+    "monster_id": "Uivante-Branco",
+    "trait": "astuto"
+  },
+  {
+    "monster_id": "Uivante-Branco",
+    "trait": "corajoso"
+  },
+  {
+    "monster_id": "Uivante-Branco",
+    "trait": "régio"
+  },
+  {
+    "monster_id": "Uivante-Branco",
+    "trait": "vigilante"
+  },
+  {
+    "monster_id": "Batedor Kobold",
+    "trait": "peludo"
+  },
+  {
+    "monster_id": "Batedor Kobold",
+    "trait": "pequeno"
+  },
+  {
+    "monster_id": "Batedor Kobold",
+    "trait": "perceptivo"
+  },
+  {
+    "monster_id": "Batedor Kobold",
+    "trait": "rápido"
+  },
+  {
+    "monster_id": "Bruxo Kobold",
+    "trait": "enigmático"
+  },
+  {
+    "monster_id": "Bruxo Kobold",
+    "trait": "peludo"
+  },
+  {
+    "monster_id": "Bruxo Kobold",
+    "trait": "pequeno"
+  },
+  {
+    "monster_id": "Bruxo Kobold",
+    "trait": "sábio"
+  },
+  {
+    "monster_id": "Guarda",
+    "trait": "corajoso"
+  },
+  {
+    "monster_id": "Guarda",
+    "trait": "disciplinado"
+  },
+  {
+    "monster_id": "Guarda",
+    "trait": "leal"
+  },
+  {
+    "monster_id": "Guarda",
+    "trait": "treinado"
+  },
+  {
+    "monster_id": "Salteador",
+    "trait": "forte"
+  },
+  {
+    "monster_id": "Salteador",
+    "trait": "irritadiço"
+  },
+  {
+    "monster_id": "Salteador",
+    "trait": "orgulhoso"
+  },
+  {
+    "monster_id": "Salteador",
+    "trait": "presunçoso"
+  },
+  {
+    "monster_id": "Colmeiano",
+    "trait": "ama a beleza"
+  },
+  {
+    "monster_id": "Colmeiano",
+    "trait": "engenhoso"
+  },
+  {
+    "monster_id": "Colmeiano",
+    "trait": "reservado"
+  },
+  {
+    "monster_id": "Colmeiano",
+    "trait": "zumbidor"
+  },
+  {
+    "monster_id": "Mercenário",
+    "trait": "competente"
+  },
+  {
+    "monster_id": "Mercenário",
+    "trait": "desiludido"
+  },
+  {
+    "monster_id": "Mercenário",
+    "trait": "impiedoso"
+  },
+  {
+    "monster_id": "Mercenário",
+    "trait": "taciturno"
+  },
+  {
+    "monster_id": "Atirador",
+    "trait": "disciplinado"
+  },
+  {
+    "monster_id": "Atirador",
+    "trait": "furtivo"
+  },
+  {
+    "monster_id": "Atirador",
+    "trait": "observador"
+  },
+  {
+    "monster_id": "Atirador",
+    "trait": "preciso"
+  },
+  {
+    "monster_id": "Mago de Batalha",
+    "trait": "ambicioso"
+  },
+  {
+    "monster_id": "Mago de Batalha",
+    "trait": "disciplinado"
+  },
+  {
+    "monster_id": "Mago de Batalha",
+    "trait": "erudito"
+  },
+  {
+    "monster_id": "Mago de Batalha",
+    "trait": "sagaz"
+  },
+  {
+    "monster_id": "Cait Sith",
+    "trait": "brincalhão"
+  },
+  {
+    "monster_id": "Cait Sith",
+    "trait": "curioso"
+  },
+  {
+    "monster_id": "Cait Sith",
+    "trait": "esperto"
+  },
+  {
+    "monster_id": "Cait Sith",
+    "trait": "minúsculo"
+  },
+  {
+    "monster_id": "Lodo Brando",
+    "trait": "brilhante"
+  },
+  {
+    "monster_id": "Lodo Brando",
+    "trait": "caloroso"
+  },
+  {
+    "monster_id": "Lodo Brando",
+    "trait": "fofíssimo"
+  },
+  {
+    "monster_id": "Lodo Brando",
+    "trait": "macio"
+  },
+  {
+    "monster_id": "Mariposa-Terror",
+    "trait": "assustadora"
+  },
+  {
+    "monster_id": "Mariposa-Terror",
+    "trait": "malcheirosa"
+  },
+  {
+    "monster_id": "Mariposa-Terror",
+    "trait": "peluda"
+  },
+  {
+    "monster_id": "Mariposa-Terror",
+    "trait": "voadora"
+  },
+  {
+    "monster_id": "Dragonete",
+    "trait": "escamoso"
+  },
+  {
+    "monster_id": "Dragonete",
+    "trait": "faminto"
+  },
+  {
+    "monster_id": "Dragonete",
+    "trait": "pesado"
+  },
+  {
+    "monster_id": "Dragonete",
+    "trait": "preguiçoso"
+  },
+  {
+    "monster_id": "Hidrozoário",
+    "trait": "brilhante"
+  },
+  {
+    "monster_id": "Hidrozoário",
+    "trait": "flutuante"
+  },
+  {
+    "monster_id": "Hidrozoário",
+    "trait": "silencioso"
+  },
+  {
+    "monster_id": "Hidrozoário",
+    "trait": "transparente"
+  },
+  {
+    "monster_id": "Mau-Olhado",
+    "trait": "alado"
+  },
+  {
+    "monster_id": "Mau-Olhado",
+    "trait": "hipnótico"
+  },
+  {
+    "monster_id": "Mau-Olhado",
+    "trait": "sagaz"
+  },
+  {
+    "monster_id": "Mau-Olhado",
+    "trait": "silencioso"
+  },
+  {
+    "monster_id": "Cocatriz",
+    "trait": "ágil"
+  },
+  {
+    "monster_id": "Cocatriz",
+    "trait": "imprevisível"
+  },
+  {
+    "monster_id": "Cocatriz",
+    "trait": "malcheirosa"
+  },
+  {
+    "monster_id": "Cocatriz",
+    "trait": "pequena"
+  },
+  {
+    "monster_id": "Mímico",
+    "trait": "amorfo"
+  },
+  {
+    "monster_id": "Mímico",
+    "trait": "furtivo"
+  },
+  {
+    "monster_id": "Mímico",
+    "trait": "sagaz"
+  },
+  {
+    "monster_id": "Mímico",
+    "trait": "voraz"
+  },
+  {
+    "monster_id": "Urna Pavorosa",
+    "trait": "flutuante"
+  },
+  {
+    "monster_id": "Urna Pavorosa",
+    "trait": "frágil"
+  },
+  {
+    "monster_id": "Urna Pavorosa",
+    "trait": "minúscula"
+  },
+  {
+    "monster_id": "Urna Pavorosa",
+    "trait": "risonha"
+  },
+  {
+    "monster_id": "Zumbi",
+    "trait": "apodrecido"
+  },
+  {
+    "monster_id": "Zumbi",
+    "trait": "assustador"
+  },
+  {
+    "monster_id": "Zumbi",
+    "trait": "irracional"
+  },
+  {
+    "monster_id": "Zumbi",
+    "trait": "lento"
+  },
+  {
+    "monster_id": "Mago Esqueleto",
+    "trait": "ambicioso"
+  },
+  {
+    "monster_id": "Mago Esqueleto",
+    "trait": "erudito"
+  },
+  {
+    "monster_id": "Mago Esqueleto",
+    "trait": "esperto"
+  },
+  {
+    "monster_id": "Mago Esqueleto",
+    "trait": "impiedoso"
+  },
+  {
+    "monster_id": "Soldado Esqueleto",
+    "trait": "assassino"
+  },
+  {
+    "monster_id": "Soldado Esqueleto",
+    "trait": "cruel"
+  },
+  {
+    "monster_id": "Soldado Esqueleto",
+    "trait": "irracional"
+  },
+  {
+    "monster_id": "Soldado Esqueleto",
+    "trait": "silencioso"
+  },
+  {
+    "monster_id": "Carniçal",
+    "trait": "agressivo"
+  },
+  {
+    "monster_id": "Carniçal",
+    "trait": "aterrorizante"
+  },
+  {
+    "monster_id": "Carniçal",
+    "trait": "grande"
+  },
+  {
+    "monster_id": "Carniçal",
+    "trait": "poderoso"
+  },
+  {
+    "monster_id": "Uivante-Ósseo",
+    "trait": "feroz"
+  },
+  {
+    "monster_id": "Uivante-Ósseo",
+    "trait": "fome eterna"
+  },
+  {
+    "monster_id": "Uivante-Ósseo",
+    "trait": "rápido"
+  },
+  {
+    "monster_id": "Uivante-Ósseo",
+    "trait": "resiliente"
+  },
+  {
+    "monster_id": "Alma-Acorrentada",
+    "trait": "amaldiçoada"
+  },
+  {
+    "monster_id": "Alma-Acorrentada",
+    "trait": "angustiada"
+  },
+  {
+    "monster_id": "Alma-Acorrentada",
+    "trait": "etérea"
+  },
+  {
+    "monster_id": "Alma-Acorrentada",
+    "trait": "vingativa"
+  },
+  {
+    "monster_id": "Múmia",
+    "trait": "amaldiçoada"
+  },
+  {
+    "monster_id": "Múmia",
+    "trait": "eternamente leal"
+  },
+  {
+    "monster_id": "Múmia",
+    "trait": "inflamável"
+  },
+  {
+    "monster_id": "Múmia",
+    "trait": "silenciosa"
+  },
+  {
+    "monster_id": "Alraune",
+    "trait": "malévola"
+  },
+  {
+    "monster_id": "Alraune",
+    "trait": "minúscula"
+  },
+  {
+    "monster_id": "Alraune",
+    "trait": "rápida"
+  },
+  {
+    "monster_id": "Alraune",
+    "trait": "sinistra"
+  },
+  {
+    "monster_id": "Mabóbora",
+    "trait": "apodrecida"
+  },
+  {
+    "monster_id": "Mabóbora",
+    "trait": "furiosa"
+  },
+  {
+    "monster_id": "Mabóbora",
+    "trait": "malcheirosa"
+  },
+  {
+    "monster_id": "Mabóbora",
+    "trait": "pequena"
+  },
+  {
+    "monster_id": "Cogumeiro",
+    "trait": "ama a lama"
+  },
+  {
+    "monster_id": "Cogumeiro",
+    "trait": "lenta"
+  },
+  {
+    "monster_id": "Cogumeiro",
+    "trait": "pacífica"
+  },
+  {
+    "monster_id": "Cogumeiro",
+    "trait": "sem olhos"
+  },
+  {
+    "monster_id": "Vinha-Daninha",
+    "trait": "agressiva"
+  },
+  {
+    "monster_id": "Vinha-Daninha",
+    "trait": "amaldiçoada"
+  },
+  {
+    "monster_id": "Vinha-Daninha",
+    "trait": "espinhosa"
+  },
+  {
+    "monster_id": "Vinha-Daninha",
+    "trait": "veloz"
+  },
+  {
+    "monster_id": "Cactonto",
+    "trait": "assustador"
+  },
+  {
+    "monster_id": "Cactonto",
+    "trait": "enorme"
+  },
+  {
+    "monster_id": "Cactonto",
+    "trait": "sensível à água"
+  },
+  {
+    "monster_id": "Cactonto",
+    "trait": "territorial"
+  },
+  {
+    "monster_id": "Dracoardil",
+    "trait": "colossal"
+  },
+  {
+    "monster_id": "Dracoardil",
+    "trait": "enraizada"
+  },
+  {
+    "monster_id": "Dracoardil",
+    "trait": "faminta"
+  },
+  {
+    "monster_id": "Dracoardil",
+    "trait": "paciente"
+  },
+  {
+    "monster_id": "Lanterna Arcana de Angela",
+    "trait": "brilhante"
+  },
+  {
+    "monster_id": "Lanterna Arcana de Angela",
+    "trait": "mágica"
+  },
+  {
+    "monster_id": "Lanterna Arcana de Angela",
+    "trait": "minúscula"
+  },
+  {
+    "monster_id": "Lanterna Arcana de Angela",
+    "trait": "solícita"
+  },
+  {
+    "monster_id": "Angela",
+    "trait": "ambiciosa"
+  },
+  {
+    "monster_id": "Angela",
+    "trait": "arrogante"
+  },
+  {
+    "monster_id": "Angela",
+    "trait": "erudita"
+  },
+  {
+    "monster_id": "Angela",
+    "trait": "impedosa"
+  },
+  {
+    "monster_id": "Tubarão-Espinho",
+    "trait": "agressivo"
+  },
+  {
+    "monster_id": "Tubarão-Espinho",
+    "trait": "atento"
+  },
+  {
+    "monster_id": "Tubarão-Espinho",
+    "trait": "pele grossa"
+  },
+  {
+    "monster_id": "Tubarão-Espinho",
+    "trait": "rápido"
+  }
+]

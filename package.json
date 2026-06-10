@@ -17,7 +17,10 @@
 		"db:migrate:remote": "wrangler d1 migrations apply fabula_ultima_db --remote",
 		"db:tables:local": "wrangler d1 execute fabula_ultima_db --local --command \"SELECT name FROM sqlite_master WHERE type='table';\"",
 		"db:tables:remote": "wrangler d1 execute fabula_ultima_db --remote --command \"SELECT name FROM sqlite_master WHERE type='table';\"",
-		"db:remote:reset": "powershell -ExecutionPolicy Bypass -File ./scripts/reset-d1-remote.ps1"
+		"db:remote:reset": "powershell -ExecutionPolicy Bypass -File ./scripts/reset-d1-remote.ps1",
+		"seed:generate": "node scripts/generate-seed.mjs",
+		"seed:local": "node scripts/run-seed.mjs --local",
+		"seed:remote": "node scripts/run-seed.mjs --remote"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.12.4",

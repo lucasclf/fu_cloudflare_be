@@ -1,0 +1,410 @@
+[
+  {
+    "job_id": "Andarilho",
+    "alias": "Aventureiro"
+  },
+  {
+    "job_id": "Andarilho",
+    "alias": "Caçador de Tesouros"
+  },
+  {
+    "job_id": "Andarilho",
+    "alias": "Explorador"
+  },
+  {
+    "job_id": "Arcanista",
+    "alias": "Avatar"
+  },
+  {
+    "job_id": "Arcanista",
+    "alias": "Escolhido"
+  },
+  {
+    "job_id": "Arcanista",
+    "alias": "Invocador"
+  },
+  {
+    "job_id": "Atirador",
+    "alias": "Arqueiro"
+  },
+  {
+    "job_id": "Atirador",
+    "alias": " Franco-atirador"
+  },
+  {
+    "job_id": "Atirador",
+    "alias": "Pistoleiro"
+  },
+  {
+    "job_id": "Elementalista",
+    "alias": "Feiticeiro"
+  },
+  {
+    "job_id": "Elementalista",
+    "alias": "Geomante"
+  },
+  {
+    "job_id": "Elementalista",
+    "alias": "Mago de Batalha"
+  },
+  {
+    "job_id": "Entropista",
+    "alias": "Apostador"
+  },
+  {
+    "job_id": "Entropista",
+    "alias": "Astromante"
+  },
+  {
+    "job_id": "Entropista",
+    "alias": "Mago do Caos"
+  },
+  {
+    "job_id": "Erudito",
+    "alias": "Acadêmico"
+  },
+  {
+    "job_id": "Erudito",
+    "alias": "Arquivista"
+  },
+  {
+    "job_id": "Erudito",
+    "alias": "Sábio"
+  },
+  {
+    "job_id": "Espiritualista",
+    "alias": "Bruxa"
+  },
+  {
+    "job_id": "Espiritualista",
+    "alias": "Curandeiro"
+  },
+  {
+    "job_id": "Espiritualista",
+    "alias": "Sacerdote"
+  },
+  {
+    "job_id": "Furioso",
+    "alias": "Berserker"
+  },
+  {
+    "job_id": "Furioso",
+    "alias": "Lutador"
+  },
+  {
+    "job_id": "Furioso",
+    "alias": "Viking"
+  },
+  {
+    "job_id": "Guardião",
+    "alias": "Paladino"
+  },
+  {
+    "job_id": "Guardião",
+    "alias": "Soldado"
+  },
+  {
+    "job_id": "Guardião",
+    "alias": "Yojimbo"
+  },
+  {
+    "job_id": "Guerreiro Sombrio",
+    "alias": " Cavaleiro da Morte"
+  },
+  {
+    "job_id": "Guerreiro Sombrio",
+    "alias": "Cavaleiro Negro"
+  },
+  {
+    "job_id": "Guerreiro Sombrio",
+    "alias": "Vingador"
+  },
+  {
+    "job_id": "Inventor",
+    "alias": "Alquimista"
+  },
+  {
+    "job_id": "Inventor",
+    "alias": "Engenheiro Tecnomágico"
+  },
+  {
+    "job_id": "Inventor",
+    "alias": "Mecânico"
+  },
+  {
+    "job_id": "Ladino",
+    "alias": "Bandido"
+  },
+  {
+    "job_id": "Ladino",
+    "alias": "Ladrão"
+  },
+  {
+    "job_id": "Ladino",
+    "alias": "Ninja"
+  },
+  {
+    "job_id": "Mestre de Armas",
+    "alias": "Guerreiro"
+  },
+  {
+    "job_id": "Mestre de Armas",
+    "alias": "Lutador"
+  },
+  {
+    "job_id": "Mestre de Armas",
+    "alias": "Ronin"
+  },
+  {
+    "job_id": "Orador",
+    "alias": "Artista"
+  },
+  {
+    "job_id": "Orador",
+    "alias": "Diplomata"
+  },
+  {
+    "job_id": "Orador",
+    "alias": "Embaixador"
+  },
+  {
+    "job_id": "Quimerista",
+    "alias": "Druida"
+  },
+  {
+    "job_id": "Quimerista",
+    "alias": "Mago Selvagem"
+  },
+  {
+    "job_id": "Quimerista",
+    "alias": "Metamorfo"
+  },
+  {
+    "job_id": "Lâmina Carmesim",
+    "alias": "Hemomante"
+  },
+  {
+    "job_id": "Lâmina Carmesim",
+    "alias": "Dampiro"
+  },
+  {
+    "job_id": "Lâmina Carmesim",
+    "alias": "Cavaleiro Vermelho"
+  },
+  {
+    "job_id": "Floralista",
+    "alias": "Lâmina do Florescer"
+  },
+  {
+    "job_id": "Floralista",
+    "alias": "Jardineiro"
+  },
+  {
+    "job_id": "Floralista",
+    "alias": "Herbalista"
+  },
+  {
+    "job_id": "Gourmet",
+    "alias": "Cervejeiro"
+  },
+  {
+    "job_id": "Gourmet",
+    "alias": "Chef"
+  },
+  {
+    "job_id": "Gourmet",
+    "alias": "Confeiteiro"
+  },
+  {
+    "job_id": "Invocador",
+    "alias": "Assecla"
+  },
+  {
+    "job_id": "Invocador",
+    "alias": "Canalizador"
+  },
+  {
+    "job_id": "Invocador",
+    "alias": "Mestre das Cinco Almas"
+  },
+  {
+    "job_id": "Mercador",
+    "alias": "Antiquário"
+  },
+  {
+    "job_id": "Mercador",
+    "alias": "Colecionador"
+  },
+  {
+    "job_id": "Mercador",
+    "alias": "Farmacêutico"
+  },
+  {
+    "job_id": "Comandante",
+    "alias": "Príncipe"
+  },
+  {
+    "job_id": "Comandante",
+    "alias": "Rainha"
+  },
+  {
+    "job_id": "Comandante",
+    "alias": "Shôgun"
+  },
+  {
+    "job_id": "Dançarino",
+    "alias": "Acrobata"
+  },
+  {
+    "job_id": "Dançarino",
+    "alias": "Bufão"
+  },
+  {
+    "job_id": "Dançarino",
+    "alias": "Bucaneiro"
+  },
+  {
+    "job_id": "Simbolista",
+    "alias": "Calígrafo"
+  },
+  {
+    "job_id": "Simbolista",
+    "alias": "Pintor"
+  },
+  {
+    "job_id": "Simbolista",
+    "alias": "Runomante"
+  },
+  {
+    "job_id": "Virtuoso",
+    "alias": "Bardo"
+  },
+  {
+    "job_id": "Virtuoso",
+    "alias": "Idol"
+  },
+  {
+    "job_id": "Virtuoso",
+    "alias": "Trovador"
+  },
+  {
+    "job_id": "Esper",
+    "alias": "Empata"
+  },
+  {
+    "job_id": "Esper",
+    "alias": "Psiônico"
+  },
+  {
+    "job_id": "Esper",
+    "alias": "Hacker de Almas"
+  },
+  {
+    "job_id": "Mutante",
+    "alias": "Abominação"
+  },
+  {
+    "job_id": "Mutante",
+    "alias": "Experimento"
+  },
+  {
+    "job_id": "Mutante",
+    "alias": "Licantropo"
+  },
+  {
+    "job_id": "Piloto",
+    "alias": "Motoqueiro"
+  },
+  {
+    "job_id": "Piloto",
+    "alias": "Piloto de Mecha"
+  },
+  {
+    "job_id": "Piloto",
+    "alias": "Pirata do Céu"
+  },
+  {
+    "job_id": "Astrólogo",
+    "alias": "Astrologista"
+  },
+  {
+    "job_id": "Astrólogo",
+    "alias": "Mitomante"
+  },
+  {
+    "job_id": "Astrólogo",
+    "alias": "Zodíaco"
+  },
+  {
+    "job_id": "Bandoleiro",
+    "alias": "Lampião"
+  },
+  {
+    "job_id": "Bandoleiro",
+    "alias": "Renegado"
+  },
+  {
+    "job_id": "Bandoleiro",
+    "alias": "Vaqueiro"
+  },
+  {
+    "job_id": "Carteador",
+    "alias": "Baralhomante"
+  },
+  {
+    "job_id": "Carteador",
+    "alias": "Duelista do Destino"
+  },
+  {
+    "job_id": "Carteador",
+    "alias": "Apostador"
+  },
+  {
+    "job_id": "Cavaleiro Mágico",
+    "alias": "Garota Mágica"
+  },
+  {
+    "job_id": "Cavaleiro Mágico",
+    "alias": "Guerreiro Estelar"
+  },
+  {
+    "job_id": "Cavaleiro Mágico",
+    "alias": "Herói Henshin"
+  },
+  {
+    "job_id": "Forjador de Almas",
+    "alias": "Alma Armada"
+  },
+  {
+    "job_id": "Forjador de Almas",
+    "alias": "Ferreiro Mágico"
+  },
+  {
+    "job_id": "Forjador de Almas",
+    "alias": "Mestre Rúnico"
+  },
+  {
+    "job_id": "Malandro",
+    "alias": "Pícaro"
+  },
+  {
+    "job_id": "Malandro",
+    "alias": "Espertalhão"
+  },
+  {
+    "job_id": "Malandro",
+    "alias": "Raposa"
+  },
+  {
+    "job_id": "Necromante",
+    "alias": "Monarca Tumular"
+  },
+  {
+    "job_id": "Necromante",
+    "alias": "Reanimador"
+  },
+  {
+    "job_id": "Necromante",
+    "alias": "Vampiro"
+  }
+]
