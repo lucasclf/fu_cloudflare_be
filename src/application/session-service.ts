@@ -1,33 +1,10 @@
-import type {
-	CreateSessionInput,
-	Session,
-	UpdateSessionInput,
-} from "../domain/sessions/session";
+import type { CreateSessionInput } from "../domain/sessions/session";
 import type { D1SessionRepository } from "../infrastructure/repository/d1-session-repository";
 
 export class SessionService {
 	constructor(private readonly repository: D1SessionRepository) {}
 
-	async listSessions(): Promise<Session[]> {
-		return this.repository.findAll();
-	}
-
-	async getSessionByNumber(sessionNumber: number): Promise<Session | null> {
-		return this.repository.findBySessionNumber(sessionNumber);
-	}
-
-	async createSession(input: CreateSessionInput): Promise<void> {
-		await this.repository.create(input);
-	}
-
-	async updateSession(
-		sessionNumber: number,
-		input: UpdateSessionInput,
-	): Promise<void> {
-		await this.repository.updateBySessionNumber(sessionNumber, input);
-	}
-
-	async deleteSession(sessionNumber: number): Promise<void> {
-		await this.repository.deleteBySessionNumber(sessionNumber);
+	async createSession(input: CreateSessionInput): Promise<number> {
+		return await this.repository.create(input);
 	}
 }

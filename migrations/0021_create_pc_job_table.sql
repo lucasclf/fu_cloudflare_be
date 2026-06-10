@@ -1,4 +1,4 @@
--- Migration number: 0019 2026-05-10T11:51:48.132Z
+-- Migration number: 0021 2026-05-10T11:51:48.132Z
 
 CREATE TABLE IF NOT EXISTS pc_jobs (
     pc_id INTEGER NOT NULL,

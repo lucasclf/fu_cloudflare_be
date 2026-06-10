@@ -2,7 +2,9 @@ import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import type { CampaignEntityService } from "../../../application/campaign-entity-service";
 import type { CampaignMemberService } from "../../../application/campaign-member-service";
 import type { CampaignReadService } from "../../../application/campaign-read-service";
+import type { ItemService } from "../../../application/item-service";
 import type { PCService } from "../../../application/pc-service";
+import type { SessionService } from "../../../application/session-service";
 import { campaignMemberMiddleware } from "../../../middleware/campaign-member-middleware";
 import { userAuthMiddleware } from "../../../middleware/user-auth-middleware";
 import type { Env, Variables } from "../../../types/env";
@@ -13,13 +15,17 @@ import {
     pcParamSchema, updateCampaignPcSchema, updateVisibilitySchema,
 } from "../../../schemas/campaign-schemas";
 import { badRequestResponse, conflictResponse, createdResponse, forbiddenResponse, noContentResponse, notFoundResponse, okMessageResponse } from "../../../schemas/common";
+import { createItemSchema } from "../../../schemas/item-schemas";
 import { createPcSchema, pcFullResponse, pcSummaryListResponse } from "../../../schemas/pc-schemas";
+import { createCampaignSessionSchema } from "../../../schemas/session-schemas";
 import { sessionListResponse, npcSummaryListResponse, locationListResponse, factionListResponse, monsterSummaryListResponse } from "./campaign-read-schemas";
 
 type ReadFactory = (env: Env) => CampaignReadService;
 type EntityFactory = (env: Env) => CampaignEntityService;
 type MemberFactory = (env: Env) => CampaignMemberService;
 type PcFactory = (env: Env) => PCService;
+type ItemFactory = (env: Env) => ItemService;
+type SessionFactory = (env: Env) => SessionService;
 
 function isMaster(c: { get(key: string): unknown }): boolean {
     const role = c.get("campaignRole") as string | undefined;
@@ -31,7 +37,7 @@ function forbidIfNotMaster(c: any): Response | null {
     return null;
 }
 
-export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: EntityFactory, pcFactory: PcFactory, memberFactory: MemberFactory) {
+export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: EntityFactory, pcFactory: PcFactory, memberFactory: MemberFactory, itemFactory: ItemFactory, sessionFactory: SessionFactory) {
     const routes = new OpenAPIHono<{ Bindings: Env; Variables: Variables }>();
     routes.use("*", userAuthMiddleware);
     routes.use("*", campaignMemberMiddleware);
@@ -89,6 +95,49 @@ export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: En
             const newPcId = await pcFactory(c.env).createPc({ ...body, user_id: userId } as any);
             await entityFactory(c.env).linkPc({ campaign_id: Number(campaignId), pc_id: newPcId, visible_to_players: true });
             return c.json({ success: true as const, data: { message: "PC created and linked to campaign" } } as any, 201);
+        });
+
+    // ── Criar item e vincular à campanha (master) ────────────────────────────
+
+    routes.openapi(createRoute({
+        method: "post", path: "/:campaignId/items", tags: ["Campanhas"],
+        summary: "Criar item na campanha",
+        description: "Cria um item e o vincula automaticamente à campanha. Apenas o mestre da campanha pode criar itens.",
+        security: sec,
+        request: {
+            params: campaignIdParamSchema,
+            body: { content: { "application/json": { schema: createItemSchema } } },
+        },
+        responses: { 201: createdResponse, 400: badRequestResponse, 403: forbiddenResponse, 409: conflictResponse },
+    }),
+        async (c) => {
+            const deny = forbidIfNotMaster(c); if (deny) return deny as any;
+            const { campaignId } = c.req.valid("param");
+            const newItemId = await itemFactory(c.env).createItem(c.req.valid("json"));
+            await entityFactory(c.env).linkEntity({ campaign_id: Number(campaignId), entity_type: "item", entity_id: newItemId, visible_to_players: true });
+            return c.json({ success: true as const, data: { message: "Item created and linked to campaign" } } as any, 201);
+        });
+
+    // ── Criar sessão na campanha (master) ────────────────────────────────────
+
+    routes.openapi(createRoute({
+        method: "post", path: "/:campaignId/sessions", tags: ["Campanhas"],
+        summary: "Criar sessão na campanha",
+        description: "Cria uma sessão vinculada à campanha. Apenas o mestre da campanha pode criar sessões.",
+        security: sec,
+        request: {
+            params: campaignIdParamSchema,
+            body: { content: { "application/json": { schema: createCampaignSessionSchema } } },
+        },
+        responses: { 201: createdResponse, 400: badRequestResponse, 403: forbiddenResponse, 409: conflictResponse },
+    }),
+        async (c) => {
+            const deny = forbidIfNotMaster(c); if (deny) return deny as any;
+            const { campaignId } = c.req.valid("param");
+            const body = c.req.valid("json");
+            const newSessionId = await sessionFactory(c.env).createSession({ ...body, campaign_id: Number(campaignId) });
+            await entityFactory(c.env).linkEntity({ campaign_id: Number(campaignId), entity_type: "session", entity_id: newSessionId, visible_to_players: true });
+            return c.json({ success: true as const, data: { message: "Session created and linked to campaign" } } as any, 201);
         });
 
     // ── Edição de PC ─────────────────────────────────────────────────────────

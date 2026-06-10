@@ -1,4 +1,4 @@
--- Migration number: 0004 	 2026-04-25T11:51:48.132Z
+-- Migration number: 0006 	 2026-04-25T11:51:48.132Z
 
 CREATE TABLE IF NOT EXISTS job_powers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

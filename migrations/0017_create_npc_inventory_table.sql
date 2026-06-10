@@ -1,4 +1,4 @@
--- Migration number: 0015 2026-05-07T11:51:48.132Z
+-- Migration number: 0017 2026-05-07T11:51:48.132Z
 
 CREATE TABLE IF NOT EXISTS npc_inventory (
     npc_id INTEGER NOT NULL,

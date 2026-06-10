@@ -3,6 +3,7 @@ import { successResponseSchema } from "./common";
 
 const itemTypeSchema = z.enum(["arma", "armadura", "escudo", "acessorio", "artefato", "outros"]);
 const weaponCategorySchema = z.enum(["arcana", "arco", "luta", "adaga", "arma_de_fogo", "malho", "pesado", "lança", "espada", "arremesso"]);
+const damageTypeSchema = z.enum(["physical", "air", "bolt", "dark", "earth", "fire", "ice", "light", "poison"]);
 
 export const itemSchema = z.object({
     id: z.number(),
@@ -14,7 +15,7 @@ export const itemSchema = z.object({
     weapon_category: weaponCategorySchema.nullable(),
     accuracy: z.string().nullable(),
     damage: z.string().nullable(),
-    damage_type: z.string().nullable(),
+    damage_type: damageTypeSchema.nullable(),
     grip: z.string().nullable(),
     distance: z.string().nullable(),
     defense_dice: z.string().nullable(),
@@ -36,7 +37,7 @@ export const createItemSchema = z.object({
     weapon_category: weaponCategorySchema.nullable().optional().default(null),
     accuracy: z.string().nullable().optional().default(null),
     damage: z.string().nullable().optional().default(null),
-    damage_type: z.string().nullable().optional().default(null),
+    damage_type: damageTypeSchema.nullable().optional().default(null),
     grip: z.string().nullable().optional().default(null),
     distance: z.string().nullable().optional().default(null),
     defense_dice: z.string().nullable().optional().default(null),

@@ -1,8 +1,10 @@
 import { ValidationError } from "../domain/domain-errors";
 import {
+	ALLOWED_DAMAGE_TYPES,
 	ALLOWED_ITEM_TYPES,
 	ALLOWED_WEAPON_CATEGORIES,
 	type CreateItemInput,
+	type DamageType,
 	type ItemType,
 	type UpdateItemInput,
 	type WeaponCategory,
@@ -47,6 +49,14 @@ function validateWeaponCategory(
 	);
 }
 
+function validateDamageType(value: unknown): DamageType | null {
+	if (value === undefined || value === null || value === "") {
+		return null;
+	}
+
+	return validateStringEnum(value, "damage_type", ALLOWED_DAMAGE_TYPES);
+}
+
 function assertNonNegativeNumber(
 	value: number | null,
 	fieldName: string,
@@ -89,10 +99,7 @@ function parseBaseItemInput(raw: unknown) {
 			input,
 			"damage",
 		),
-		damage_type: readOptionalString(
-			input,
-			"damage_type",
-		),
+		damage_type: validateDamageType(input.damage_type),
 		grip: readOptionalString(
 			input,
 			"grip",

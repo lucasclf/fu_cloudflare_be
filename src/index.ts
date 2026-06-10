@@ -10,8 +10,6 @@ import { createAdminItemsRoutes } from "./presentation/routes/items/admin-items-
 import { createPublicItemsRoutes } from "./presentation/routes/items/public-items-routes";
 import { createAdminJobsRoutes } from "./presentation/routes/jobs/admin-jobs-routes";
 import { createPublicJobsRoutes } from "./presentation/routes/jobs/public-jobs-routes";
-import { createAdminSessionsRoutes } from "./presentation/routes/sessions/admin-sessions-routes";
-import { createPublicSessionsRoutes } from "./presentation/routes/sessions/public-sessions-routes";
 import type { Env, Variables } from "./types/env";
 import { createPublicSpellsRoutes } from "./presentation/routes/spells/public-spells-routes";
 import { createAdminSpellsRoutes } from "./presentation/routes/spells/admin-spells-routes";
@@ -144,9 +142,6 @@ app.get("/docs", swaggerUI({ url: "/docs/spec.json" }));
 app.route("/v1/auth", createAuthRoutes(createUserService));
 app.route("/v1/admin", createAdminUserRoutes(createUserService));
 
-app.route("/v1/public", createPublicSessionsRoutes(createSessionService));
-app.route("/v1/admin", createAdminSessionsRoutes(createSessionService));
-
 app.route("/v1/admin", createAdminItemsRoutes(createItemService));
 app.route("/v1/public", createPublicItemsRoutes(createItemService));
 
@@ -183,7 +178,7 @@ app.route("/v1/public", createPublicArcanaRoutes(createArcanaService));
 app.route("/v1/admin", createAdminCampaignRoutes(createCampaignService));
 app.route("/v1/admin", createAdminCampaignMemberRoutes(createCampaignMemberService));
 app.route("/v1/campaigns", createUserCampaignRoutes(createCampaignService, createCampaignMemberService));
-app.route("/v1/campaigns", createCampaignRoutes(createCampaignReadService, createCampaignEntityService, createPcService, createCampaignMemberService));
+app.route("/v1/campaigns", createCampaignRoutes(createCampaignReadService, createCampaignEntityService, createPcService, createCampaignMemberService, createItemService, createSessionService));
 app.route("/v1/campaigns", createCampaignInvitationRoutes(createCampaignInvitationService));
 app.route("/v1/campaigns", createCampaignHomeRoutes(createCampaignService, createCampaignMemberService, createCampaignReadService, createCampaignInvitationService, createPcService));
 

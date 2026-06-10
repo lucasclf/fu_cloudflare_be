@@ -1,5 +1,6 @@
 export type sessionRow = {
     id: number;
+    campaign_id: number;
     session_number: number;
     title: string | null;
     summary: string;

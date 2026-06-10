@@ -1,4 +1,4 @@
--- Migration number: 0027 2026-05-25T09:03:48.132Z
+-- Migration number: 0029 2026-05-25T09:03:48.132Z
 
 CREATE TABLE IF NOT EXISTS cooking_books (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

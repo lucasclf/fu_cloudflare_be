@@ -24,6 +24,20 @@ export const ALLOWED_WEAPON_CATEGORIES = [
 
 export type WeaponCategory = (typeof ALLOWED_WEAPON_CATEGORIES)[number];
 
+export const ALLOWED_DAMAGE_TYPES = [
+	"physical",
+	"air",
+	"bolt",
+	"dark",
+	"earth",
+	"fire",
+	"ice",
+	"light",
+	"poison",
+] as const;
+
+export type DamageType = (typeof ALLOWED_DAMAGE_TYPES)[number];
+
 export interface Item {
 	id: number;
 	name: string;
@@ -35,7 +49,7 @@ export interface Item {
 	weapon_category: WeaponCategory | null;
 	accuracy: string | null;
 	damage: string | null;
-	damage_type: string | null;
+	damage_type: DamageType | null;
 	grip: string | null;
 	distance: string | null;
 
@@ -61,7 +75,7 @@ export interface CreateItemInput {
 	weapon_category: WeaponCategory | null;
 	accuracy: string | null;
 	damage: string | null;
-	damage_type: string | null;
+	damage_type: DamageType | null;
 	grip: string | null;
 	distance: string | null;
 
@@ -85,7 +99,7 @@ export interface UpdateItemInput {
 	weapon_category: WeaponCategory | null;
 	accuracy: string | null;
 	damage: string | null;
-	damage_type: string | null;
+	damage_type: DamageType | null;
 	grip: string | null;
 	distance: string | null;
 

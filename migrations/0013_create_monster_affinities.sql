@@ -1,4 +1,4 @@
--- Migration number: 0011 2026-05-05T11:51:48.132Z
+-- Migration number: 0013 2026-05-05T11:51:48.132Z
 
 CREATE TABLE IF NOT EXISTS monster_affinities (
     monster_id INTEGER PRIMARY KEY,

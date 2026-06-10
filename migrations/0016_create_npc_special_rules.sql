@@ -1,4 +1,4 @@
--- Migration number: 0014 2026-05-07T11:51:48.132Z
+-- Migration number: 0016 2026-05-07T11:51:48.132Z
 
 CREATE TABLE IF NOT EXISTS npc_special_rules (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

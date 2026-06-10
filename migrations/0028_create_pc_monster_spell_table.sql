@@ -1,4 +1,4 @@
--- Migration number: 0026 2026-05-10T11:51:48.132Z
+-- Migration number: 0028 2026-05-10T11:51:48.132Z
 
 CREATE TABLE IF NOT EXISTS pc_monster_spells (
     pc_id INTEGER NOT NULL,

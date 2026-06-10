@@ -9,7 +9,7 @@ export interface ItemReaderPort {
 }
 
 export interface ItemWriterPort {
-	create(input: CreateItemInput): Promise<void>;
+	create(input: CreateItemInput): Promise<number>;
 }
 
 export interface ItemRepositoryPort

@@ -1,4 +1,4 @@
--- Migration number: 0029 2026-05-31T00:00:00.000Z
+-- Migration number: 0002 2026-05-31T00:00:00.000Z
 
 CREATE TABLE IF NOT EXISTS campaigns (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,

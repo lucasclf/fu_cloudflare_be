@@ -79,9 +79,9 @@ export class D1ItemRepository {
 		return result ? this.toItem(result) : null;
 	}
 
-	async create(input: CreateItemInput): Promise<void> {
+	async create(input: CreateItemInput): Promise<number> {
 		try {
-			await this.db
+			const result = await this.db
 				.prepare(`
             INSERT INTO items (
                 name,
@@ -129,6 +129,7 @@ export class D1ItemRepository {
             : fromBoolean(input.is_martial),
 				)
 				.run();
+			return result.meta.last_row_id;
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "";
 
@@ -187,6 +188,7 @@ export class D1ItemRepository {
       ...row,
       item_type: row.item_type as Item["item_type"],
       weapon_category: row.weapon_category as Item["weapon_category"],
+      damage_type: row.damage_type as Item["damage_type"],
       is_martial: toNullableBoolean(row.is_martial),
     };
   }

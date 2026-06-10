@@ -15,7 +15,7 @@ export class ItemService {
 		return await this.itemRepository.findByItemName(itemName);
 	}
 
-	async createItem(input: CreateItemInput): Promise<void> {
-		await this.itemRepository.create(input);
+	async createItem(input: CreateItemInput): Promise<number> {
+		return await this.itemRepository.create(input);
 	}
 }

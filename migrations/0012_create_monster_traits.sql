@@ -1,4 +1,4 @@
--- Migration number: 0010 2026-05-05T11:51:48.132Z
+-- Migration number: 0012 2026-05-05T11:51:48.132Z
 
 CREATE TABLE IF NOT EXISTS monster_traits (
     monster_id INTEGER NOT NULL,

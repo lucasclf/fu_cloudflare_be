@@ -1,5 +1,6 @@
 export interface Session {
 	id: number;
+	campaign_id: number;
 	session_number: number;
 	title: string | null;
 	summary: string;
@@ -10,6 +11,7 @@ export interface Session {
 }
 
 export interface CreateSessionInput {
+	campaign_id: number;
 	session_number: number;
 	title: string | null;
 	summary: string;

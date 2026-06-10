@@ -1,4 +1,4 @@
--- Migration number: 0008  2026-04-25T11:51:48.132Z
+-- Migration number: 0010  2026-04-25T11:51:48.132Z
 
 CREATE TABLE IF NOT EXISTS faction_locations (
     faction_id INTEGER NOT NULL,
