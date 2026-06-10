@@ -1,4 +1,4 @@
-import type { AddCampaignMemberInput, CampaignMember, CampaignRole, UserCampaignSummary } from "../../domain/campaigns/campaign-member";
+import type { AddCampaignMemberInput, CampaignMember, CampaignRole, MemberWithNickname, UserCampaignSummary } from "../../domain/campaigns/campaign-member";
 import { MemberAlreadyExistsError } from "../../domain/campaigns/campaign-member-errors";
 import type { CampaignMemberRepositoryPort } from "../../application/ports/campaign-member-ports";
 
@@ -31,7 +31,7 @@ export class D1CampaignMemberRepository implements CampaignMemberRepositoryPort 
     async findCampaignsByUserId(userId: number): Promise<UserCampaignSummary[]> {
         const { results } = await this.db
             .prepare(`
-                SELECT c.id, c.name, c.description, c.img_key, cm.role, cm.created_at AS joined_at
+                SELECT c.id, c.name, c.description, c.img_key, c.status, cm.role, cm.created_at AS joined_at
                 FROM campaign_members cm
                 JOIN campaigns c ON c.id = cm.campaign_id
                 WHERE cm.user_id = ?
@@ -39,6 +39,28 @@ export class D1CampaignMemberRepository implements CampaignMemberRepositoryPort 
             `)
             .bind(userId)
             .all<UserCampaignSummary>();
+        return results;
+    }
+
+    async findMembersWithNicknames(campaignId: number): Promise<MemberWithNickname[]> {
+        const { results } = await this.db
+            .prepare(`
+                SELECT cm.user_id, cm.role, u.nickname,
+                    (SELECT p.id FROM pcs p
+                     JOIN campaign_pcs cp ON cp.pc_id = p.id
+                     WHERE cp.campaign_id = cm.campaign_id AND p.user_id = cm.user_id
+                     LIMIT 1) AS pc_id,
+                    (SELECT p.name FROM pcs p
+                     JOIN campaign_pcs cp ON cp.pc_id = p.id
+                     WHERE cp.campaign_id = cm.campaign_id AND p.user_id = cm.user_id
+                     LIMIT 1) AS pc_name
+                FROM campaign_members cm
+                JOIN users u ON u.id = cm.user_id
+                WHERE cm.campaign_id = ?
+                ORDER BY CASE cm.role WHEN 'master' THEN 0 ELSE 1 END, u.nickname ASC
+            `)
+            .bind(campaignId)
+            .all<MemberWithNickname>();
         return results;
     }
 

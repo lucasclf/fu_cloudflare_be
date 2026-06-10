@@ -1,4 +1,4 @@
-import type { Campaign, CreateCampaignInput, UpdateCampaignInput } from "../../domain/campaigns/campaign";
+import type { Campaign, CreateCampaignInput, UpdateCampaignInput, UpdateCampaignNotesInput } from "../../domain/campaigns/campaign";
 
 export interface CampaignReaderPort {
     findAll(): Promise<Campaign[]>;
@@ -8,6 +8,7 @@ export interface CampaignReaderPort {
 export interface CampaignWriterPort {
     create(input: CreateCampaignInput): Promise<number>;
     update(id: string, input: UpdateCampaignInput): Promise<void>;
+    updateNotes(id: string, input: UpdateCampaignNotesInput): Promise<void>;
     delete(id: string): Promise<void>;
 }
 

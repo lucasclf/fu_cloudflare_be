@@ -21,6 +21,15 @@ export interface UserCampaignSummary {
     name: string;
     description: string | null;
     img_key: string | null;
+    status: string;
     role: CampaignRole;
     joined_at: string;
+}
+
+export interface MemberWithNickname {
+    user_id: number;
+    role: CampaignRole;
+    nickname: string;
+    pc_id: number | null;
+    pc_name: string | null;
 }

@@ -2,7 +2,7 @@ import type { AuthResult, CreateUserInput, LoginInput, RegisterUserInput, User }
 import { UserNotFoundError } from "../domain/users/user-errors";
 import { hashPassword, verifyPassword } from "../utils/password";
 import { signJwt } from "../utils/jwt";
-import type { UserRepositoryPort } from "./ports/user-ports";
+import type { UserRepositoryPort, UserSearchResult } from "./ports/user-ports";
 
 export class UserService {
     constructor(
@@ -46,6 +46,10 @@ export class UserService {
         const user = await this.userRepository.findById(id);
         if (!user) throw new UserNotFoundError(id);
         await this.userRepository.delete(id);
+    }
+
+    async searchUsers(query: string, campaignId: number, excludeUserId: number): Promise<UserSearchResult[]> {
+        return await this.userRepository.searchUsers(query, campaignId, excludeUserId);
     }
 
     async login(input: LoginInput): Promise<AuthResult | null> {

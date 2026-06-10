@@ -1,4 +1,4 @@
-import type { Campaign, CreateCampaignInput, UpdateCampaignInput } from "../../domain/campaigns/campaign";
+import type { Campaign, CreateCampaignInput, UpdateCampaignInput, UpdateCampaignNotesInput } from "../../domain/campaigns/campaign";
 import { CampaignAlreadyExistsError } from "../../domain/campaigns/campaign-errors";
 import type { CampaignRepositoryPort } from "../../application/ports/campaign-ports";
 
@@ -7,14 +7,14 @@ export class D1CampaignRepository implements CampaignRepositoryPort {
 
     async findAll(): Promise<Campaign[]> {
         const { results } = await this.db
-            .prepare("SELECT id, name, description, img_key, created_at, updated_at FROM campaigns ORDER BY name ASC")
+            .prepare("SELECT id, name, description, img_key, status, master_notes, created_at, updated_at FROM campaigns ORDER BY name ASC")
             .all<Campaign>();
         return results;
     }
 
     async findById(id: string): Promise<Campaign | null> {
         return await this.db
-            .prepare("SELECT id, name, description, img_key, created_at, updated_at FROM campaigns WHERE id = ? LIMIT 1")
+            .prepare("SELECT id, name, description, img_key, status, master_notes, created_at, updated_at FROM campaigns WHERE id = ? LIMIT 1")
             .bind(id)
             .first<Campaign>();
     }
@@ -46,6 +46,13 @@ export class D1CampaignRepository implements CampaignRepositoryPort {
             }
             throw error;
         }
+    }
+
+    async updateNotes(id: string, input: UpdateCampaignNotesInput): Promise<void> {
+        await this.db
+            .prepare("UPDATE campaigns SET master_notes = ?, status = COALESCE(?, status), updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+            .bind(input.master_notes, input.status ?? null, id)
+            .run();
     }
 
     async delete(id: string): Promise<void> {

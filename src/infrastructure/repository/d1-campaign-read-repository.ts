@@ -4,7 +4,7 @@ import type { MonsterSummary } from "../../domain/monsters/monster";
 import type { NpcSummary } from "../../domain/npc/npc";
 import type { PcSummary } from "../../domain/pc/pc";
 import type { Session } from "../../domain/sessions/session";
-import type { CampaignReadRepositoryPort } from "../../application/ports/campaign-read-ports";
+import type { CampaignHomeStats, CampaignReadRepositoryPort } from "../../application/ports/campaign-read-ports";
 import type { D1Boolean } from "../d1-utils";
 import { toBoolean } from "../d1-utils";
 import type { NpcSummaryRow } from "../rows/npc";
@@ -78,5 +78,26 @@ export class D1CampaignReadRepository implements CampaignReadRepositoryPort {
             .bind(campaignId, pcId, visibleOnly ? 1 : 0, userId ?? null)
             .first();
         return result !== null;
+    }
+
+    async findHomeStats(campaignId: number): Promise<CampaignHomeStats> {
+        const results = await this.db.batch<{ total: number }>([
+            this.db.prepare("SELECT COUNT(*) AS total FROM campaign_members WHERE campaign_id = ?").bind(campaignId),
+            this.db.prepare("SELECT COUNT(*) AS total FROM campaign_entities WHERE campaign_id = ? AND entity_type = 'session'").bind(campaignId),
+            this.db.prepare("SELECT COUNT(*) AS total FROM campaign_entities WHERE campaign_id = ? AND entity_type = 'npc'").bind(campaignId),
+            this.db.prepare("SELECT COUNT(*) AS total FROM campaign_entities WHERE campaign_id = ? AND entity_type = 'location'").bind(campaignId),
+            this.db.prepare("SELECT COUNT(*) AS total FROM campaign_entities WHERE campaign_id = ? AND entity_type = 'faction'").bind(campaignId),
+            this.db.prepare("SELECT COUNT(*) AS total FROM campaign_entities WHERE campaign_id = ? AND entity_type = 'monster'").bind(campaignId),
+            this.db.prepare("SELECT COUNT(*) AS total FROM campaign_pcs WHERE campaign_id = ?").bind(campaignId),
+        ]);
+        return {
+            memberCount:   results[0].results[0]?.total ?? 0,
+            sessionCount:  results[1].results[0]?.total ?? 0,
+            npcCount:      results[2].results[0]?.total ?? 0,
+            locationCount: results[3].results[0]?.total ?? 0,
+            factionCount:  results[4].results[0]?.total ?? 0,
+            monsterCount:  results[5].results[0]?.total ?? 0,
+            pcCount:       results[6].results[0]?.total ?? 0,
+        };
     }
 }

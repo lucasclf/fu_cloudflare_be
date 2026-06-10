@@ -5,6 +5,16 @@ import type { NpcSummary } from "../../domain/npc/npc";
 import type { PcSummary } from "../../domain/pc/pc";
 import type { Session } from "../../domain/sessions/session";
 
+export interface CampaignHomeStats {
+    memberCount: number;
+    sessionCount: number;
+    npcCount: number;
+    locationCount: number;
+    factionCount: number;
+    monsterCount: number;
+    pcCount: number;
+}
+
 export interface CampaignReadRepositoryPort {
     findSessions(campaignId: number, visibleOnly: boolean): Promise<Session[]>;
     findNpcSummaries(campaignId: number, visibleOnly: boolean): Promise<NpcSummary[]>;
@@ -13,4 +23,5 @@ export interface CampaignReadRepositoryPort {
     findMonsterSummaries(campaignId: number, visibleOnly: boolean): Promise<MonsterSummary[]>;
     findPcSummaries(campaignId: number, visibleOnly: boolean, userId?: number): Promise<PcSummary[]>;
     isPcInCampaign(campaignId: number, pcId: number, visibleOnly: boolean, userId?: number): Promise<boolean>;
+    findHomeStats(campaignId: number): Promise<CampaignHomeStats>;
 }

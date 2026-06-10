@@ -3,6 +3,7 @@ import { NicknameAlreadyTakenError, UserAlreadyExistsError } from "../../domain/
 import type {
     CreateUserRepositoryInput,
     UserRepositoryPort,
+    UserSearchResult,
 } from "../../application/ports/user-ports";
 import { fromBoolean, toBoolean } from "../d1-utils";
 
@@ -88,6 +89,27 @@ export class D1UserRepository implements UserRepositoryPort {
             }
             throw error;
         }
+    }
+
+    async searchUsers(query: string, campaignId: number, excludeUserId: number): Promise<UserSearchResult[]> {
+        const like = `%${query}%`;
+        const { results } = await this.db
+            .prepare(`
+                SELECT id, nickname, email
+                FROM users
+                WHERE (LOWER(nickname) LIKE LOWER(?) OR LOWER(email) LIKE LOWER(?))
+                  AND id != ?
+                  AND id NOT IN (SELECT user_id FROM campaign_members WHERE campaign_id = ?)
+                  AND id NOT IN (
+                    SELECT invitee_id FROM campaign_invitations
+                    WHERE campaign_id = ? AND status = 'pending'
+                  )
+                ORDER BY nickname ASC
+                LIMIT 10
+            `)
+            .bind(like, like, excludeUserId, campaignId, campaignId)
+            .all<UserSearchResult>();
+        return results;
     }
 
     async delete(id: string): Promise<void> {

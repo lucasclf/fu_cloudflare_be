@@ -9,12 +9,19 @@ export interface CreateUserRepositoryInput {
     is_super_user: boolean;
 }
 
+export interface UserSearchResult {
+    id: number;
+    nickname: string;
+    email: string;
+}
+
 export interface UserReaderPort {
     findAll(): Promise<User[]>;
     findById(id: string): Promise<User | null>;
     findByEmail(email: string): Promise<User | null>;
     findByNickname(nickname: string): Promise<User | null>;
     findPasswordHashByEmail(email: string): Promise<string | null>;
+    searchUsers(query: string, campaignId: number, excludeUserId: number): Promise<UserSearchResult[]>;
 }
 
 export interface UserWriterPort {

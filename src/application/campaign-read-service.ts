@@ -6,7 +6,7 @@ import type { PcSummary } from "../domain/pc/pc";
 import type { Session } from "../domain/sessions/session";
 import { CampaignNotFoundError } from "../domain/campaigns/campaign-errors";
 import type { CampaignReaderPort } from "./ports/campaign-ports";
-import type { CampaignReadRepositoryPort } from "./ports/campaign-read-ports";
+import type { CampaignHomeStats, CampaignReadRepositoryPort } from "./ports/campaign-read-ports";
 
 export class CampaignReadService {
     constructor(
@@ -47,6 +47,10 @@ export class CampaignReadService {
     async isPcInCampaign(campaignId: number, pcId: number, role: string, userId?: number): Promise<boolean> {
         await this.assertCampaignExists(campaignId);
         return await this.readRepo.isPcInCampaign(campaignId, pcId, this.isPlayer(role), userId);
+    }
+
+    async getHomeStats(campaignId: number): Promise<CampaignHomeStats> {
+        return await this.readRepo.findHomeStats(campaignId);
     }
 
     private isPlayer(role: string): boolean {

@@ -53,7 +53,9 @@ import { createCampaignEntityService } from "./composition/create-campaign-entit
 import { createCampaignReadService } from "./composition/create-campaign-read-service";
 import { createCampaignInvitationService } from "./composition/create-campaign-invitation-service";
 import { createCampaignInvitationRoutes } from "./presentation/routes/campaigns/campaign-invitation-routes";
+import { createCampaignHomeRoutes } from "./presentation/routes/campaigns/campaign-home-routes";
 import { createUserInvitationRoutes } from "./presentation/routes/invitations/user-invitation-routes";
+import { createUserRoutes } from "./presentation/routes/users/user-routes";
 
 const app = new OpenAPIHono<{ Bindings: Env; Variables: Variables }>({
 	defaultHook: (result, c) => {
@@ -183,6 +185,10 @@ app.route("/v1/admin", createAdminCampaignMemberRoutes(createCampaignMemberServi
 app.route("/v1/campaigns", createUserCampaignRoutes(createCampaignService, createCampaignMemberService));
 app.route("/v1/campaigns", createCampaignRoutes(createCampaignReadService, createCampaignEntityService, createPcService, createCampaignMemberService));
 app.route("/v1/campaigns", createCampaignInvitationRoutes(createCampaignInvitationService));
+app.route("/v1/campaigns", createCampaignHomeRoutes(createCampaignService, createCampaignMemberService, createCampaignReadService, createCampaignInvitationService, createPcService));
+
+// ─── Usuários ─────────────────────────────────────────────────────────────────
+app.route("/v1/users", createUserRoutes(createUserService));
 
 // ─── Convites ─────────────────────────────────────────────────────────────────
 app.route("/v1/invitations", createUserInvitationRoutes(createCampaignInvitationService));
