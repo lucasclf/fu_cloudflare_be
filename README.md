@@ -13,6 +13,7 @@ Backend da aplicação **Fábula Última**, um sistema de gerenciamento de dados
 - [Configuração Local](#configuração-local)
 - [Variáveis de Ambiente e Secrets](#variáveis-de-ambiente-e-secrets)
 - [Banco de Dados e Migrations](#banco-de-dados-e-migrations)
+- [Seed de Dados Globais](#seed-de-dados-globais)
 - [Rodando Localmente](#rodando-localmente)
 - [Testes](#testes)
 - [Deploy](#deploy)
@@ -242,6 +243,48 @@ npm run db:remote:reset
 | `pc_inventory` | Inventário do PC |
 | `pc_bonds` | Vínculos do PC com outros personagens |
 | `pc_monster_spells` | Feitiços de monstros que o PC pode usar |
+
+---
+
+## Seed de Dados Globais
+
+Após resetar o banco (migrations zeradas), os dados globais e independentes de campanha — itens, classes (jobs, poderes, feitiços), arcanas e monstros (com traits, afinidades e ações) — podem ser repovoados via scripts de seed em `seed/`.
+
+### Estrutura
+
+```
+seed/
+├── data/   # JSON curado (fonte da verdade), normalizado a partir do fabula_helper
+└── sql/    # SQL gerado (INSERT OR IGNORE), versionado e numerado (001-012)
+```
+
+Os seeds são **idempotentes**: usam `INSERT OR IGNORE`, então rodar múltiplas vezes não duplica dados. Relações (ex.: `job_power_jobs`, `job_spells.job_id`) são resolvidas por **nome natural** via subquery (`SELECT id FROM jobs WHERE name = ...`), não por ID fixo.
+
+### Comandos
+
+```bash
+# Aplicar migrations antes da seed (cria as tabelas)
+npm run db:migrate:local   # ou db:migrate:remote
+
+# (Opcional) Regerar seed/sql/*.sql a partir de seed/data/*.json
+npm run seed:generate
+
+# Aplicar a seed
+npm run seed:local    # banco local
+npm run seed:remote   # banco remoto
+```
+
+### Regenerando os dados a partir do fabula_helper
+
+Os arquivos `seed/data/*.json` foram extraídos e normalizados a partir de `fabula_helper/jsons/*.json` pelos scripts:
+
+```bash
+node scripts/build-items-seed-data.mjs    # itens (armas, armaduras, escudos, acessórios, artefatos)
+node scripts/build-jobs-seed-data.mjs     # jobs, perguntas, aliases, poderes, feitiços
+node scripts/build-monsters-seed-data.mjs # monstros, traits, afinidades, ações
+```
+
+Esses scripts aplicam normalizações necessárias (ex.: `damage_type` PT→EN, correção do typo `duas_mao`→`duas_maos`, `distancia`→`a_distancia`, `ultima_point`→`ultima_points`). Só precisam ser executados novamente se os arquivos de origem em `fabula_helper/jsons/` mudarem.
 
 ---
 
