@@ -51,6 +51,7 @@ export interface PcBondTargetReaderPort {
 
 export interface PcJobWriterPort {
 	create(input: PcJobRelation): Promise<void>;
+	findByPcId(pcId: number): Promise<PcJobRelation[]>;
 }
 
 export interface PcPowerWriterPort {

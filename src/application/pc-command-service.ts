@@ -40,6 +40,7 @@ export class PcCommandService {
 
 	async createPcJobRelation(input: PcJobRelation): Promise<void> {
 		await this.validatePcExists(input.pc_id);
+		await this.validateUnmasteredJobLimit(input);
 		await this.pcJobRepository.create(input);
 	}
 
@@ -104,4 +105,24 @@ export class PcCommandService {
 			);
 		}
 	}
+
+	private async validateUnmasteredJobLimit(input: PcJobRelation): Promise<void> {
+		if (input.level >= MASTERED_JOB_LEVEL) {
+			return;
+		}
+
+		const existingRelations = await this.pcJobRepository.findByPcId(input.pc_id);
+		const unmasteredCount = existingRelations.filter(
+			(relation) => relation.level < MASTERED_JOB_LEVEL,
+		).length;
+
+		if (unmasteredCount >= MAX_UNMASTERED_JOBS) {
+			throw new ValidationError(
+				"Um personagem não pode ter mais do que três classes não masterizadas.",
+			);
+		}
+	}
 }
+
+const MASTERED_JOB_LEVEL = 10;
+const MAX_UNMASTERED_JOBS = 3;
