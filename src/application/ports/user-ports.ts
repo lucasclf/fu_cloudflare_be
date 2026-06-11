@@ -20,7 +20,9 @@ export interface UserReaderPort {
     findById(id: string): Promise<User | null>;
     findByEmail(email: string): Promise<User | null>;
     findByNickname(nickname: string): Promise<User | null>;
+    findByIdentifier(identifier: string): Promise<User | null>;
     findPasswordHashByEmail(email: string): Promise<string | null>;
+    findPasswordHashByIdentifier(identifier: string): Promise<string | null>;
     searchUsers(query: string, campaignId: number, excludeUserId: number): Promise<UserSearchResult[]>;
 }
 

@@ -43,7 +43,7 @@ export function createAuthRoutes(userServiceFactory: UserServiceFactory) {
                 return c.json(
                     {
                         success: false as const,
-                        error: { code: "INVALID_CREDENTIALS", message: "E-mail ou senha inválidos." },
+                        error: { code: "INVALID_CREDENTIALS", message: "Credenciais inválidas." },
                     },
                     401,
                 ) as any;

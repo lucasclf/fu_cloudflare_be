@@ -23,7 +23,7 @@ export function validateLoginInput(input: unknown): LoginInput {
     const raw = ensureObject(input);
 
     return {
-        email: readRequiredString(raw, "email"),
+        identifier: readRequiredString(raw, "identifier"),
         password: readRequiredString(raw, "password"),
     };
 }

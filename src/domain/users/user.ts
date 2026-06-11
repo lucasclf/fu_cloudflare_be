@@ -27,7 +27,7 @@ export interface RegisterUserInput {
 }
 
 export interface LoginInput {
-    email: string;
+    identifier: string;
     password: string;
 }
 

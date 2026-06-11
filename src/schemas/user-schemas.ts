@@ -30,7 +30,7 @@ export const registerUserSchema = createUserSchema.omit({
 });
 
 export const loginSchema = z.object({
-    email: z.string().email("E-mail inválido."),
+    identifier: z.string().min(1, "Informe seu e-mail ou apelido."),
     password: z.string().min(1),
 });
 

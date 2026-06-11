@@ -2,7 +2,9 @@ import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import type { CampaignEntityService } from "../../../application/campaign-entity-service";
 import type { CampaignMemberService } from "../../../application/campaign-member-service";
 import type { CampaignReadService } from "../../../application/campaign-read-service";
+import type { FactionService } from "../../../application/faction-service";
 import type { ItemService } from "../../../application/item-service";
+import type { LocationService } from "../../../application/location-service";
 import type { PCService } from "../../../application/pc-service";
 import type { SessionService } from "../../../application/session-service";
 import { campaignMemberMiddleware } from "../../../middleware/campaign-member-middleware";
@@ -12,20 +14,29 @@ import {
     campaignIdParamSchema, campaignPcListResponse, entityListResponse, entityParamSchema,
     entityTypeSchema, linkEntitySchema, linkPcSchema, memberListResponse,
     memberUserIdParamSchema, addMemberSchema, updateMemberRoleSchema,
-    pcParamSchema, updateCampaignPcSchema, updateVisibilitySchema,
+    pcParamSchema, updateCampaignPcSchema, updateVisibilitySchema, visibilityFieldSchema,
 } from "../../../schemas/campaign-schemas";
 import { badRequestResponse, conflictResponse, createdResponse, forbiddenResponse, noContentResponse, notFoundResponse, okMessageResponse } from "../../../schemas/common";
+import { createFactionSchema } from "../../../schemas/faction-schemas";
 import { createItemSchema } from "../../../schemas/item-schemas";
+import { createLocationSchema } from "../../../schemas/location-schemas";
 import { createPcSchema, pcFullResponse, pcSummaryListResponse } from "../../../schemas/pc-schemas";
 import { createCampaignSessionSchema } from "../../../schemas/session-schemas";
 import { sessionListResponse, npcSummaryListResponse, locationListResponse, factionListResponse, monsterSummaryListResponse } from "./campaign-read-schemas";
+
+const createCampaignItemSchema = createItemSchema.extend(visibilityFieldSchema.shape);
+const createCampaignLocationSchema = createLocationSchema.extend(visibilityFieldSchema.shape);
+const createCampaignFactionSchema = createFactionSchema.extend(visibilityFieldSchema.shape);
+const createCampaignSessionWithVisibilitySchema = createCampaignSessionSchema.extend(visibilityFieldSchema.shape);
 
 type ReadFactory = (env: Env) => CampaignReadService;
 type EntityFactory = (env: Env) => CampaignEntityService;
 type MemberFactory = (env: Env) => CampaignMemberService;
 type PcFactory = (env: Env) => PCService;
 type ItemFactory = (env: Env) => ItemService;
+type LocationFactory = (env: Env) => LocationService;
 type SessionFactory = (env: Env) => SessionService;
+type FactionFactory = (env: Env) => FactionService;
 
 function isMaster(c: { get(key: string): unknown }): boolean {
     const role = c.get("campaignRole") as string | undefined;
@@ -37,7 +48,7 @@ function forbidIfNotMaster(c: any): Response | null {
     return null;
 }
 
-export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: EntityFactory, pcFactory: PcFactory, memberFactory: MemberFactory, itemFactory: ItemFactory, sessionFactory: SessionFactory) {
+export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: EntityFactory, pcFactory: PcFactory, memberFactory: MemberFactory, itemFactory: ItemFactory, sessionFactory: SessionFactory, locationFactory: LocationFactory, factionFactory: FactionFactory) {
     const routes = new OpenAPIHono<{ Bindings: Env; Variables: Variables }>();
     routes.use("*", userAuthMiddleware);
     routes.use("*", campaignMemberMiddleware);
@@ -106,16 +117,61 @@ export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: En
         security: sec,
         request: {
             params: campaignIdParamSchema,
-            body: { content: { "application/json": { schema: createItemSchema } } },
+            body: { content: { "application/json": { schema: createCampaignItemSchema } } },
         },
         responses: { 201: createdResponse, 400: badRequestResponse, 403: forbiddenResponse, 409: conflictResponse },
     }),
         async (c) => {
             const deny = forbidIfNotMaster(c); if (deny) return deny as any;
             const { campaignId } = c.req.valid("param");
-            const newItemId = await itemFactory(c.env).createItem(c.req.valid("json"));
-            await entityFactory(c.env).linkEntity({ campaign_id: Number(campaignId), entity_type: "item", entity_id: newItemId, visible_to_players: true });
+            const { visible_to_players, ...itemInput } = c.req.valid("json");
+            const newItemId = await itemFactory(c.env).createItem(itemInput);
+            await entityFactory(c.env).linkEntity({ campaign_id: Number(campaignId), entity_type: "item", entity_id: newItemId, visible_to_players });
             return c.json({ success: true as const, data: { message: "Item created and linked to campaign" } } as any, 201);
+        });
+
+    // ── Criar localização e vincular à campanha (master) ─────────────────────
+
+    routes.openapi(createRoute({
+        method: "post", path: "/:campaignId/locations", tags: ["Campanhas"],
+        summary: "Criar localização na campanha",
+        description: "Cria uma localização e a vincula automaticamente à campanha. Apenas o mestre da campanha pode criar localizações.",
+        security: sec,
+        request: {
+            params: campaignIdParamSchema,
+            body: { content: { "application/json": { schema: createCampaignLocationSchema } } },
+        },
+        responses: { 201: createdResponse, 400: badRequestResponse, 403: forbiddenResponse, 409: conflictResponse },
+    }),
+        async (c) => {
+            const deny = forbidIfNotMaster(c); if (deny) return deny as any;
+            const { campaignId } = c.req.valid("param");
+            const { visible_to_players, ...locationInput } = c.req.valid("json");
+            const newLocationId = await locationFactory(c.env).createLocation(locationInput);
+            await entityFactory(c.env).linkEntity({ campaign_id: Number(campaignId), entity_type: "location", entity_id: newLocationId, visible_to_players });
+            return c.json({ success: true as const, data: { message: "Location created and linked to campaign" } } as any, 201);
+        });
+
+    // ── Criar facção e vincular à campanha (master) ──────────────────────────
+
+    routes.openapi(createRoute({
+        method: "post", path: "/:campaignId/factions", tags: ["Campanhas"],
+        summary: "Criar facção na campanha",
+        description: "Cria uma facção e a vincula automaticamente à campanha, podendo relacioná-la a localizações existentes. Apenas o mestre da campanha pode criar facções.",
+        security: sec,
+        request: {
+            params: campaignIdParamSchema,
+            body: { content: { "application/json": { schema: createCampaignFactionSchema } } },
+        },
+        responses: { 201: createdResponse, 400: badRequestResponse, 403: forbiddenResponse, 409: conflictResponse },
+    }),
+        async (c) => {
+            const deny = forbidIfNotMaster(c); if (deny) return deny as any;
+            const { campaignId } = c.req.valid("param");
+            const { visible_to_players, ...factionInput } = c.req.valid("json");
+            const newFactionId = await factionFactory(c.env).createFaction(factionInput);
+            await entityFactory(c.env).linkEntity({ campaign_id: Number(campaignId), entity_type: "faction", entity_id: newFactionId, visible_to_players });
+            return c.json({ success: true as const, data: { message: "Faction created and linked to campaign" } } as any, 201);
         });
 
     // ── Criar sessão na campanha (master) ────────────────────────────────────
@@ -127,16 +183,16 @@ export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: En
         security: sec,
         request: {
             params: campaignIdParamSchema,
-            body: { content: { "application/json": { schema: createCampaignSessionSchema } } },
+            body: { content: { "application/json": { schema: createCampaignSessionWithVisibilitySchema } } },
         },
         responses: { 201: createdResponse, 400: badRequestResponse, 403: forbiddenResponse, 409: conflictResponse },
     }),
         async (c) => {
             const deny = forbidIfNotMaster(c); if (deny) return deny as any;
             const { campaignId } = c.req.valid("param");
-            const body = c.req.valid("json");
-            const newSessionId = await sessionFactory(c.env).createSession({ ...body, campaign_id: Number(campaignId) });
-            await entityFactory(c.env).linkEntity({ campaign_id: Number(campaignId), entity_type: "session", entity_id: newSessionId, visible_to_players: true });
+            const { visible_to_players, ...sessionInput } = c.req.valid("json");
+            const newSessionId = await sessionFactory(c.env).createSession({ ...sessionInput, campaign_id: Number(campaignId) });
+            await entityFactory(c.env).linkEntity({ campaign_id: Number(campaignId), entity_type: "session", entity_id: newSessionId, visible_to_players });
             return c.json({ success: true as const, data: { message: "Session created and linked to campaign" } } as any, 201);
         });
 

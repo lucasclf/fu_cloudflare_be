@@ -5,9 +5,9 @@ import { LocationRow } from "../rows/faction-location";
 export class D1LocationRepository {
     constructor(private readonly db: D1Database) {}
 
-    async create(input: CreateLocationInput): Promise<void> {
+    async create(input: CreateLocationInput): Promise<number> {
             try {
-                await this.db
+                const result = await this.db
                     .prepare(`
               INSERT INTO locations (
                 name,
@@ -26,6 +26,7 @@ export class D1LocationRepository {
                         input.location_type,
                     )
                     .run();
+                return result.meta.last_row_id;
             } catch (error) {
                 const message = error instanceof Error ? error.message : "";
     

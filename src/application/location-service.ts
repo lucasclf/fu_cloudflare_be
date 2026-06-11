@@ -6,8 +6,8 @@ export class LocationService {
         private readonly locationRepository: D1LocationRepository,
     ) {}   
 
-    async createLocation(input: CreateLocationInput): Promise<void> {
-        await this.locationRepository.create(input);
+    async createLocation(input: CreateLocationInput): Promise<number> {
+        return await this.locationRepository.create(input);
     }
 
     async listLocations(): Promise<Location[]> {

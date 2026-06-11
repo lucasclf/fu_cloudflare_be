@@ -53,7 +53,7 @@ export class UserService {
     }
 
     async login(input: LoginInput): Promise<AuthResult | null> {
-        const storedHash = await this.userRepository.findPasswordHashByEmail(input.email);
+        const storedHash = await this.userRepository.findPasswordHashByIdentifier(input.identifier);
 
         if (!storedHash) {
             await verifyPassword(input.password, "pbkdf2:100000:dW5rbm93bg:dW5rbm93bg");
@@ -63,7 +63,7 @@ export class UserService {
         const valid = await verifyPassword(input.password, storedHash);
         if (!valid) return null;
 
-        const user = await this.userRepository.findByEmail(input.email);
+        const user = await this.userRepository.findByIdentifier(input.identifier);
         if (!user) return null;
 
         const token = await signJwt(

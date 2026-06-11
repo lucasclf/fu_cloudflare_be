@@ -5,7 +5,7 @@ import { FactionRow } from "../rows/faction-location";
 export class D1FactionRepository {
     constructor(private readonly db: D1Database) {}
 
-    async create(input: CreateFactionInput): Promise<void> {
+    async create(input: CreateFactionInput): Promise<number> {
         try {
             const statements = [
                 this.db
@@ -61,7 +61,8 @@ export class D1FactionRepository {
                 }
             }
 
-            await this.db.batch(statements);
+            const results = await this.db.batch(statements);
+            return results[0].meta.last_row_id;
         } catch (error) {
             const message = error instanceof Error ? error.message : "";
 

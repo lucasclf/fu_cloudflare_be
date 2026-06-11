@@ -69,12 +69,11 @@ export function createCampaignHomeRoutes(
             const memberSvc   = memberServiceFactory(c.env);
             const readSvc     = readServiceFactory(c.env);
 
-            const campaign = await campaignSvc.getCampaignById(campaignId);
-            const members  = await memberSvc.listMembersWithNicknames(id);
-
             if (role === "master" || role === "super_user") {
                 const invitationSvc = invitationServiceFactory(c.env);
-                const [stats, sessions, allInvitations] = await Promise.all([
+                const [campaign, members, stats, sessions, allInvitations] = await Promise.all([
+                    campaignSvc.getCampaignById(campaignId),
+                    memberSvc.listMembersWithNicknames(id),
                     readSvc.getHomeStats(id),
                     readSvc.listSessions(id, role),
                     invitationSvc.listCampaignInvitations(id),
@@ -111,7 +110,9 @@ export function createCampaignHomeRoutes(
 
             // player view
             const pcSvc = pcServiceFactory(c.env);
-            const [sessions, pcSummaries] = await Promise.all([
+            const [campaign, members, sessions, pcSummaries] = await Promise.all([
+                campaignSvc.getCampaignById(campaignId),
+                memberSvc.listMembersWithNicknames(id),
                 readSvc.listSessions(id, "player"),
                 readSvc.listPcs(id, "player", userId),
             ]);

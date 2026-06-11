@@ -105,6 +105,10 @@ export const updateVisibilitySchema = z.object({
     visible_to_players: z.boolean(),
 });
 
+export const visibilityFieldSchema = z.object({
+    visible_to_players: z.boolean().optional().default(false),
+});
+
 export const entityListResponse = successResponseSchema(z.array(campaignEntitySchema));
 
 // ─── Campaign PCs ──────────────────────────────────────────────────────────────

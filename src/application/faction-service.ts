@@ -8,8 +8,8 @@ export class FactionService {
         private readonly factionRepository: D1FactionRepository,
     ) {}   
 
-    async createFaction(input: CreateFactionInput): Promise<void> {
-        await this.factionRepository.create(input);
+    async createFaction(input: CreateFactionInput): Promise<number> {
+        return await this.factionRepository.create(input);
     }
 
     async listFactions(): Promise<FactionResponse[]> {
