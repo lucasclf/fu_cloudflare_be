@@ -81,7 +81,7 @@ export interface NpcInventoryRepositoryPort
 export interface NpcEquipmentReaderPort {
 	findByNpcsIds(
 		npcIds: number[],
-	): Promise<Map<number, CreateNpcEquipmentInput[]>>;
+	): Promise<Map<number, CreateNpcEquipmentInput>>;
 }
 
 export interface NpcEquipmentWriterPort {

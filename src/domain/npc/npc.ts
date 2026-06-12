@@ -23,15 +23,6 @@ export const ALLOWED_INVENTORY_TYPE = [
 
 export type InventoryType = (typeof ALLOWED_INVENTORY_TYPE)[number];
 
-export const ALLOWED_EQUIPMENT_SLOT_TYPE = [
-    "main_hand",
-    "off_hand",
-    "armor_slot",
-    "accessory_slot"
-] as const;
-
-export type SlotType = (typeof ALLOWED_EQUIPMENT_SLOT_TYPE)[number];
-
 export interface Npc extends Character {
     level: number | null;
     tagline: string | null
@@ -60,12 +51,6 @@ export interface NpcInventoryRelation {
     quantity: number;
 }
 
-export interface NpcEquipmentRelation {
-    npc_id: number;
-    item_id: number;
-    slot: SlotType;
-}
-
 export interface NpcInventory {
 	npc_id: number;
 	item: Item;
@@ -75,14 +60,16 @@ export interface NpcInventory {
 
 export interface NpcEquipment {
 	npc_id: number;
-	item: Item;
-	slot: SlotType;
+	main_hand: Item | null;
+	off_hand: Item | null;
+	armor: Item | null;
+	accessory: Item | null;
 }
 
 export interface NpcFull extends Npc {
     specialRules?: NpcSpecialRules[],
     inventory?: NpcInventory[],
-    equipment?: NpcEquipment[]
+    equipment?: NpcEquipment
 }
 
 export interface CreateNpcInput extends CreateFullCharacterInput {
@@ -106,6 +93,8 @@ export interface CreateNpcInventoryInput {
 
 export interface CreateNpcEquipmentInput {
     npc_id: number;
-    slot: SlotType;
-    item_id: number;
+    main_hand: number | null;
+    off_hand: number | null;
+    armor: number | null;
+    accessory: number | null;
 }

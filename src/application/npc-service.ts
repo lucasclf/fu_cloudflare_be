@@ -105,32 +105,38 @@ export class NpcService{
         }
 
         if (includes.includes("equipments")) {
-            const equipmentsByNpcId =
+            const equipmentByNpcId =
                 await this.npcEquipmentRepository.findByNpcsIds(npcIds);
 
-            const allEquipments = [...equipmentsByNpcId.values()].flat();
-            const itemIds = allEquipments.map((equipment) => equipment.item_id);
+            const itemIds = [...new Set(
+                [...equipmentByNpcId.values()].flatMap((equipment) =>
+                    [equipment.main_hand, equipment.off_hand, equipment.armor, equipment.accessory]
+                        .filter((id): id is number => id !== null),
+                ),
+            )];
 
             const itemsById = await this.itemRepository.findByIds(itemIds);
 
             for (const npc of npcsFull) {
-                const equipmentRelations = equipmentsByNpcId.get(npc.id) ?? [];
+                const equipmentRelation = equipmentByNpcId.get(npc.id);
 
-                npc.equipment = equipmentRelations.map((relation) => {
-                    const item = itemsById.get(relation.item_id);
-
-                    if (!item) {
-                        throw new Error(
-                            `Item não encontrado para item_id=${relation.item_id}`,
-                        );
-                    }
-
-                    return {
-                        npc_id: relation.npc_id,
-                        item,
-                        slot: relation.slot,
-                    };
-                });
+                npc.equipment = equipmentRelation
+                    ? {
+                            npc_id: equipmentRelation.npc_id,
+                            main_hand: equipmentRelation.main_hand
+                                ? itemsById.get(equipmentRelation.main_hand) ?? null
+                                : null,
+                            off_hand: equipmentRelation.off_hand
+                                ? itemsById.get(equipmentRelation.off_hand) ?? null
+                                : null,
+                            armor: equipmentRelation.armor
+                                ? itemsById.get(equipmentRelation.armor) ?? null
+                                : null,
+                            accessory: equipmentRelation.accessory
+                                ? itemsById.get(equipmentRelation.accessory) ?? null
+                                : null,
+                        }
+                    : undefined;
             }
         }
 

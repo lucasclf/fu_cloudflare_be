@@ -1,7 +1,9 @@
-export type NpcEquipmentRelationRow = {
+export type NpcEquipmentRow = {
     npc_id: number;
-    item_id: number;
-    slot: string;
+    main_hand: number | null;
+    off_hand: number | null;
+    armor: number | null;
+    accessory: number | null;
 };
 
 export type NpcInventoryRelationRow = {

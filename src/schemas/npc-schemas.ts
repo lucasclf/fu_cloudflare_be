@@ -4,7 +4,6 @@ import { itemSchema } from "./item-schemas";
 
 const specialRulesTypeSchema = z.enum(["bonus", "attack", "penalty", "passive", "reaction", "condition", "note"]);
 const inventoryTypeSchema = z.enum(["inventory", "shop_stock"]);
-const slotTypeSchema = z.enum(["main_hand", "off_hand", "armor_slot", "accessory_slot"]);
 
 export const npcSummarySchema = z.object({
     id: z.number(),
@@ -36,10 +35,13 @@ export const npcFullSchema = npcSummarySchema.extend({
         relation_type: inventoryTypeSchema,
         quantity: z.number(),
     })).optional(),
-    equipment: z.array(z.object({
-        item: itemSchema,
-        slot: slotTypeSchema,
-    })).optional(),
+    equipment: z.object({
+        npc_id: z.number(),
+        main_hand: itemSchema.nullable(),
+        off_hand: itemSchema.nullable(),
+        armor: itemSchema.nullable(),
+        accessory: itemSchema.nullable(),
+    }).optional(),
 });
 
 export const createNpcSchema = z.object({
@@ -76,8 +78,10 @@ export const createNpcInventorySchema = z.object({
 
 export const createNpcEquipmentSchema = z.object({
     npc_id: z.number().int().positive(),
-    slot: slotTypeSchema,
-    item_id: z.number().int().positive(),
+    main_hand: z.number().int().positive().nullable().optional().default(null),
+    off_hand: z.number().int().positive().nullable().optional().default(null),
+    armor: z.number().int().positive().nullable().optional().default(null),
+    accessory: z.number().int().positive().nullable().optional().default(null),
 });
 
 export const npcIncludeQuerySchema = z.object({

@@ -1,5 +1,5 @@
 import { ALLOWED_ATTRIBUTE_DIE } from "../domain/domain-types";
-import { ALLOWED_EQUIPMENT_SLOT_TYPE, ALLOWED_INVENTORY_TYPE, ALLOWED_SPECIAL_RULES_TYPE, CreateNpcEquipmentInput, CreateNpcInput, CreateNpcInventoryInput, CreateSpecialRulesInput } from "../domain/npc/npc";
+import { ALLOWED_INVENTORY_TYPE, ALLOWED_SPECIAL_RULES_TYPE, CreateNpcEquipmentInput, CreateNpcInput, CreateNpcInventoryInput, CreateSpecialRulesInput } from "../domain/npc/npc";
 import { ensureObject, readOptionalMetadata, readOptionalNumber, readOptionalString, readRequiredNumber, readRequiredString, validateStringEnum, validateStringNullabeEnum } from "./generic-validator";
 
 export function validateCreateNpcInput(input: unknown): CreateNpcInput {
@@ -51,7 +51,9 @@ export function validateCreateNpcEquipmentInput(input: unknown): CreateNpcEquipm
 
     return {
         npc_id: readRequiredNumber(raw, "npc_id"),
-        item_id: readRequiredNumber(raw, "item_id"),
-        slot: validateStringEnum(raw.slot, "slot", ALLOWED_EQUIPMENT_SLOT_TYPE),
+        main_hand: readOptionalNumber(raw, "main_hand"),
+        off_hand: readOptionalNumber(raw, "off_hand"),
+        armor: readOptionalNumber(raw, "armor"),
+        accessory: readOptionalNumber(raw, "accessory"),
     }
 }

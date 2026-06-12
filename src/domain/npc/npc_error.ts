@@ -21,10 +21,10 @@ export class InventoryAlreadyExistsError extends ConflictAppError {
 	}
 }
 
-export class EquipmentAlreadyExistsError extends ConflictAppError {
-	constructor(npcId: number, itemId: number) {
-		super(`Equipment for NPC ${npcId} and ITEM ${itemId} already exists`);
-		this.name = "EquipmentAlreadyExistsError";
+export class NpcEquipmentAlreadyExistsError extends ConflictAppError {
+	constructor(npcId: number) {
+		super(`Equipment for NPC ${npcId} already exists`);
+		this.name = "NpcEquipmentAlreadyExistsError";
 	}
 }
 
