@@ -1,13 +1,17 @@
+import type { Arcana, Job, JobPowerWithJob } from "../../domain/jobs/job";
 import type { FactionBase } from "../../domain/factions/faction";
+import type { Item } from "../../domain/items/item";
 import type { Location } from "../../domain/locations/location";
 import type { MonsterSummary } from "../../domain/monsters/monster";
 import type { NpcSummary } from "../../domain/npc/npc";
 import type { PcSummary } from "../../domain/pc/pc";
 import type { Session } from "../../domain/sessions/session";
+import type { JobSpellWithJob } from "../../domain/spells/spells";
 import type { CampaignHomeStats, CampaignReadRepositoryPort } from "../../application/ports/campaign-read-ports";
 import type { D1Boolean } from "../d1-utils";
 import { toBoolean } from "../d1-utils";
 import type { NpcSummaryRow } from "../rows/npc";
+import type { JobRow, PowerWithJobNameRow, SpellWithJobNameRow } from "../rows/job";
 
 // Filtro SQL: bind 1 = filtra visible_to_players=1; bind 0 = sem filtro
 // Para PCs: o dono (pcs.user_id) sempre vê o próprio PC, independente do flag
@@ -20,6 +24,32 @@ type MonsterSummaryRow = {
     is_villain: D1Boolean; dexterity_die: string; insight_die: string;
     might_die: string; willpower_die: string; img_key: string | null;
 };
+
+type ItemRow = Omit<Item, "is_martial"> & { is_martial: D1Boolean };
+
+function parseJobNames(value: string | null): string[] {
+    if (value === null || value.trim().length === 0) return [];
+    const parsed: unknown = JSON.parse(value);
+    if (!Array.isArray(parsed) || !parsed.every((item) => typeof item === "string")) {
+        throw new Error("job_name must be a JSON array of strings");
+    }
+    return parsed;
+}
+
+function toJob(row: JobRow): Job {
+    return {
+        ...row,
+        allows_martial_armor: toBoolean(row.allows_martial_armor),
+        allows_martial_shield: toBoolean(row.allows_martial_shield),
+        allows_martial_ranged_weapon: toBoolean(row.allows_martial_ranged_weapon),
+        allows_martial_melee_weapon: toBoolean(row.allows_martial_melee_weapon),
+        allows_arcane: toBoolean(row.allows_arcane),
+        allows_rituals: toBoolean(row.allows_rituals),
+        allows_monster_spells: toBoolean(row.allows_monster_spells),
+        can_start_projects: toBoolean(row.can_start_projects),
+        can_cooking: toBoolean(row.can_cooking),
+    };
+}
 
 export class D1CampaignReadRepository implements CampaignReadRepositoryPort {
     constructor(private readonly db: D1Database) {}
@@ -62,6 +92,46 @@ export class D1CampaignReadRepository implements CampaignReadRepositoryPort {
             .bind(campaignId, visibleOnly ? 1 : 0)
             .all<MonsterSummaryRow>();
         return results.map((r) => ({ ...r, level: r.level as number, monster_type: r.monster_type as MonsterSummary["monster_type"], is_villain: toBoolean(r.is_villain), dexterity_die: r.dexterity_die as MonsterSummary["dexterity_die"], insight_die: r.insight_die as MonsterSummary["insight_die"], might_die: r.might_die as MonsterSummary["might_die"], willpower_die: r.willpower_die as MonsterSummary["willpower_die"], img_key: r.img_key ?? "" }));
+    }
+
+    async findItems(campaignId: number, visibleOnly: boolean): Promise<Item[]> {
+        const { results } = await this.db
+            .prepare(`SELECT i.* FROM items i INNER JOIN campaign_entities ce ON ce.entity_id=i.id AND ce.entity_type='item' AND ce.campaign_id=? AND ${VIS} ORDER BY i.item_type, i.weapon_category, i.name`)
+            .bind(campaignId, visibleOnly ? 1 : 0)
+            .all<ItemRow>();
+        return results.map((r) => ({ ...r, is_martial: toBoolean(r.is_martial) }));
+    }
+
+    async findSpells(campaignId: number, visibleOnly: boolean): Promise<JobSpellWithJob[]> {
+        const { results } = await this.db
+            .prepare(`SELECT js.id,js.job_id,j.name AS job_name,js.name,js.description,js.is_offensive,js.cost,js.target,js.duration FROM job_spells js INNER JOIN jobs j ON j.id=js.job_id INNER JOIN campaign_entities ce ON ce.entity_id=js.id AND ce.entity_type='spell' AND ce.campaign_id=? AND ${VIS} ORDER BY j.name, js.name`)
+            .bind(campaignId, visibleOnly ? 1 : 0)
+            .all<SpellWithJobNameRow>();
+        return results.map((r) => ({ ...r, is_offensive: toBoolean(r.is_offensive), nature: "job" as const }));
+    }
+
+    async findJobs(campaignId: number, visibleOnly: boolean): Promise<Job[]> {
+        const { results } = await this.db
+            .prepare(`SELECT j.id,j.name,j.tagline,j.description,j.img_key,j.hp_bonus,j.mp_bonus,j.ip_bonus,j.allows_martial_armor,j.allows_martial_shield,j.allows_martial_ranged_weapon,j.allows_martial_melee_weapon,j.allows_arcane,j.allows_rituals,j.allows_monster_spells,j.can_start_projects,j.can_cooking,j.created_at,j.updated_at FROM jobs j INNER JOIN campaign_entities ce ON ce.entity_id=j.id AND ce.entity_type='job' AND ce.campaign_id=? AND ${VIS} ORDER BY j.name`)
+            .bind(campaignId, visibleOnly ? 1 : 0)
+            .all<JobRow>();
+        return results.map(toJob);
+    }
+
+    async findPowers(campaignId: number, visibleOnly: boolean): Promise<JobPowerWithJob[]> {
+        const { results } = await this.db
+            .prepare(`SELECT jp.id,jp.name,jp.description,jp.type,jp.max_level,jp.is_global, COALESCE(json_group_array(j.name) FILTER (WHERE j.name IS NOT NULL), '[]') AS job_name FROM job_powers jp INNER JOIN campaign_entities ce ON ce.entity_id=jp.id AND ce.entity_type='power' AND ce.campaign_id=? AND ${VIS} LEFT JOIN job_power_jobs jpj ON jpj.power_id=jp.id LEFT JOIN jobs j ON j.id=jpj.job_id GROUP BY jp.id,jp.name,jp.description,jp.type,jp.max_level,jp.is_global ORDER BY jp.id`)
+            .bind(campaignId, visibleOnly ? 1 : 0)
+            .all<PowerWithJobNameRow>();
+        return results.map((r) => ({ id: r.id, name: r.name, description: r.description, type: r.type as JobPowerWithJob["type"], max_level: r.max_level, is_global: toBoolean(r.is_global), job_name: parseJobNames(r.job_name) }));
+    }
+
+    async findArcanas(campaignId: number, visibleOnly: boolean): Promise<Arcana[]> {
+        const { results } = await this.db
+            .prepare(`SELECT a.id,a.name,a.domain,a.merge_effect,a.dismiss_effect,a.special_rule FROM arcanas a INNER JOIN campaign_entities ce ON ce.entity_id=a.id AND ce.entity_type='arcana' AND ce.campaign_id=? AND ${VIS} ORDER BY a.name`)
+            .bind(campaignId, visibleOnly ? 1 : 0)
+            .all<Arcana>();
+        return results;
     }
 
     async findPcSummaries(campaignId: number, visibleOnly: boolean, userId?: number): Promise<PcSummary[]> {

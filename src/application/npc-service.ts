@@ -15,8 +15,8 @@ export class NpcService{
 		private readonly itemRepository: NpcItemLookupPort,
     ){}
 
-    async createNpc(input: CreateNpcInput) {
-        await this.npcRepository.create(input)
+    async createNpc(input: CreateNpcInput): Promise<number> {
+        return await this.npcRepository.create(input)
     }
 
     async createNpcSpecialRules(input: CreateSpecialRulesInput) {
@@ -35,8 +35,8 @@ export class NpcService{
         return await this.npcRepository.findAll();
     }
 
-    async findAllSummary(): Promise<NpcSummary[]> {
-        return await this.npcRepository.findAllSummary();
+    async findAllSummary(globalOnly?: boolean): Promise<NpcSummary[]> {
+        return await this.npcRepository.findAllSummary(globalOnly);
     }
 
     async findById(

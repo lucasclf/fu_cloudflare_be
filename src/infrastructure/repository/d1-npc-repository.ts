@@ -8,9 +8,9 @@ import { NpcSummaryRow, NpcRow } from "../rows/npc";
 export class D1NpcRepository {
     constructor(private readonly db: D1Database){}
 
-    async create(input: CreateNpcInput): Promise<void> {
+    async create(input: CreateNpcInput): Promise<number> {
         try{
-            await this.db
+            const result = await this.db
              .prepare(`
                 INSERT INTO npcs(
                     name,
@@ -46,6 +46,8 @@ export class D1NpcRepository {
                 input.magic_defense,
                 input.img_key
             ).run();
+
+            return result.meta.last_row_id;
         } catch (error) {
             const message = error instanceof Error ? error.message : "";
 
@@ -87,7 +89,10 @@ export class D1NpcRepository {
         return results
     }
 
-    async findAllSummary(): Promise<NpcSummary[]> {
+    async findAllSummary(globalOnly?: boolean): Promise<NpcSummary[]> {
+        const globalFilter = globalOnly
+            ? "WHERE id NOT IN (SELECT entity_id FROM campaign_entities WHERE entity_type = 'npc')"
+            : "";
         const { results } = await this.db
             .prepare(
                 `
@@ -102,6 +107,7 @@ export class D1NpcRepository {
                     willpower_die,
                     img_key
                 FROM NPCS
+                ${globalFilter}
                 ORDER BY name ASC
                 `
             ).all<NpcSummaryRow>();

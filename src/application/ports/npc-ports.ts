@@ -16,7 +16,7 @@ import type { BondTargetSummary } from "../../domain/pc/pc";
 
 export interface NpcReaderPort {
 	findAll(): Promise<Npc[]>;
-	findAllSummary(): Promise<NpcSummary[]>;
+	findAllSummary(globalOnly?: boolean): Promise<NpcSummary[]>;
 	findById(npcId: string): Promise<Npc | null>;
 
 	findBondTargetsByIds(
@@ -25,7 +25,7 @@ export interface NpcReaderPort {
 }
 
 export interface NpcWriterPort {
-	create(input: CreateNpcInput): Promise<void>;
+	create(input: CreateNpcInput): Promise<number>;
 }
 
 export interface NpcRepositoryPort extends NpcReaderPort, NpcWriterPort {}

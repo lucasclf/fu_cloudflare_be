@@ -77,7 +77,7 @@ export interface JobSpellReaderPort {
 export interface JobSpellRepositoryPort extends JobSpellReaderPort {}
 
 export interface ArcanaReaderPort {
-	findAll(): Promise<Arcana[]>;
+	findAll(globalOnly?: boolean): Promise<Arcana[]>;
 }
 
 export interface ArcanaWriterPort {

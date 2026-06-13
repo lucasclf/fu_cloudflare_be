@@ -2,7 +2,7 @@
 import { NpcService } from "../../../application/npc-service";
 import type { Env } from "../../../types/env";
 import { npcSummaryListResponse, npcResponse, npcIncludeQuerySchema } from "../../../schemas/npc-schemas";
-import { idParamSchema, notFoundResponse } from "../../../schemas/common";
+import { idParamSchema, notFoundResponse, scopeQuerySchema } from "../../../schemas/common";
 import { NpcInclude } from "../../../domain/npc/npc";
 
 type NpcServiceFactory = (env: Env) => NpcService;
@@ -19,10 +19,12 @@ export function createPublicNpcRoutes(npcServiceFactory: NpcServiceFactory) {
     routes.openapi(
         createRoute({
             method: "get", path: "/npcs/summary", tags: ["NPCs"], summary: "Listar resumo de NPCs",
+            request: { query: scopeQuerySchema },
             responses: { 200: { content: { "application/json": { schema: npcSummaryListResponse } }, description: "Resumos" } },
         }),
         async (c) => {
-            return c.json({ success: true as const, data: await npcServiceFactory(c.env).findAllSummary() });
+            const { scope } = c.req.valid("query");
+            return c.json({ success: true as const, data: await npcServiceFactory(c.env).findAllSummary(scope === "global") });
         },
     );
 

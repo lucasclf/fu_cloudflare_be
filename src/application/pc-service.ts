@@ -55,12 +55,12 @@ export class PCService {
         await this.pcCommandService.createPcMonsterSpellRelation(input);
     }
 
-    async findAllSummary(): Promise<PcSummary[]> {
-        return await this.pcQueryService.findAllSummary();
+    async findAllSummary(globalOnly?: boolean): Promise<PcSummary[]> {
+        return await this.pcQueryService.findAllSummary(globalOnly);
     }
 
-    async findAccessibleSummary(userId: number): Promise<PcSummary[]> {
-        return await this.pcQueryService.findAccessibleSummary(userId);
+    async findAccessibleSummary(userId: number, globalOnly?: boolean): Promise<PcSummary[]> {
+        return await this.pcQueryService.findAccessibleSummary(userId, globalOnly);
     }
 
     async canUserAccessPc(pcId: string, userId: number): Promise<boolean> {

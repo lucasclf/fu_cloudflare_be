@@ -5,6 +5,7 @@ import type { CampaignReadService } from "../../../application/campaign-read-ser
 import type { FactionService } from "../../../application/faction-service";
 import type { ItemService } from "../../../application/item-service";
 import type { LocationService } from "../../../application/location-service";
+import type { NpcService } from "../../../application/npc-service";
 import type { PCService } from "../../../application/pc-service";
 import type { SessionService } from "../../../application/session-service";
 import { campaignMemberMiddleware } from "../../../middleware/campaign-member-middleware";
@@ -20,14 +21,16 @@ import { badRequestResponse, conflictResponse, createdResponse, forbiddenRespons
 import { createFactionSchema } from "../../../schemas/faction-schemas";
 import { createItemSchema } from "../../../schemas/item-schemas";
 import { createLocationSchema } from "../../../schemas/location-schemas";
+import { createCampaignNpcSchema } from "../../../schemas/npc-schemas";
 import { createPcSchema, pcFullResponse, pcSummaryListResponse } from "../../../schemas/pc-schemas";
 import { createCampaignSessionSchema } from "../../../schemas/session-schemas";
-import { sessionListResponse, npcSummaryListResponse, locationListResponse, factionListResponse, monsterSummaryListResponse } from "./campaign-read-schemas";
+import { sessionListResponse, npcSummaryListResponse, locationListResponse, factionListResponse, monsterSummaryListResponse, campaignItemListResponse, campaignSpellListResponse, campaignJobListResponse, campaignPowerListResponse, campaignArcanaListResponse } from "./campaign-read-schemas";
 
 const createCampaignItemSchema = createItemSchema.extend(visibilityFieldSchema.shape);
 const createCampaignLocationSchema = createLocationSchema.extend(visibilityFieldSchema.shape);
 const createCampaignFactionSchema = createFactionSchema.extend(visibilityFieldSchema.shape);
 const createCampaignSessionWithVisibilitySchema = createCampaignSessionSchema.extend(visibilityFieldSchema.shape);
+const createCampaignNpcWithVisibilitySchema = createCampaignNpcSchema.extend(visibilityFieldSchema.shape);
 
 type ReadFactory = (env: Env) => CampaignReadService;
 type EntityFactory = (env: Env) => CampaignEntityService;
@@ -37,6 +40,7 @@ type ItemFactory = (env: Env) => ItemService;
 type LocationFactory = (env: Env) => LocationService;
 type SessionFactory = (env: Env) => SessionService;
 type FactionFactory = (env: Env) => FactionService;
+type NpcFactory = (env: Env) => NpcService;
 
 function isMaster(c: { get(key: string): unknown }): boolean {
     const role = c.get("campaignRole") as string | undefined;
@@ -48,7 +52,7 @@ function forbidIfNotMaster(c: any): Response | null {
     return null;
 }
 
-export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: EntityFactory, pcFactory: PcFactory, memberFactory: MemberFactory, itemFactory: ItemFactory, sessionFactory: SessionFactory, locationFactory: LocationFactory, factionFactory: FactionFactory) {
+export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: EntityFactory, pcFactory: PcFactory, memberFactory: MemberFactory, itemFactory: ItemFactory, sessionFactory: SessionFactory, locationFactory: LocationFactory, factionFactory: FactionFactory, npcFactory: NpcFactory) {
     const routes = new OpenAPIHono<{ Bindings: Env; Variables: Variables }>();
     routes.use("*", userAuthMiddleware);
     routes.use("*", campaignMemberMiddleware);
@@ -71,6 +75,21 @@ export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: En
 
     routes.openapi(createRoute({ method: "get", path: "/:campaignId/monsters", tags: ["Campanhas"], summary: "Monstros", security: sec, request: { params: campaignIdParamSchema }, responses: { 200: { content: { "application/json": { schema: monsterSummaryListResponse } }, description: "Monstros" }, 403: forbiddenResponse, 404: notFoundResponse } }),
         async (c) => { const { campaignId } = c.req.valid("param"); const role = c.get("campaignRole") ?? "player"; return c.json({ success: true as const, data: await readFactory(c.env).listMonsters(Number(campaignId), role) } as any, 200); });
+
+    routes.openapi(createRoute({ method: "get", path: "/:campaignId/items", tags: ["Campanhas"], summary: "Itens", security: sec, request: { params: campaignIdParamSchema }, responses: { 200: { content: { "application/json": { schema: campaignItemListResponse } }, description: "Itens" }, 403: forbiddenResponse, 404: notFoundResponse } }),
+        async (c) => { const { campaignId } = c.req.valid("param"); const role = c.get("campaignRole") ?? "player"; return c.json({ success: true as const, data: await readFactory(c.env).listItems(Number(campaignId), role) } as any, 200); });
+
+    routes.openapi(createRoute({ method: "get", path: "/:campaignId/spells", tags: ["Campanhas"], summary: "Magias", security: sec, request: { params: campaignIdParamSchema }, responses: { 200: { content: { "application/json": { schema: campaignSpellListResponse } }, description: "Magias" }, 403: forbiddenResponse, 404: notFoundResponse } }),
+        async (c) => { const { campaignId } = c.req.valid("param"); const role = c.get("campaignRole") ?? "player"; return c.json({ success: true as const, data: await readFactory(c.env).listSpells(Number(campaignId), role) } as any, 200); });
+
+    routes.openapi(createRoute({ method: "get", path: "/:campaignId/jobs", tags: ["Campanhas"], summary: "Classes", security: sec, request: { params: campaignIdParamSchema }, responses: { 200: { content: { "application/json": { schema: campaignJobListResponse } }, description: "Classes" }, 403: forbiddenResponse, 404: notFoundResponse } }),
+        async (c) => { const { campaignId } = c.req.valid("param"); const role = c.get("campaignRole") ?? "player"; return c.json({ success: true as const, data: await readFactory(c.env).listJobs(Number(campaignId), role) } as any, 200); });
+
+    routes.openapi(createRoute({ method: "get", path: "/:campaignId/powers", tags: ["Campanhas"], summary: "Poderes", security: sec, request: { params: campaignIdParamSchema }, responses: { 200: { content: { "application/json": { schema: campaignPowerListResponse } }, description: "Poderes" }, 403: forbiddenResponse, 404: notFoundResponse } }),
+        async (c) => { const { campaignId } = c.req.valid("param"); const role = c.get("campaignRole") ?? "player"; return c.json({ success: true as const, data: await readFactory(c.env).listPowers(Number(campaignId), role) } as any, 200); });
+
+    routes.openapi(createRoute({ method: "get", path: "/:campaignId/arcanas", tags: ["Campanhas"], summary: "Arcanas", security: sec, request: { params: campaignIdParamSchema }, responses: { 200: { content: { "application/json": { schema: campaignArcanaListResponse } }, description: "Arcanas" }, 403: forbiddenResponse, 404: notFoundResponse } }),
+        async (c) => { const { campaignId } = c.req.valid("param"); const role = c.get("campaignRole") ?? "player"; return c.json({ success: true as const, data: await readFactory(c.env).listArcanas(Number(campaignId), role) } as any, 200); });
 
     routes.openapi(createRoute({ method: "get", path: "/:campaignId/pcs", tags: ["Campanhas"], summary: "PCs da campanha", description: "Player sempre vê o próprio PC.", security: sec, request: { params: campaignIdParamSchema }, responses: { 200: { content: { "application/json": { schema: pcSummaryListResponse } }, description: "PCs" }, 403: forbiddenResponse, 404: notFoundResponse } }),
         async (c) => { const { campaignId } = c.req.valid("param"); const role = c.get("campaignRole") ?? "player"; return c.json({ success: true as const, data: await readFactory(c.env).listPcs(Number(campaignId), role, c.get("userId")) } as any, 200); });
@@ -194,6 +213,41 @@ export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: En
             const newSessionId = await sessionFactory(c.env).createSession({ ...sessionInput, campaign_id: Number(campaignId) });
             await entityFactory(c.env).linkEntity({ campaign_id: Number(campaignId), entity_type: "session", entity_id: newSessionId, visible_to_players });
             return c.json({ success: true as const, data: { message: "Session created and linked to campaign" } } as any, 201);
+        });
+
+    // ── Criar NPC e vincular à campanha (master) ─────────────────────────────
+
+    routes.openapi(createRoute({
+        method: "post", path: "/:campaignId/npcs", tags: ["Campanhas"],
+        summary: "Criar NPC na campanha",
+        description: "Cria um NPC e o vincula automaticamente à campanha, podendo incluir regras especiais, inventário e equipamento. Apenas o mestre da campanha pode criar NPCs.",
+        security: sec,
+        request: {
+            params: campaignIdParamSchema,
+            body: { content: { "application/json": { schema: createCampaignNpcWithVisibilitySchema } } },
+        },
+        responses: { 201: createdResponse, 400: badRequestResponse, 403: forbiddenResponse, 409: conflictResponse },
+    }),
+        async (c) => {
+            const deny = forbidIfNotMaster(c); if (deny) return deny as any;
+            const { campaignId } = c.req.valid("param");
+            const { visible_to_players, specialRules, inventory, equipment, ...npcInput } = c.req.valid("json");
+            const newNpcId = await npcFactory(c.env).createNpc(npcInput);
+            await entityFactory(c.env).linkEntity({ campaign_id: Number(campaignId), entity_type: "npc", entity_id: newNpcId, visible_to_players });
+
+            for (const rule of specialRules) {
+                await npcFactory(c.env).createNpcSpecialRules({ ...rule, npc_id: newNpcId });
+            }
+
+            for (const inventoryItem of inventory) {
+                await npcFactory(c.env).createNpcInventoryRepository({ ...inventoryItem, npc_id: newNpcId });
+            }
+
+            if (equipment) {
+                await npcFactory(c.env).createNpcEquipmentRepository({ ...equipment, npc_id: newNpcId });
+            }
+
+            return c.json({ success: true as const, data: { message: "NPC created and linked to campaign" } } as any, 201);
         });
 
     // ── Edição de PC ─────────────────────────────────────────────────────────

@@ -84,6 +84,19 @@ export const createNpcEquipmentSchema = z.object({
     accessory: z.number().int().positive().nullable().optional().default(null),
 });
 
+const npcSpecialRuleBodySchema = createNpcSpecialRuleSchema.omit({ npc_id: true });
+const npcInventoryBodySchema = createNpcInventorySchema.omit({ npc_id: true });
+const npcEquipmentBodySchema = createNpcEquipmentSchema.omit({ npc_id: true }).refine(
+    (eq) => eq.main_hand !== null || eq.off_hand !== null || eq.armor !== null || eq.accessory !== null,
+    { message: "Equipamento deve ter ao menos um slot preenchido" },
+);
+
+export const createCampaignNpcSchema = createNpcSchema.extend({
+    specialRules: z.array(npcSpecialRuleBodySchema).optional().default([]),
+    inventory: z.array(npcInventoryBodySchema).optional().default([]),
+    equipment: npcEquipmentBodySchema.nullable().optional().default(null),
+});
+
 export const npcIncludeQuerySchema = z.object({
     include: z.string().optional(),
 });

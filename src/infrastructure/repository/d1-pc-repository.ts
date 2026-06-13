@@ -37,7 +37,10 @@ export class D1PCRepository implements PcExistsPort {
         }
     }
 
-    async findAllSummary(): Promise<PcSummary[]> {
+    async findAllSummary(globalOnly?: boolean): Promise<PcSummary[]> {
+        const globalFilter = globalOnly
+            ? "WHERE id NOT IN (SELECT pc_id FROM campaign_pcs)"
+            : "";
         const { results } = await this.db
             .prepare(
                 `
@@ -51,10 +54,11 @@ export class D1PCRepository implements PcExistsPort {
                     willpower_die,
                     img_key
                 FROM pcs
+                ${globalFilter}
                 ORDER BY name ASC
                 `
             ).all<PcSummary>();
-        
+
         return results
     }
 
@@ -94,7 +98,23 @@ export class D1PCRepository implements PcExistsPort {
         return result !== null;
     }
 
-    async findAccessibleSummary(userId: number): Promise<PcSummary[]> {
+    async findAccessibleSummary(userId: number, globalOnly?: boolean): Promise<PcSummary[]> {
+        if (globalOnly) {
+            const { results } = await this.db
+                .prepare(
+                    `
+                    SELECT id, name, tagline, dexterity_die, insight_die, might_die, willpower_die, img_key
+                    FROM pcs
+                    WHERE user_id = ? AND id NOT IN (SELECT pc_id FROM campaign_pcs)
+                    ORDER BY name ASC
+                    `
+                )
+                .bind(userId)
+                .all<PcSummary>();
+
+            return results;
+        }
+
         const { results } = await this.db
             .prepare(
                 `

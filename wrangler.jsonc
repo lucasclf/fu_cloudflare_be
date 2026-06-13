@@ -18,7 +18,7 @@
 		{
 			"binding": "fabula_ultima_db",
 			"database_name": "fabula-ultima-db",
-			"database_id": "9cd77c28-cf5c-47bf-ae2c-3a3a39ff2430",
+			"database_id": "f73a6a3a-b465-4a7f-ba11-e08a732d5e9e",
 			"remote": true
 		}
 	],
@@ -29,10 +29,10 @@
 	"placement": {
 		"mode": "smart"
 	},
-	// Cookie de sessÃ£o HttpOnly â€” valores de produÃ§Ã£o (domÃ­nio same-site com o FUWEB).
+	// Cookie de sessÃƒÂ£o HttpOnly Ã¢â‚¬â€ valores de produÃƒÂ§ÃƒÂ£o (domÃƒÂ­nio same-site com o FUWEB).
 	// Para desenvolvimento local, sobrescreva em .dev.vars:
 	//   AUTH_COOKIE_ENABLED=true
-	//   AUTH_COOKIE_SECURE=false   â† HTTP local nÃ£o aceita Secure=true
+	//   AUTH_COOKIE_SECURE=false   Ã¢â€ Â HTTP local nÃƒÂ£o aceita Secure=true
 	//   AUTH_COOKIE_SAMESITE=Lax
 	"vars": {
 		"AUTH_COOKIE_ENABLED": "true",

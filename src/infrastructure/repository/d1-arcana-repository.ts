@@ -38,7 +38,10 @@ export class D1ArcanaRepository{
         }
     }
 
-    async findAll(): Promise<Arcana[]> {
+    async findAll(globalOnly?: boolean): Promise<Arcana[]> {
+        const globalFilter = globalOnly
+            ? "WHERE id NOT IN (SELECT entity_id FROM campaign_entities WHERE entity_type = 'arcana')"
+            : "";
         const { results } = await this.db
             .prepare(`
                 SELECT
@@ -49,6 +52,7 @@ export class D1ArcanaRepository{
                     dismiss_effect,
                     special_rule
                 FROM arcanas
+                ${globalFilter}
                 ORDER BY name ASC
             `)
             .all<ArcanaRow>();

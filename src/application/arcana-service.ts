@@ -10,8 +10,8 @@ export class ArcanaService {
         await this.arcanaRepository.create(input);
     }
 
-    async listAll(): Promise<Arcana[]> {
-        return await this.arcanaRepository.findAll();
+    async listAll(globalOnly?: boolean): Promise<Arcana[]> {
+        return await this.arcanaRepository.findAll(globalOnly);
     }
 
 }

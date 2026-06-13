@@ -9,12 +9,12 @@ export class PcQueryService {
 		private readonly pcFullAssembler: PcFullAssembler,
 	) {}
 
-	async findAllSummary(): Promise<PcSummary[]> {
-		return await this.pcRepository.findAllSummary();
+	async findAllSummary(globalOnly?: boolean): Promise<PcSummary[]> {
+		return await this.pcRepository.findAllSummary(globalOnly);
 	}
 
-	async findAccessibleSummary(userId: number): Promise<PcSummary[]> {
-		return await this.pcRepository.findAccessibleSummary(userId);
+	async findAccessibleSummary(userId: number, globalOnly?: boolean): Promise<PcSummary[]> {
+		return await this.pcRepository.findAccessibleSummary(userId, globalOnly);
 	}
 
 	async canUserAccess(pcId: string, userId: number): Promise<boolean> {

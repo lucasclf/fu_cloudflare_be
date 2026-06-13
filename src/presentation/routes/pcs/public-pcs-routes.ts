@@ -3,7 +3,7 @@ import { PCService } from "../../../application/pc-service";
 import { userAuthMiddleware } from "../../../middleware/user-auth-middleware";
 import type { Env, Variables } from "../../../types/env";
 import { pcSummaryListResponse, pcFullResponse } from "../../../schemas/pc-schemas";
-import { idParamSchema, notFoundResponse, unauthorizedResponse } from "../../../schemas/common";
+import { idParamSchema, notFoundResponse, scopeQuerySchema, unauthorizedResponse } from "../../../schemas/common";
 
 type PCServiceFactory = (env: Env) => PCService;
 
@@ -17,6 +17,7 @@ export function createPublicPcsRoutes(pcServiceFactory: PCServiceFactory) {
             method: "get", path: "/pcs/summary", tags: ["Personagens"], summary: "Listar resumo de PCs acessíveis",
             description: "Retorna os PCs do usuário logado e os PCs visíveis via campanha (visible_to_players = true).",
             security: [{ userToken: [] }],
+            request: { query: scopeQuerySchema },
             responses: {
                 200: { content: { "application/json": { schema: pcSummaryListResponse } }, description: "Resumos" },
                 401: unauthorizedResponse,
@@ -26,7 +27,8 @@ export function createPublicPcsRoutes(pcServiceFactory: PCServiceFactory) {
             const userId = c.get("userId");
             if (!userId) return c.json({ success: false as const, error: { code: "UNAUTHORIZED", message: "Authentication required" } }, 401) as any;
 
-            const summaries = await pcServiceFactory(c.env).findAccessibleSummary(userId);
+            const { scope } = c.req.valid("query");
+            const summaries = await pcServiceFactory(c.env).findAccessibleSummary(userId, scope === "global");
             return c.json({ success: true as const, data: summaries });
         },
     );
