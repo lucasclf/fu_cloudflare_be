@@ -7,9 +7,9 @@ import { MonsterRow, BondTargetSummaryRow } from "../rows/monster";
 export class D1MonsterRepository {
     constructor(private readonly db: D1Database) {}
 
-    async create(input: CreateMonsterInput): Promise<void> {
+    async create(input: CreateMonsterInput): Promise<number> {
         try {
-            await this.db
+            const result = await this.db
                 .prepare(`
                 INSERT INTO monsters (
                     name,
@@ -55,6 +55,8 @@ export class D1MonsterRepository {
                     input.strategy
                 )
                 .run();
+
+            return result.meta.last_row_id;
         } catch(error) {
             const message = error instanceof Error ? error.message : "";
 

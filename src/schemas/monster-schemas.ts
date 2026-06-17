@@ -2,10 +2,10 @@ import { z } from "zod";
 import { attributeDieSchema, successResponseSchema } from "./common";
 
 const monsterTypeSchema = z.enum(["construct", "demon", "elemental", "beast", "humanoid", "monster", "undead", "plant"]);
-const affinityTypeSchema = z.enum(["normal", "vulnerable", "resistant", "immune", "absorbs"]);
-const actionTypeSchema = z.enum(["basic_attack", "spell", "other_action", "special_rule"]);
-const actionIconSchema = z.enum(["melee", "ranged", "spell", "support", "passive"]);
-const damageTypeSchema = z.enum(["physical", "air", "bolt", "dark", "earth", "fire", "ice", "light", "poison"]);
+export const affinityTypeSchema = z.enum(["normal", "vulnerable", "resistant", "immune", "absorbs"]);
+export const actionTypeSchema = z.enum(["basic_attack", "spell", "other_action", "special_rule"]);
+export const actionIconSchema = z.enum(["melee", "ranged", "spell", "support", "passive"]);
+export const damageTypeSchema = z.enum(["physical", "air", "bolt", "dark", "earth", "fire", "ice", "light", "poison"]);
 
 export const monsterSummarySchema = z.object({
     id: z.number(),

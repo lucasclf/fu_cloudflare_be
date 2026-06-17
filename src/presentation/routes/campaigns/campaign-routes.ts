@@ -1,10 +1,11 @@
-import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
+import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import type { CampaignEntityService } from "../../../application/campaign-entity-service";
 import type { CampaignMemberService } from "../../../application/campaign-member-service";
 import type { CampaignReadService } from "../../../application/campaign-read-service";
 import type { FactionService } from "../../../application/faction-service";
 import type { ItemService } from "../../../application/item-service";
 import type { LocationService } from "../../../application/location-service";
+import type { MonsterService } from "../../../application/monster-service";
 import type { NpcService } from "../../../application/npc-service";
 import type { PCService } from "../../../application/pc-service";
 import type { SessionService } from "../../../application/session-service";
@@ -21,8 +22,15 @@ import { badRequestResponse, conflictResponse, createdResponse, forbiddenRespons
 import { createFactionSchema } from "../../../schemas/faction-schemas";
 import { createItemSchema } from "../../../schemas/item-schemas";
 import { createLocationSchema } from "../../../schemas/location-schemas";
+import {
+    createMonsterActionSchema, createMonsterAffinitySchema, createMonsterSchema, createMonsterTraitSchema,
+} from "../../../schemas/monster-schemas";
 import { createCampaignNpcSchema } from "../../../schemas/npc-schemas";
-import { createPcSchema, pcFullResponse, pcSummaryListResponse } from "../../../schemas/pc-schemas";
+import {
+    createPcSchema, createPcJobRelationSchema, createPcPowerRelationSchema,
+    createPcSpellRelationSchema, createPcEquipmentSchema, createPcInventorySchema,
+    createPcBondSchema, pcFullResponse, pcSummaryListResponse,
+} from "../../../schemas/pc-schemas";
 import { createCampaignSessionSchema } from "../../../schemas/session-schemas";
 import { sessionListResponse, npcSummaryListResponse, locationListResponse, factionListResponse, monsterSummaryListResponse, campaignItemListResponse, campaignSpellListResponse, campaignJobListResponse, campaignPowerListResponse, campaignArcanaListResponse } from "./campaign-read-schemas";
 
@@ -31,6 +39,80 @@ const createCampaignLocationSchema = createLocationSchema.extend(visibilityField
 const createCampaignFactionSchema = createFactionSchema.extend(visibilityFieldSchema.shape);
 const createCampaignSessionWithVisibilitySchema = createCampaignSessionSchema.extend(visibilityFieldSchema.shape);
 const createCampaignNpcWithVisibilitySchema = createCampaignNpcSchema.extend(visibilityFieldSchema.shape);
+
+const monsterTraitBodySchema = createMonsterTraitSchema.omit({ monster_id: true });
+const monsterAffinityBodySchema = createMonsterAffinitySchema.omit({ monster_id: true });
+
+// Campos permitidos por action_type — espelha ACTION_FIELD_VISIBILITY do fuweb
+// (campaign-manage-page.tsx), que já oculta/limpa esses campos no formulário.
+const ACTION_FIELD_VISIBILITY: Record<z.infer<typeof createMonsterActionSchema>["action_type"], {
+    damageType: boolean; checkFormula: boolean; accuracyBonus: boolean;
+    cost: boolean; target: boolean; duration: boolean; isOffensive: boolean;
+}> = {
+    special_rule: {
+        damageType: false, checkFormula: false, accuracyBonus: false,
+        cost: false, target: false, duration: false, isOffensive: false,
+    },
+    basic_attack: {
+        damageType: true, checkFormula: true, accuracyBonus: true,
+        cost: false, target: false, duration: false, isOffensive: true,
+    },
+    spell: {
+        damageType: true, checkFormula: true, accuracyBonus: true,
+        cost: true, target: true, duration: true, isOffensive: true,
+    },
+    other_action: {
+        damageType: true, checkFormula: true, accuracyBonus: true,
+        cost: true, target: true, duration: true, isOffensive: true,
+    },
+};
+
+const monsterActionBodySchema = createMonsterActionSchema.omit({ monster_id: true })
+    .refine(
+        (action) => action.action_type !== "spell" || (!!action.cost && !!action.target && !!action.duration),
+        { message: "Ações do tipo 'spell' exigem cost, target e duration" },
+    )
+    .superRefine((action, ctx) => {
+        const visibility = ACTION_FIELD_VISIBILITY[action.action_type];
+        const notAllowedMessage = (field: string) => `Campo '${field}' não é permitido para ações do tipo '${action.action_type}'`;
+
+        if (!visibility.damageType && action.damage_type !== null) {
+            ctx.addIssue({ code: "custom", path: ["damage_type"], message: notAllowedMessage("damage_type") });
+        }
+        if (!visibility.checkFormula && action.check_formula !== null) {
+            ctx.addIssue({ code: "custom", path: ["check_formula"], message: notAllowedMessage("check_formula") });
+        }
+        if (!visibility.accuracyBonus && action.accuracy_bonus !== null) {
+            ctx.addIssue({ code: "custom", path: ["accuracy_bonus"], message: notAllowedMessage("accuracy_bonus") });
+        }
+        if (!visibility.cost && action.cost !== null) {
+            ctx.addIssue({ code: "custom", path: ["cost"], message: notAllowedMessage("cost") });
+        }
+        if (!visibility.target && action.target !== null) {
+            ctx.addIssue({ code: "custom", path: ["target"], message: notAllowedMessage("target") });
+        }
+        if (!visibility.duration && action.duration !== null) {
+            ctx.addIssue({ code: "custom", path: ["duration"], message: notAllowedMessage("duration") });
+        }
+        if (!visibility.isOffensive && action.is_offensive !== false) {
+            ctx.addIssue({ code: "custom", path: ["is_offensive"], message: notAllowedMessage("is_offensive") });
+        }
+    });
+const createCampaignMonsterSchema = createMonsterSchema.extend({
+    ...visibilityFieldSchema.shape,
+    traits: z.array(monsterTraitBodySchema).max(4).optional().default([]),
+    affinities: monsterAffinityBodySchema.optional(),
+    actions: z.array(monsterActionBodySchema).optional().default([]),
+});
+
+const createCampaignPcSchema = createPcSchema.extend({
+    jobs: z.array(createPcJobRelationSchema.omit({ pc_id: true })).default([]),
+    powers: z.array(createPcPowerRelationSchema.omit({ pc_id: true })).default([]),
+    spells: z.array(z.number().int().positive()).default([]),
+    equipment: createPcEquipmentSchema.omit({ pc_id: true }).optional(),
+    inventory: z.array(createPcInventorySchema.omit({ pc_id: true })).default([]),
+    bonds: z.array(createPcBondSchema.omit({ pc_id: true })).default([]),
+});
 
 type ReadFactory = (env: Env) => CampaignReadService;
 type EntityFactory = (env: Env) => CampaignEntityService;
@@ -41,6 +123,7 @@ type LocationFactory = (env: Env) => LocationService;
 type SessionFactory = (env: Env) => SessionService;
 type FactionFactory = (env: Env) => FactionService;
 type NpcFactory = (env: Env) => NpcService;
+type MonsterFactory = (env: Env) => MonsterService;
 
 function isMaster(c: { get(key: string): unknown }): boolean {
     const role = c.get("campaignRole") as string | undefined;
@@ -52,7 +135,7 @@ function forbidIfNotMaster(c: any): Response | null {
     return null;
 }
 
-export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: EntityFactory, pcFactory: PcFactory, memberFactory: MemberFactory, itemFactory: ItemFactory, sessionFactory: SessionFactory, locationFactory: LocationFactory, factionFactory: FactionFactory, npcFactory: NpcFactory) {
+export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: EntityFactory, pcFactory: PcFactory, memberFactory: MemberFactory, itemFactory: ItemFactory, sessionFactory: SessionFactory, locationFactory: LocationFactory, factionFactory: FactionFactory, npcFactory: NpcFactory, monsterFactory: MonsterFactory) {
     const routes = new OpenAPIHono<{ Bindings: Env; Variables: Variables }>();
     routes.use("*", userAuthMiddleware);
     routes.use("*", campaignMemberMiddleware);
@@ -109,11 +192,11 @@ export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: En
     routes.openapi(createRoute({
         method: "post", path: "/:campaignId/pcs", tags: ["Campanhas"],
         summary: "Criar PC na campanha",
-        description: "Cria um PC com user_id inferido do token JWT e o vincula automaticamente à campanha. Master pode criar PC para si mesmo; player cria PC para si.",
+        description: "Cria um PC com user_id inferido do token JWT e o vincula automaticamente à campanha. Jogadores podem criar até 3 PCs por campanha; mestres sem limite.",
         security: sec,
         request: {
             params: campaignIdParamSchema,
-            body: { content: { "application/json": { schema: createPcSchema } } },
+            body: { content: { "application/json": { schema: createCampaignPcSchema } } },
         },
         responses: { 201: createdResponse, 400: badRequestResponse, 403: forbiddenResponse, 409: conflictResponse },
     }),
@@ -121,9 +204,40 @@ export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: En
             const { campaignId } = c.req.valid("param");
             const userId = c.get("userId");
             if (!userId) return c.json({ success: false as const, error: { code: "UNAUTHORIZED", message: "Authentication required" } }, 401) as any;
-            const body = c.req.valid("json");
-            const newPcId = await pcFactory(c.env).createPc({ ...body, user_id: userId } as any);
+
+            if (!isMaster(c)) {
+                const countResult = await c.env.fabula_ultima_db
+                    .prepare("SELECT COUNT(*) as count FROM pcs p INNER JOIN campaign_pcs cp ON cp.pc_id = p.id WHERE cp.campaign_id = ? AND p.user_id = ?")
+                    .bind(Number(campaignId), userId)
+                    .first<{ count: number }>();
+                if ((countResult?.count ?? 0) >= 3) {
+                    return c.json({ success: false as const, error: { code: "FORBIDDEN", message: "Você já possui o máximo de 3 personagens nesta campanha" } }, 403) as any;
+                }
+            }
+
+            const { jobs, powers, spells, equipment, inventory, bonds, ...pcInput } = c.req.valid("json");
+            const newPcId = await pcFactory(c.env).createPc({ ...pcInput, user_id: userId } as any);
             await entityFactory(c.env).linkPc({ campaign_id: Number(campaignId), pc_id: newPcId, visible_to_players: true });
+
+            for (const job of jobs) {
+                await pcFactory(c.env).createPcJobRelation({ ...job, pc_id: newPcId });
+            }
+            for (const power of powers) {
+                await pcFactory(c.env).createPcPowerRelation({ ...power, pc_id: newPcId });
+            }
+            for (const spellId of spells) {
+                await pcFactory(c.env).createPcSpellRelation({ spell_id: spellId, pc_id: newPcId });
+            }
+            if (equipment) {
+                await pcFactory(c.env).createPcEquipment({ ...equipment, pc_id: newPcId });
+            }
+            for (const item of inventory) {
+                await pcFactory(c.env).createPcInventory({ ...item, pc_id: newPcId });
+            }
+            for (const bond of bonds) {
+                await pcFactory(c.env).createPcBond({ ...bond, pc_id: newPcId });
+            }
+
             return c.json({ success: true as const, data: { message: "PC created and linked to campaign" } } as any, 201);
         });
 
@@ -248,6 +362,41 @@ export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: En
             }
 
             return c.json({ success: true as const, data: { message: "NPC created and linked to campaign" } } as any, 201);
+        });
+
+    // ── Criar monstro e vincular à campanha (master) ─────────────────────────
+
+    routes.openapi(createRoute({
+        method: "post", path: "/:campaignId/monsters", tags: ["Campanhas"],
+        summary: "Criar monstro na campanha",
+        description: "Cria um monstro e o vincula automaticamente à campanha, podendo incluir até 4 traits, afinidades elementais e ações. Apenas o mestre da campanha pode criar monstros.",
+        security: sec,
+        request: {
+            params: campaignIdParamSchema,
+            body: { content: { "application/json": { schema: createCampaignMonsterSchema } } },
+        },
+        responses: { 201: createdResponse, 400: badRequestResponse, 403: forbiddenResponse, 409: conflictResponse },
+    }),
+        async (c) => {
+            const deny = forbidIfNotMaster(c); if (deny) return deny as any;
+            const { campaignId } = c.req.valid("param");
+            const { visible_to_players, traits, affinities, actions, ...monsterInput } = c.req.valid("json");
+            const newMonsterId = await monsterFactory(c.env).createMonster(monsterInput);
+            await entityFactory(c.env).linkEntity({ campaign_id: Number(campaignId), entity_type: "monster", entity_id: newMonsterId, visible_to_players });
+
+            for (const trait of traits) {
+                await monsterFactory(c.env).createMonsterTrait({ ...trait, monster_id: newMonsterId });
+            }
+
+            if (affinities) {
+                await monsterFactory(c.env).createMonsterAffinity({ ...affinities, monster_id: newMonsterId });
+            }
+
+            for (const action of actions) {
+                await monsterFactory(c.env).createMonsterAction({ ...action, monster_id: newMonsterId });
+            }
+
+            return c.json({ success: true as const, data: { message: "Monster created and linked to campaign" } } as any, 201);
         });
 
     // ── Edição de PC ─────────────────────────────────────────────────────────

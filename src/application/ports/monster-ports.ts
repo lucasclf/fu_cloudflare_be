@@ -26,7 +26,7 @@ export interface MonsterReaderPort {
 }
 
 export interface MonsterWriterPort {
-	create(input: CreateMonsterInput): Promise<void>;
+	create(input: CreateMonsterInput): Promise<number>;
 }
 
 export interface MonsterRepositoryPort

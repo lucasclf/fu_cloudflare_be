@@ -178,7 +178,7 @@ app.route("/v1/public", createPublicArcanaRoutes(createArcanaService));
 app.route("/v1/admin", createAdminCampaignRoutes(createCampaignService));
 app.route("/v1/admin", createAdminCampaignMemberRoutes(createCampaignMemberService));
 app.route("/v1/campaigns", createUserCampaignRoutes(createCampaignService, createCampaignMemberService));
-app.route("/v1/campaigns", createCampaignRoutes(createCampaignReadService, createCampaignEntityService, createPcService, createCampaignMemberService, createItemService, createSessionService, createLocationService, createFactionService, createNpcService));
+app.route("/v1/campaigns", createCampaignRoutes(createCampaignReadService, createCampaignEntityService, createPcService, createCampaignMemberService, createItemService, createSessionService, createLocationService, createFactionService, createNpcService, createMonsterService));
 app.route("/v1/campaigns", createCampaignInvitationRoutes(createCampaignInvitationService));
 app.route("/v1/campaigns", createCampaignHomeRoutes(createCampaignService, createCampaignMemberService, createCampaignReadService, createCampaignInvitationService, createPcService));
 

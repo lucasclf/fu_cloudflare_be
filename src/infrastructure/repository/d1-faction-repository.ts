@@ -66,7 +66,7 @@ export class D1FactionRepository {
         } catch (error) {
             const message = error instanceof Error ? error.message : "";
 
-            if (message.includes("UNIQUE constraint failed")) {
+            if (message.includes("UNIQUE constraint failed: factions.name")) {
                 throw new FactionAlreadyExistsError(input.name);
             }
 

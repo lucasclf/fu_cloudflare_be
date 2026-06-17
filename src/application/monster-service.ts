@@ -9,8 +9,8 @@ export class MonsterService {
 		private readonly monsterActionRepository: MonsterActionRepositoryPort,
     ) {}
 
-    async createMonster(input: CreateMonsterInput): Promise<void> {
-        await this.monsterRepository.create(input)
+    async createMonster(input: CreateMonsterInput): Promise<number> {
+        return await this.monsterRepository.create(input)
     }
 
     async createMonsterTrait(input: CreateMonsterTraitInput): Promise<void> {
