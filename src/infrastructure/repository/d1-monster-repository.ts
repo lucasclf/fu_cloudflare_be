@@ -162,6 +162,57 @@ export class D1MonsterRepository {
         return result ? this.toMonster(result) : null;
     }
 
+    async update(id: number, input: CreateMonsterInput): Promise<void> {
+        await this.db
+            .prepare(`
+                UPDATE monsters SET
+                    name = ?,
+                    description = ?,
+                    monster_type = ?,
+                    level = ?,
+                    dexterity_die = ?,
+                    insight_die = ?,
+                    might_die = ?,
+                    willpower_die = ?,
+                    hp = ?,
+                    mp = ?,
+                    initiative = ?,
+                    defense = ?,
+                    magic_defense = ?,
+                    equipment = ?,
+                    img_key = ?,
+                    source_page = ?,
+                    is_villain = ?,
+                    ultima_points = ?,
+                    strategy = ?,
+                    updated_at = datetime('now')
+                WHERE id = ?
+            `)
+            .bind(
+                input.name,
+                input.description,
+                input.monster_type,
+                input.level,
+                input.dexterity_die,
+                input.insight_die,
+                input.might_die,
+                input.willpower_die,
+                input.hp,
+                input.mp,
+                input.initiative,
+                input.defense,
+                input.magic_defense,
+                input.equipment,
+                input.img_key,
+                input.source_page,
+                fromBoolean(input.is_villain),
+                input.ultima_points,
+                input.strategy,
+                id
+            )
+            .run();
+    }
+
     async findBondTargetsByIds(
         monsterIds: number[],
     ): Promise<Map<number, BondTargetSummary>> {

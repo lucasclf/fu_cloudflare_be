@@ -31,6 +31,28 @@ export class NpcService{
         await this.npcEquipmentRepository.create(input)
     }
 
+    async updateNpc(
+        id: number,
+        input: CreateNpcInput,
+        specialRules: CreateSpecialRulesInput[],
+        inventory: CreateNpcInventoryInput[],
+        equipment: CreateNpcEquipmentInput | null,
+    ): Promise<void> {
+        await this.npcRepository.update(id, input);
+        await this.npcSpecialRulesRepository.deleteByNpcId(id);
+        for (const rule of specialRules) {
+            await this.npcSpecialRulesRepository.create(rule);
+        }
+        await this.npcInventoryRepository.deleteByNpcId(id);
+        for (const item of inventory) {
+            await this.npcInventoryRepository.create(item);
+        }
+        await this.npcEquipmentRepository.deleteByNpcId(id);
+        if (equipment) {
+            await this.npcEquipmentRepository.create(equipment);
+        }
+    }
+
     async findAll(): Promise<Npc[]> {
         return await this.npcRepository.findAll();
     }

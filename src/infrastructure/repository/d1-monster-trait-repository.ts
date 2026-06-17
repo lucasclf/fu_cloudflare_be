@@ -29,7 +29,13 @@ export class D1MonsterTraitRepository {
         }
     }
 
-    
+    async deleteByMonsterId(monsterId: number): Promise<void> {
+        await this.db
+            .prepare(`DELETE FROM monster_traits WHERE monster_id = ?`)
+            .bind(monsterId)
+            .run();
+    }
+
     async findByMonstersIds(monsterIds: number[]): Promise<Map<number, MonsterTrait[]>> {
         if (monsterIds.length === 0) {
 			return new Map();

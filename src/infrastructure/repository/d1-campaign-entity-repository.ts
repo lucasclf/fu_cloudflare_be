@@ -15,6 +15,14 @@ export class D1CampaignEntityRepository implements CampaignEntityRepositoryPort 
         return results.map((r) => ({ ...r, entity_type: r.entity_type as CampaignEntity["entity_type"], visible_to_players: toBoolean(r.visible_to_players) }));
     }
 
+    async findByEntity(campaignId: number, entityType: string, entityId: number): Promise<CampaignEntity | null> {
+        const result = await this.db
+            .prepare("SELECT id, campaign_id, entity_type, entity_id, visible_to_players, created_at FROM campaign_entities WHERE campaign_id = ? AND entity_type = ? AND entity_id = ? LIMIT 1")
+            .bind(campaignId, entityType, entityId)
+            .first<CampaignEntityRow>();
+        return result ? { ...result, entity_type: result.entity_type as CampaignEntity["entity_type"], visible_to_players: toBoolean(result.visible_to_players) } : null;
+    }
+
     async link(input: LinkEntityInput): Promise<void> {
         try {
             await this.db

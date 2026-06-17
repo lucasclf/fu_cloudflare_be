@@ -46,6 +46,13 @@ export class D1MonsterAffinityRepository {
         }
     }
 
+    async deleteByMonsterId(monsterId: number): Promise<void> {
+        await this.db
+            .prepare(`DELETE FROM monster_affinities WHERE monster_id = ?`)
+            .bind(monsterId)
+            .run();
+    }
+
     async findByMonstersIds(
         monsterIds: number[],
     ): Promise<Map<number, MonsterAffinity>> {

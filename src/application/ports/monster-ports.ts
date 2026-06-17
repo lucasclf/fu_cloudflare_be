@@ -27,6 +27,7 @@ export interface MonsterReaderPort {
 
 export interface MonsterWriterPort {
 	create(input: CreateMonsterInput): Promise<number>;
+	update(id: number, input: CreateMonsterInput): Promise<void>;
 }
 
 export interface MonsterRepositoryPort
@@ -45,6 +46,7 @@ export interface MonsterTraitReaderPort {
 
 export interface MonsterTraitWriterPort {
 	create(input: CreateMonsterTraitInput): Promise<void>;
+	deleteByMonsterId(monsterId: number): Promise<void>;
 }
 
 export interface MonsterTraitRepositoryPort
@@ -63,6 +65,7 @@ export interface MonsterAffinityReaderPort {
 
 export interface MonsterAffinityWriterPort {
 	create(input: CreateAffinityInput): Promise<void>;
+	deleteByMonsterId(monsterId: number): Promise<void>;
 }
 
 export interface MonsterAffinityRepositoryPort
@@ -83,6 +86,7 @@ export interface MonsterActionReaderPort {
 
 export interface MonsterActionWriterPort {
 	create(input: CreateActionInput): Promise<void>;
+	deleteByMonsterId(monsterId: number): Promise<void>;
 }
 
 export interface MonsterActionRepositoryPort

@@ -6,6 +6,7 @@ import type {
 
 export interface CampaignEntityRepositoryPort {
     findByCampaignId(campaignId: number): Promise<CampaignEntity[]>;
+    findByEntity(campaignId: number, entityType: string, entityId: number): Promise<CampaignEntity | null>;
     link(input: LinkEntityInput): Promise<void>;
     unlink(input: UnlinkEntityInput): Promise<void>;
     updateVisibility(campaignId: number, entityType: string, entityId: number, visible: boolean): Promise<void>;

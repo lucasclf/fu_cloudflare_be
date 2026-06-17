@@ -35,10 +35,30 @@ import { createCampaignSessionSchema } from "../../../schemas/session-schemas";
 import { sessionListResponse, npcSummaryListResponse, locationListResponse, factionListResponse, monsterSummaryListResponse, campaignItemListResponse, campaignSpellListResponse, campaignJobListResponse, campaignPowerListResponse, campaignArcanaListResponse } from "./campaign-read-schemas";
 
 const createCampaignItemSchema = createItemSchema.extend(visibilityFieldSchema.shape);
+const updateCampaignItemSchema = createItemSchema.extend(visibilityFieldSchema.shape);
+const campaignItemParamSchema = campaignIdParamSchema.extend({
+    itemId: z.string().regex(/^\d+$/, "itemId must be a positive integer"),
+});
 const createCampaignLocationSchema = createLocationSchema.extend(visibilityFieldSchema.shape);
 const createCampaignFactionSchema = createFactionSchema.extend(visibilityFieldSchema.shape);
 const createCampaignSessionWithVisibilitySchema = createCampaignSessionSchema.extend(visibilityFieldSchema.shape);
 const createCampaignNpcWithVisibilitySchema = createCampaignNpcSchema.extend(visibilityFieldSchema.shape);
+
+const campaignSessionParamSchema = campaignIdParamSchema.extend({
+    sessionId: z.string().regex(/^\d+$/, "sessionId must be a positive integer"),
+});
+const campaignLocationParamSchema = campaignIdParamSchema.extend({
+    locationId: z.string().regex(/^\d+$/, "locationId must be a positive integer"),
+});
+const campaignFactionParamSchema = campaignIdParamSchema.extend({
+    factionId: z.string().regex(/^\d+$/, "factionId must be a positive integer"),
+});
+const campaignNpcParamSchema = campaignIdParamSchema.extend({
+    npcId: z.string().regex(/^\d+$/, "npcId must be a positive integer"),
+});
+const campaignMonsterParamSchema = campaignIdParamSchema.extend({
+    monsterId: z.string().regex(/^\d+$/, "monsterId must be a positive integer"),
+});
 
 const monsterTraitBodySchema = createMonsterTraitSchema.omit({ monster_id: true });
 const monsterAffinityBodySchema = createMonsterAffinitySchema.omit({ monster_id: true });
@@ -397,6 +417,156 @@ export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: En
             }
 
             return c.json({ success: true as const, data: { message: "Monster created and linked to campaign" } } as any, 201);
+        });
+
+    // ── Editar item da campanha (master) ─────────────────────────────────────
+
+    routes.openapi(createRoute({
+        method: "patch", path: "/:campaignId/items/:itemId", tags: ["Campanhas"],
+        summary: "Atualizar item da campanha",
+        security: sec,
+        request: {
+            params: campaignItemParamSchema,
+            body: { content: { "application/json": { schema: updateCampaignItemSchema } } },
+        },
+        responses: { 200: okMessageResponse, 400: badRequestResponse, 403: forbiddenResponse, 404: notFoundResponse },
+    }),
+        async (c) => {
+            const deny = forbidIfNotMaster(c); if (deny) return deny as any;
+            const { campaignId, itemId } = c.req.valid("param");
+            const linked = await entityFactory(c.env).getEntity(Number(campaignId), "item", Number(itemId));
+            if (!linked) return c.json({ success: false as const, error: { code: "NOT_FOUND", message: "Item não encontrado nesta campanha" } } as any, 404);
+            const { visible_to_players, ...itemInput } = c.req.valid("json");
+            await itemFactory(c.env).updateItem(Number(itemId), itemInput);
+            await entityFactory(c.env).updateEntityVisibility(Number(campaignId), "item", Number(itemId), visible_to_players);
+            return c.json({ success: true as const, data: { message: "Item atualizado com sucesso" } } as any, 200);
+        });
+
+    // ── Atualizar sessão da campanha (master) ────────────────────────────────
+
+    routes.openapi(createRoute({
+        method: "patch", path: "/:campaignId/sessions/:sessionId", tags: ["Campanhas"],
+        summary: "Atualizar sessão da campanha",
+        security: sec,
+        request: {
+            params: campaignSessionParamSchema,
+            body: { content: { "application/json": { schema: createCampaignSessionWithVisibilitySchema } } },
+        },
+        responses: { 200: okMessageResponse, 400: badRequestResponse, 403: forbiddenResponse, 404: notFoundResponse },
+    }),
+        async (c) => {
+            const deny = forbidIfNotMaster(c); if (deny) return deny as any;
+            const { campaignId, sessionId } = c.req.valid("param");
+            const linked = await entityFactory(c.env).getEntity(Number(campaignId), "session", Number(sessionId));
+            if (!linked) return c.json({ success: false as const, error: { code: "NOT_FOUND", message: "Sessão não encontrada nesta campanha" } } as any, 404);
+            const { visible_to_players, session_number: _, ...sessionInput } = c.req.valid("json");
+            await sessionFactory(c.env).updateSession(Number(sessionId), sessionInput);
+            await entityFactory(c.env).updateEntityVisibility(Number(campaignId), "session", Number(sessionId), visible_to_players);
+            return c.json({ success: true as const, data: { message: "Sessão atualizada com sucesso" } } as any, 200);
+        });
+
+    // ── Atualizar local da campanha (master) ─────────────────────────────────
+
+    routes.openapi(createRoute({
+        method: "patch", path: "/:campaignId/locations/:locationId", tags: ["Campanhas"],
+        summary: "Atualizar local da campanha",
+        security: sec,
+        request: {
+            params: campaignLocationParamSchema,
+            body: { content: { "application/json": { schema: createCampaignLocationSchema } } },
+        },
+        responses: { 200: okMessageResponse, 400: badRequestResponse, 403: forbiddenResponse, 404: notFoundResponse },
+    }),
+        async (c) => {
+            const deny = forbidIfNotMaster(c); if (deny) return deny as any;
+            const { campaignId, locationId } = c.req.valid("param");
+            const linked = await entityFactory(c.env).getEntity(Number(campaignId), "location", Number(locationId));
+            if (!linked) return c.json({ success: false as const, error: { code: "NOT_FOUND", message: "Local não encontrado nesta campanha" } } as any, 404);
+            const { visible_to_players, ...locationInput } = c.req.valid("json");
+            await locationFactory(c.env).updateLocation(Number(locationId), locationInput);
+            await entityFactory(c.env).updateEntityVisibility(Number(campaignId), "location", Number(locationId), visible_to_players);
+            return c.json({ success: true as const, data: { message: "Local atualizado com sucesso" } } as any, 200);
+        });
+
+    // ── Atualizar facção da campanha (master) ────────────────────────────────
+
+    routes.openapi(createRoute({
+        method: "patch", path: "/:campaignId/factions/:factionId", tags: ["Campanhas"],
+        summary: "Atualizar facção da campanha",
+        security: sec,
+        request: {
+            params: campaignFactionParamSchema,
+            body: { content: { "application/json": { schema: createCampaignFactionSchema } } },
+        },
+        responses: { 200: okMessageResponse, 400: badRequestResponse, 403: forbiddenResponse, 404: notFoundResponse },
+    }),
+        async (c) => {
+            const deny = forbidIfNotMaster(c); if (deny) return deny as any;
+            const { campaignId, factionId } = c.req.valid("param");
+            const linked = await entityFactory(c.env).getEntity(Number(campaignId), "faction", Number(factionId));
+            if (!linked) return c.json({ success: false as const, error: { code: "NOT_FOUND", message: "Facção não encontrada nesta campanha" } } as any, 404);
+            const { visible_to_players, ...factionInput } = c.req.valid("json");
+            await factionFactory(c.env).updateFaction(Number(factionId), factionInput);
+            await entityFactory(c.env).updateEntityVisibility(Number(campaignId), "faction", Number(factionId), visible_to_players);
+            return c.json({ success: true as const, data: { message: "Facção atualizada com sucesso" } } as any, 200);
+        });
+
+    // ── Atualizar NPC da campanha (master) ───────────────────────────────────
+
+    routes.openapi(createRoute({
+        method: "patch", path: "/:campaignId/npcs/:npcId", tags: ["Campanhas"],
+        summary: "Atualizar NPC da campanha",
+        security: sec,
+        request: {
+            params: campaignNpcParamSchema,
+            body: { content: { "application/json": { schema: createCampaignNpcWithVisibilitySchema } } },
+        },
+        responses: { 200: okMessageResponse, 400: badRequestResponse, 403: forbiddenResponse, 404: notFoundResponse },
+    }),
+        async (c) => {
+            const deny = forbidIfNotMaster(c); if (deny) return deny as any;
+            const { campaignId, npcId } = c.req.valid("param");
+            const linked = await entityFactory(c.env).getEntity(Number(campaignId), "npc", Number(npcId));
+            if (!linked) return c.json({ success: false as const, error: { code: "NOT_FOUND", message: "NPC não encontrado nesta campanha" } } as any, 404);
+            const { visible_to_players, specialRules, inventory, equipment, ...npcInput } = c.req.valid("json");
+            await npcFactory(c.env).updateNpc(
+                Number(npcId),
+                npcInput,
+                (specialRules ?? []).map((r: any) => ({ ...r, npc_id: Number(npcId) })),
+                (inventory ?? []).map((i: any) => ({ ...i, npc_id: Number(npcId) })),
+                equipment ? { ...equipment, npc_id: Number(npcId) } : null,
+            );
+            await entityFactory(c.env).updateEntityVisibility(Number(campaignId), "npc", Number(npcId), visible_to_players);
+            return c.json({ success: true as const, data: { message: "NPC atualizado com sucesso" } } as any, 200);
+        });
+
+    // ── Atualizar monstro da campanha (master) ───────────────────────────────
+
+    routes.openapi(createRoute({
+        method: "patch", path: "/:campaignId/monsters/:monsterId", tags: ["Campanhas"],
+        summary: "Atualizar monstro da campanha",
+        security: sec,
+        request: {
+            params: campaignMonsterParamSchema,
+            body: { content: { "application/json": { schema: createCampaignMonsterSchema } } },
+        },
+        responses: { 200: okMessageResponse, 400: badRequestResponse, 403: forbiddenResponse, 404: notFoundResponse },
+    }),
+        async (c) => {
+            const deny = forbidIfNotMaster(c); if (deny) return deny as any;
+            const { campaignId, monsterId } = c.req.valid("param");
+            const linked = await entityFactory(c.env).getEntity(Number(campaignId), "monster", Number(monsterId));
+            if (!linked) return c.json({ success: false as const, error: { code: "NOT_FOUND", message: "Monstro não encontrado nesta campanha" } } as any, 404);
+            const { visible_to_players, traits, affinities, actions, ...monsterInput } = c.req.valid("json");
+            await monsterFactory(c.env).updateMonster(
+                Number(monsterId),
+                monsterInput,
+                (traits ?? []).map((t: any) => ({ ...t, monster_id: Number(monsterId) })),
+                affinities ? { ...affinities, monster_id: Number(monsterId) } : null,
+                (actions ?? []).map((a: any) => ({ ...a, monster_id: Number(monsterId) })),
+            );
+            await entityFactory(c.env).updateEntityVisibility(Number(campaignId), "monster", Number(monsterId), visible_to_players);
+            return c.json({ success: true as const, data: { message: "Monstro atualizado com sucesso" } } as any, 200);
         });
 
     // ── Edição de PC ─────────────────────────────────────────────────────────

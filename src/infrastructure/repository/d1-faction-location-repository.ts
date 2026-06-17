@@ -66,6 +66,20 @@ export class D1FactionLocationRepository {
 		return grouped;
 	}
 
+	async deleteByFactionId(factionId: number): Promise<void> {
+		await this.db
+			.prepare(`DELETE FROM faction_locations WHERE faction_id = ?`)
+			.bind(factionId)
+			.run();
+	}
+
+	async create(factionId: number, locationId: number, relationType: FactionLocationRelationType): Promise<void> {
+		await this.db
+			.prepare(`INSERT INTO faction_locations (faction_id, location_id, relation_type) VALUES (?, ?, ?)`)
+			.bind(factionId, locationId, relationType)
+			.run();
+	}
+
 	private toFactionLocationRelation(
 		row: FactionLocationRelationRow,
 	): FactionLocationRelation {

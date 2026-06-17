@@ -17,4 +17,8 @@ export class LocationService {
     async getLocationById(id: number): Promise<Location | null> {
         return await this.locationRepository.findById(id);
     }
+
+    async updateLocation(id: number, input: CreateLocationInput): Promise<void> {
+        await this.locationRepository.update(id, input);
+    }
 }

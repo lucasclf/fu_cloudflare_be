@@ -1,4 +1,4 @@
-import type { CreateItemInput, Item } from "../../domain/items/item";
+import type { CreateItemInput, Item, UpdateItemInput } from "../../domain/items/item";
 import { ItemAlreadyExistsError } from "../../domain/items/item-errors";
 import { buildInPlaceholders, D1Boolean, fromBoolean, mapById, toNullableBoolean, uniqueNumbers } from "../d1-utils";
 import { ItemRow } from "../rows/item";
@@ -140,6 +140,55 @@ export class D1ItemRepository {
 			throw error;
 		}
 	}
+
+  async update(id: number, input: UpdateItemInput): Promise<void> {
+    await this.db
+      .prepare(`
+        UPDATE items SET
+          name = ?,
+          item_type = ?,
+          description = ?,
+          img_key = ?,
+          cost = ?,
+          weapon_category = ?,
+          accuracy = ?,
+          damage = ?,
+          damage_type = ?,
+          grip = ?,
+          distance = ?,
+          defense_dice = ?,
+          defense_bonus = ?,
+          magic_defense_dice = ?,
+          magic_defense_bonus = ?,
+          initiative = ?,
+          is_martial = ?,
+          updated_at = datetime('now')
+        WHERE id = ?
+      `)
+      .bind(
+        input.name,
+        input.item_type,
+        input.description ?? null,
+        input.img_key ?? null,
+        input.cost ?? null,
+        input.weapon_category ?? null,
+        input.accuracy ?? null,
+        input.damage ?? null,
+        input.damage_type ?? null,
+        input.grip ?? null,
+        input.distance ?? null,
+        input.defense_dice ?? null,
+        input.defense_bonus ?? null,
+        input.magic_defense_dice ?? null,
+        input.magic_defense_bonus ?? null,
+        input.initiative ?? null,
+        input.is_martial === null || input.is_martial === undefined
+          ? null
+          : fromBoolean(input.is_martial),
+        id,
+      )
+      .run();
+  }
 
   async findByIds(itemIds: number[]): Promise<Map<number, Item>> {
     if (itemIds.length === 0) {

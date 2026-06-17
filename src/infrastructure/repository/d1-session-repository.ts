@@ -1,4 +1,4 @@
-import type { CreateSessionInput } from "../../domain/sessions/session";
+import type { CreateSessionInput, UpdateSessionInput } from "../../domain/sessions/session";
 import { SessionAlreadyExistsError } from "../../domain/sessions/session-errors";
 
 export class D1SessionRepository {
@@ -38,5 +38,12 @@ export class D1SessionRepository {
 
 			throw error;
 		}
+	}
+
+	async update(id: number, input: UpdateSessionInput): Promise<void> {
+		await this.db
+			.prepare(`UPDATE sessions SET title = ?, summary = ?, notes = ?, played_at = ?, updated_at = datetime('now') WHERE id = ?`)
+			.bind(input.title, input.summary, input.notes, input.played_at, id)
+			.run();
 	}
 }

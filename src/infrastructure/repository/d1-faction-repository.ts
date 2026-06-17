@@ -116,6 +116,13 @@ export class D1FactionRepository {
 		return results[0] ?? null;
 	}
 
+    async update(id: number, input: CreateFactionInput): Promise<void> {
+        await this.db
+            .prepare(`UPDATE factions SET name = ?, tagline = ?, description = ?, img_key = ?, faction_type = ?, updated_at = datetime('now') WHERE id = ?`)
+            .bind(input.name, input.tagline, input.description, input.img_key ?? null, input.faction_type, id)
+            .run();
+    }
+
     private toFaction(row: FactionRow): FactionBase  {
         return {
             ...row,

@@ -35,6 +35,13 @@ export class D1NpcInventoryRepository {
         }        
     }
 
+    async deleteByNpcId(npcId: number): Promise<void> {
+        await this.db
+            .prepare(`DELETE FROM npc_inventory WHERE npc_id = ?`)
+            .bind(npcId)
+            .run();
+    }
+
     async findByNpcsIds(
         npcIds: number[],
     ): Promise<Map<number, NpcInventoryRelation[]>> {

@@ -26,6 +26,7 @@ export interface NpcReaderPort {
 
 export interface NpcWriterPort {
 	create(input: CreateNpcInput): Promise<number>;
+	update(id: number, input: CreateNpcInput): Promise<void>;
 }
 
 export interface NpcRepositoryPort extends NpcReaderPort, NpcWriterPort {}
@@ -45,6 +46,7 @@ export interface NpcSpecialRuleReaderPort {
 
 export interface NpcSpecialRuleWriterPort {
 	create(input: CreateSpecialRulesInput): Promise<void>;
+	deleteByNpcId(npcId: number): Promise<void>;
 }
 
 export interface NpcSpecialRuleRepositoryPort
@@ -66,6 +68,7 @@ export interface NpcInventoryReaderPort {
 
 export interface NpcInventoryWriterPort {
 	create(input: CreateNpcInventoryInput): Promise<void>;
+	deleteByNpcId(npcId: number): Promise<void>;
 }
 
 export interface NpcInventoryRepositoryPort
@@ -86,6 +89,7 @@ export interface NpcEquipmentReaderPort {
 
 export interface NpcEquipmentWriterPort {
 	create(input: CreateNpcEquipmentInput): Promise<void>;
+	deleteByNpcId(npcId: number): Promise<void>;
 }
 
 export interface NpcEquipmentRepositoryPort

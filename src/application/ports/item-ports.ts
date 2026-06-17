@@ -1,6 +1,7 @@
 import type {
 	CreateItemInput,
 	Item,
+	UpdateItemInput,
 } from "../../domain/items/item";
 
 export interface ItemReaderPort {
@@ -10,6 +11,7 @@ export interface ItemReaderPort {
 
 export interface ItemWriterPort {
 	create(input: CreateItemInput): Promise<number>;
+	update(id: number, input: UpdateItemInput): Promise<void>;
 }
 
 export interface ItemRepositoryPort

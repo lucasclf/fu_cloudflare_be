@@ -148,6 +148,36 @@ export class D1NpcRepository {
         return result ? this.toNpc(result) : null;
     }
     
+    async update(id: number, input: CreateNpcInput): Promise<void> {
+        await this.db
+            .prepare(`
+                UPDATE npcs SET
+                    name = ?,
+                    description = ?,
+                    tagline = ?,
+                    level = ?,
+                    dexterity_die = ?,
+                    insight_die = ?,
+                    might_die = ?,
+                    willpower_die = ?,
+                    hp = ?,
+                    mp = ?,
+                    initiative = ?,
+                    defense = ?,
+                    magic_defense = ?,
+                    img_key = ?,
+                    updated_at = datetime('now')
+                WHERE id = ?
+            `)
+            .bind(
+                input.name, input.description, input.tagline, input.level,
+                input.dexterity_die, input.insight_die, input.might_die, input.willpower_die,
+                input.hp, input.mp, input.initiative, input.defense, input.magic_defense,
+                input.img_key, id
+            )
+            .run();
+    }
+
     async findBondTargetsByIds(
         npcIds: number[],
     ): Promise<Map<number, BondTargetSummary>> {

@@ -80,6 +80,13 @@ export class D1LocationRepository {
             return  result ? this.toLocation(result) : null;
     }
 
+    async update(id: number, input: CreateLocationInput): Promise<void> {
+        await this.db
+            .prepare(`UPDATE locations SET name = ?, tagline = ?, description = ?, img_key = ?, location_type = ?, updated_at = datetime('now') WHERE id = ?`)
+            .bind(input.name, input.tagline, input.description, input.img_key, input.location_type, id)
+            .run();
+    }
+
     private toLocation(row: LocationRow): Location {
 	return {
 		...row,

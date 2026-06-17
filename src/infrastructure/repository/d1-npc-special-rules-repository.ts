@@ -42,6 +42,13 @@ export class D1NpcSpecialRulesRepository {
         }        
     }
 
+    async deleteByNpcId(npcId: number): Promise<void> {
+        await this.db
+            .prepare(`DELETE FROM npc_special_rules WHERE npc_id = ?`)
+            .bind(npcId)
+            .run();
+    }
+
     async findByNpcsIds(
         npcIds: number[],
     ): Promise<Map<number, NpcSpecialRules[]>> {

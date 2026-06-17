@@ -32,6 +32,14 @@ export class FactionService {
 		}));
     }
 
+    async updateFaction(id: number, input: CreateFactionInput): Promise<void> {
+        await this.factionRepository.update(id, input);
+        await this.relationRepository.deleteByFactionId(id);
+        for (const { location_id, relation_type } of input.faction_location_relation ?? []) {
+            await this.relationRepository.create(id, location_id, relation_type);
+        }
+    }
+
     async getFactionById(id: number): Promise<FactionResponse | null> {
         const faction = await this.factionRepository.getFactionById(id);
 

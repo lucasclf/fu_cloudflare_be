@@ -18,7 +18,7 @@ export const corsMiddleware = cors({
 	// curinga. Necessário para que o navegador envie/aceite o cookie de sessão
 	// HttpOnly em requisições cross-site (fetch com `credentials: "include"`).
 	credentials: true,
-	allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+	allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 	allowHeaders: ["Content-Type", "Authorization"],
 	maxAge: 86400,
 });

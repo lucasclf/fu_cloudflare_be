@@ -27,6 +27,10 @@ export class CampaignEntityService {
         await this.entityRepo.unlink({ campaign_id: campaignId, entity_type: entityType, entity_id: entityId });
     }
 
+    async getEntity(campaignId: number, entityType: EntityType, entityId: number): Promise<CampaignEntity | null> {
+        return await this.entityRepo.findByEntity(campaignId, entityType, entityId);
+    }
+
     async updateEntityVisibility(campaignId: number, entityType: EntityType, entityId: number, visible: boolean): Promise<void> {
         await this.assertCampaignExists(campaignId);
         await this.entityRepo.updateVisibility(campaignId, entityType, entityId, visible);

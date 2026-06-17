@@ -52,6 +52,13 @@ export class D1MonsterActionRepository {
         }
     }
 
+    async deleteByMonsterId(monsterId: number): Promise<void> {
+        await this.db
+            .prepare(`DELETE FROM monster_actions WHERE monster_id = ?`)
+            .bind(monsterId)
+            .run();
+    }
+
     async findByMonstersIds(monsterIds: number[]): Promise<Map<number, MonsterAction[]>> {
         if (monsterIds.length === 0) {
             return new Map();
