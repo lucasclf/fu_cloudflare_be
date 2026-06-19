@@ -32,7 +32,8 @@ import {
     createPcBondSchema, pcFullResponse, pcSummaryListResponse,
 } from "../../../schemas/pc-schemas";
 import { createCampaignSessionSchema } from "../../../schemas/session-schemas";
-import { sessionListResponse, npcSummaryListResponse, locationListResponse, factionListResponse, monsterSummaryListResponse, campaignItemListResponse, campaignSpellListResponse, campaignJobListResponse, campaignPowerListResponse, campaignArcanaListResponse } from "./campaign-read-schemas";
+import { buildCloudinarySignature } from "../../../utils/cloudinary-signature";
+import { sessionListResponse, npcSummaryListResponse, locationListResponse, factionListResponse, monsterSummaryListResponse, campaignItemListResponse, campaignSpellListResponse, campaignJobListResponse, campaignPowerListResponse, campaignArcanaListResponse, uploadSignatureResponse } from "./campaign-read-schemas";
 
 const createCampaignItemSchema = createItemSchema.extend(visibilityFieldSchema.shape);
 const updateCampaignItemSchema = createItemSchema.extend(visibilityFieldSchema.shape);
@@ -58,6 +59,11 @@ const campaignNpcParamSchema = campaignIdParamSchema.extend({
 });
 const campaignMonsterParamSchema = campaignIdParamSchema.extend({
     monsterId: z.string().regex(/^\d+$/, "monsterId must be a positive integer"),
+});
+
+const UPLOAD_ENTITY_TYPES = ["npc", "pc", "monster", "item", "location", "faction"] as const;
+const uploadSignatureQuerySchema = z.object({
+    entity_type: z.enum(UPLOAD_ENTITY_TYPES).optional(),
 });
 
 const monsterTraitBodySchema = createMonsterTraitSchema.omit({ monster_id: true });
@@ -205,6 +211,38 @@ export function createCampaignRoutes(readFactory: ReadFactory, entityFactory: En
             const pc = await pcFactory(c.env).findById(pcId);
             if (!pc) return c.json({ success: false as const, error: { code: "NOT_FOUND", message: "PC not found" } }, 404) as any;
             return c.json({ success: true as const, data: pc } as any, 200);
+        });
+
+    // ── Assinatura de upload de imagem (qualquer membro) ─────────────────────
+    // O arquivo binário vai direto do navegador para o Cloudinary; este
+    // endpoint só assina os parâmetros do upload (a API_SECRET nunca sai do
+    // Worker). A permissão de fato é validada quando a entidade é criada/
+    // editada — aqui só confirmamos que o usuário é membro da campanha.
+
+    routes.openapi(createRoute({
+        method: "post", path: "/:campaignId/uploads/signature", tags: ["Campanhas"],
+        summary: "Gerar assinatura de upload (Cloudinary)",
+        description: "Qualquer membro da campanha pode gerar uma assinatura para subir uma imagem direto para o Cloudinary.",
+        security: sec,
+        request: {
+            params: campaignIdParamSchema,
+            query: uploadSignatureQuerySchema,
+        },
+        responses: { 200: { content: { "application/json": { schema: uploadSignatureResponse } }, description: "Assinatura de upload" }, 403: forbiddenResponse, 404: notFoundResponse },
+    }),
+        async (c) => {
+            const { campaignId } = c.req.valid("param");
+            const { entity_type } = c.req.valid("query");
+            const folder = `fu-wiki/campaigns/${campaignId}/${entity_type ?? "misc"}`;
+            const timestamp = Math.floor(Date.now() / 1000);
+            const upload_preset = c.env.CLOUDINARY_UPLOAD_PRESET;
+
+            const signature = await buildCloudinarySignature({ timestamp, upload_preset, folder }, c.env.CLOUDINARY_API_SECRET);
+
+            return c.json({
+                success: true as const,
+                data: { timestamp, signature, api_key: c.env.CLOUDINARY_API_KEY, cloud_name: c.env.CLOUDINARY_CLOUD_NAME, upload_preset, folder },
+            } as any, 200);
         });
 
     // ── Criar PC (user_id inferido do JWT) ───────────────────────────────────

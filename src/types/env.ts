@@ -10,6 +10,11 @@ export interface Env {
 	AUTH_COOKIE_SAMESITE?: string;
 	AUTH_COOKIE_SECURE?: string;
 	AUTH_COOKIE_MAX_AGE?: string;
+	// Upload de imagens de entidades de campanha (ver POST /v1/campaigns/:campaignId/uploads/signature).
+	CLOUDINARY_CLOUD_NAME: string;
+	CLOUDINARY_API_KEY: string;
+	CLOUDINARY_API_SECRET: string;
+	CLOUDINARY_UPLOAD_PRESET: string;
 }
 
 import type { User } from "../domain/users/user";

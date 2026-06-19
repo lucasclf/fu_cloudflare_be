@@ -34,10 +34,15 @@
 	//   AUTH_COOKIE_ENABLED=true
 	//   AUTH_COOKIE_SECURE=false   Ã¢â€ Â HTTP local nÃƒÂ£o aceita Secure=true
 	//   AUTH_COOKIE_SAMESITE=Lax
+	// Upload de imagens (Cloudinary) — CLOUDINARY_CLOUD_NAME e CLOUDINARY_UPLOAD_PRESET
+	// não são sensíveis (já viajam para o navegador na resposta da assinatura).
+	// CLOUDINARY_API_KEY e CLOUDINARY_API_SECRET ficam como secret: `wrangler secret put <nome>`.
 	"vars": {
 		"AUTH_COOKIE_ENABLED": "true",
 		"AUTH_COOKIE_SECURE": "true",
-		"AUTH_COOKIE_SAMESITE": "Lax"
+		"AUTH_COOKIE_SAMESITE": "Lax",
+		"CLOUDINARY_CLOUD_NAME": "dprfwwjz9",
+		"CLOUDINARY_UPLOAD_PRESET": "fu_preset"
 	}
 	/**
 	 * Bindings

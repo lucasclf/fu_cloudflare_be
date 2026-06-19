@@ -1,3 +1,4 @@
+import { z } from "@hono/zod-openapi";
 import { successResponseSchema } from "../../../schemas/common";
 import { sessionSchema } from "../../../schemas/session-schemas";
 import { npcSummarySchema } from "../../../schemas/npc-schemas";
@@ -20,3 +21,13 @@ export const campaignSpellListResponse = successResponseSchema(spellSchema.array
 export const campaignJobListResponse = successResponseSchema(jobSchema.array());
 export const campaignPowerListResponse = successResponseSchema(powerWithJobSchema.array());
 export const campaignArcanaListResponse = successResponseSchema(arcanaSchema.array());
+
+export const uploadSignatureSchema = z.object({
+    timestamp: z.number().int().positive(),
+    signature: z.string(),
+    api_key: z.string(),
+    cloud_name: z.string(),
+    upload_preset: z.string(),
+    folder: z.string(),
+});
+export const uploadSignatureResponse = successResponseSchema(uploadSignatureSchema);
