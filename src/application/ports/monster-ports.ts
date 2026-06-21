@@ -28,6 +28,13 @@ export interface MonsterReaderPort {
 export interface MonsterWriterPort {
 	create(input: CreateMonsterInput): Promise<number>;
 	update(id: number, input: CreateMonsterInput): Promise<void>;
+	updateWithRelations(
+		id: number,
+		input: CreateMonsterInput,
+		traits: CreateMonsterTraitInput[],
+		affinities: CreateAffinityInput | null,
+		actions: CreateActionInput[],
+	): Promise<void>;
 }
 
 export interface MonsterRepositoryPort

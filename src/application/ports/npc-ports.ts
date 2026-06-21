@@ -27,6 +27,13 @@ export interface NpcReaderPort {
 export interface NpcWriterPort {
 	create(input: CreateNpcInput): Promise<number>;
 	update(id: number, input: CreateNpcInput): Promise<void>;
+	updateWithRelations(
+		id: number,
+		input: CreateNpcInput,
+		specialRules: CreateSpecialRulesInput[],
+		inventory: CreateNpcInventoryInput[],
+		equipment: CreateNpcEquipmentInput | null,
+	): Promise<void>;
 }
 
 export interface NpcRepositoryPort extends NpcReaderPort, NpcWriterPort {}

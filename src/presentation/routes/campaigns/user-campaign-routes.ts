@@ -76,11 +76,19 @@ export function createUserCampaignRoutes(
             const input = c.req.valid("json");
             const campaignId = await campaignServiceFactory(c.env).createCampaign(input);
 
-            await memberServiceFactory(c.env).addMember({
-                campaign_id: campaignId,
-                user_id: userId,
-                role: "master",
-            });
+            try {
+                await memberServiceFactory(c.env).addMember({
+                    campaign_id: campaignId,
+                    user_id: userId,
+                    role: "master",
+                });
+            } catch (error) {
+                // Compensação: sem master, a campanha fica órfã e inacessível.
+                // D1 não tem transação entre chamadas de rede separadas, então
+                // desfazemos manualmente em caso de falha no addMember.
+                await campaignServiceFactory(c.env).deleteCampaign(String(campaignId));
+                throw error;
+            }
 
             return c.json({ success: true as const, data: { id: campaignId, message: "Campaign created successfully" } } as any, 201);
         },

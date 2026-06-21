@@ -37,6 +37,7 @@ export interface PcExistsPort {
 export interface PcWriterPort {
 	create(input: CreatePCInput): Promise<number>;
 	update(pcId: string, input: UpdatePCInput): Promise<void>;
+	delete(pcId: number): Promise<void>;
 }
 
 export interface PcBondTargetReaderPort {

@@ -38,6 +38,10 @@ export class PcCommandService {
 		await this.pcRepository.update(pcId, input);
 	}
 
+	async deletePc(pcId: number): Promise<void> {
+		await this.pcRepository.delete(pcId);
+	}
+
 	async createPcJobRelation(input: PcJobRelation): Promise<void> {
 		await this.validatePcExists(input.pc_id);
 		await this.validateUnmasteredJobLimit(input);

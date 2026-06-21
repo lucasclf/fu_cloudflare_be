@@ -89,6 +89,12 @@ export class D1PCRepository implements PcExistsPort {
         }
     }
 
+    async delete(pcId: number): Promise<void> {
+        // Tabelas filhas (pc_jobs, pc_powers, pc_spells, pc_equipments,
+        // pc_inventories, pc_bonds, campaign_pcs) têm ON DELETE CASCADE em pc_id.
+        await this.db.prepare("DELETE FROM pcs WHERE id = ?").bind(pcId).run();
+    }
+
     async exists(pcId: number): Promise<boolean> {
         const result = await this.db
             .prepare("SELECT 1 FROM pcs WHERE id = ? LIMIT 1")

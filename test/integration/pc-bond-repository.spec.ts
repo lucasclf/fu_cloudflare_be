@@ -2,7 +2,6 @@ import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, it } from "vitest";
 import { D1PCRepository } from "../../src/infrastructure/repository/d1-pc-repository";
 import { D1PCBondRepository } from "../../src/infrastructure/repository/d1-pc-bond-repository";
-import { applyMigrations } from "./setup";
 
 describe("D1PCBondRepository (integration)", () => {
 	let pcRepo: D1PCRepository;
@@ -10,9 +9,14 @@ describe("D1PCBondRepository (integration)", () => {
 	let pcId: number;
 
 	beforeAll(async () => {
-		await applyMigrations(env.fabula_ultima_db);
 		pcRepo = new D1PCRepository(env.fabula_ultima_db);
 		bondRepo = new D1PCBondRepository(env.fabula_ultima_db);
+
+		// pcs.user_id é NOT NULL (FK para users) — precisa de um usuário dono do PC.
+		const user = await env.fabula_ultima_db
+			.prepare("INSERT INTO users (email, name, nickname, password_hash) VALUES (?, ?, ?, ?) RETURNING id")
+			.bind("heroi-teste@example.com", "Dono do Herói Teste", "heroi_teste", "hash")
+			.first<{ id: number }>();
 
 		await pcRepo.create({
 			name: "Herói Teste",
@@ -28,6 +32,7 @@ describe("D1PCBondRepository (integration)", () => {
 			willpower_die: "d6",
 			money: 100,
 			img_key: null,
+			user_id: user!.id,
 		});
 
 		const pc = await env.fabula_ultima_db

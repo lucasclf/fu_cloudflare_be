@@ -6,6 +6,7 @@ export type AppErrorCode =
 	| "CONFLICT"
 	| "CAMPAIGN_LIMIT_REACHED"
 	| "FORBIDDEN"
+	| "TOO_MANY_REQUESTS"
 	| "INTERNAL_ERROR";
 
 export abstract class AppError extends Error {
@@ -40,6 +41,12 @@ export class ConflictAppError extends AppError {
 export class ForbiddenAppError extends AppError {
 	constructor(message = "Forbidden") {
 		super(message, 403, "FORBIDDEN");
+	}
+}
+
+export class TooManyRequestsError extends AppError {
+	constructor(message = "Too many requests") {
+		super(message, 429, "TOO_MANY_REQUESTS");
 	}
 }
 

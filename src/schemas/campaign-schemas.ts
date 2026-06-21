@@ -158,6 +158,7 @@ export const invitationWithInviteeSchema = z.object({
     status:           invitationStatusSchema,
     created_at:       z.string(),
     updated_at:       z.string().nullable(),
+    expires_at:       z.string().nullable(),
 });
 
 export const invitationSummarySchema = z.object({

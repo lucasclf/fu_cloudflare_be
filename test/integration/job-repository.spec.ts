@@ -1,13 +1,11 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, it } from "vitest";
 import { D1JobRepository } from "../../src/infrastructure/repository/d1-job-repository";
-import { applyMigrations } from "./setup";
 
 describe("D1JobRepository (integration)", () => {
 	let repo: D1JobRepository;
 
-	beforeAll(async () => {
-		await applyMigrations(env.fabula_ultima_db);
+	beforeAll(() => {
 		repo = new D1JobRepository(env.fabula_ultima_db);
 	});
 

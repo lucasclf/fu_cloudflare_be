@@ -21,6 +21,13 @@ export class InvitationNotPendingError extends BadRequestError {
     }
 }
 
+export class InvitationExpiredError extends BadRequestError {
+    constructor(id: number) {
+        super(`Invitation ${id} has expired`);
+        this.name = "InvitationExpiredError";
+    }
+}
+
 export class InvitationForbiddenError extends ForbiddenAppError {
     constructor(id: number) {
         super(`Access denied to invitation ${id}`);

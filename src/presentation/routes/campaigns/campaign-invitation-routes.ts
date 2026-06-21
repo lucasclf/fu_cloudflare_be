@@ -1,6 +1,7 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import type { CampaignInvitationService } from "../../../application/campaign-invitation-service";
 import { campaignMemberMiddleware } from "../../../middleware/campaign-member-middleware";
+import { isMaster } from "../../../middleware/campaign-role-helpers";
 import { userAuthMiddleware } from "../../../middleware/user-auth-middleware";
 import type { Env, Variables } from "../../../types/env";
 import {
@@ -21,11 +22,6 @@ import {
 } from "../../../schemas/common";
 
 type InvitationServiceFactory = (env: Env) => CampaignInvitationService;
-
-function isMaster(c: { get(key: string): unknown }): boolean {
-    const role = c.get("campaignRole") as string | undefined;
-    return role === "master" || role === "super_user";
-}
 
 export function createCampaignInvitationRoutes(
     invitationServiceFactory: InvitationServiceFactory,

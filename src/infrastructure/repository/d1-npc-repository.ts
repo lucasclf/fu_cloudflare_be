@@ -1,5 +1,5 @@
-import { CreateNpcInput, Npc, NpcSummary } from "../../domain/npc/npc";
-import { NpcAlreadyExistsError } from "../../domain/npc/npc_error";
+import { CreateNpcEquipmentInput, CreateNpcInput, CreateNpcInventoryInput, CreateSpecialRulesInput, Npc, NpcSummary } from "../../domain/npc/npc";
+import { InventoryAlreadyExistsError, NpcAlreadyExistsError, NpcEquipmentAlreadyExistsError, SpecialRulesAlreadyExistsError } from "../../domain/npc/npc_error";
 import { BondTargetSummary } from "../../domain/pc/pc";
 import { uniqueNumbers, buildInPlaceholders, mapById } from "../d1-utils";
 import { BondTargetSummaryRow } from "../rows/monster";
@@ -176,6 +176,73 @@ export class D1NpcRepository {
                 input.img_key, id
             )
             .run();
+    }
+
+    async updateWithRelations(
+        id: number,
+        input: CreateNpcInput,
+        specialRules: CreateSpecialRulesInput[],
+        inventory: CreateNpcInventoryInput[],
+        equipment: CreateNpcEquipmentInput | null,
+    ): Promise<void> {
+        // Tudo em um único db.batch() (transação atômica do D1): sem isso, uma
+        // falha no meio do processo apagava as relações antigas sem garantir
+        // que as novas fossem todas inseridas — perda de dados.
+        const statements: D1PreparedStatement[] = [
+            this.db
+                .prepare(`
+                    UPDATE npcs SET
+                        name = ?, description = ?, tagline = ?, level = ?,
+                        dexterity_die = ?, insight_die = ?, might_die = ?, willpower_die = ?,
+                        hp = ?, mp = ?, initiative = ?, defense = ?, magic_defense = ?,
+                        img_key = ?, updated_at = datetime('now')
+                    WHERE id = ?
+                `)
+                .bind(
+                    input.name, input.description, input.tagline, input.level,
+                    input.dexterity_die, input.insight_die, input.might_die, input.willpower_die,
+                    input.hp, input.mp, input.initiative, input.defense, input.magic_defense,
+                    input.img_key, id,
+                ),
+            this.db.prepare(`DELETE FROM npc_special_rules WHERE npc_id = ?`).bind(id),
+            ...specialRules.map((rule) =>
+                this.db
+                    .prepare(`INSERT INTO npc_special_rules (npc_id, type, title, description, metadata) VALUES (?, ?, ?, ?, ?)`)
+                    .bind(id, rule.type, rule.title, rule.description, rule.metadata ? JSON.stringify(rule.metadata) : null),
+            ),
+            this.db.prepare(`DELETE FROM npc_inventory WHERE npc_id = ?`).bind(id),
+            ...inventory.map((item) =>
+                this.db
+                    .prepare(`INSERT INTO npc_inventory (npc_id, item_id, relation_type, quantity) VALUES (?, ?, ?, ?)`)
+                    .bind(id, item.item_id, item.relation_type, item.quantity),
+            ),
+            this.db.prepare(`DELETE FROM npc_equipment WHERE npc_id = ?`).bind(id),
+            ...(equipment
+                ? [
+                    this.db
+                        .prepare(`INSERT INTO npc_equipment (npc_id, main_hand, off_hand, armor, accessory) VALUES (?, ?, ?, ?, ?)`)
+                        .bind(id, equipment.main_hand, equipment.off_hand, equipment.armor, equipment.accessory),
+                ]
+                : []),
+        ];
+
+        try {
+            await this.db.batch(statements);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "";
+
+            if (message.includes("npc_special_rules")) {
+                throw new SpecialRulesAlreadyExistsError(specialRules[0]?.title ?? "");
+            }
+            if (message.includes("npc_inventory")) {
+                throw new InventoryAlreadyExistsError(id, inventory[0]?.item_id ?? 0);
+            }
+            if (message.includes("npc_equipment")) {
+                throw new NpcEquipmentAlreadyExistsError(id);
+            }
+
+            throw error;
+        }
     }
 
     async findBondTargetsByIds(

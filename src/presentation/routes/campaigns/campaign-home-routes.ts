@@ -6,6 +6,7 @@ import type { CampaignReadService } from "../../../application/campaign-read-ser
 import type { CampaignInvitationService } from "../../../application/campaign-invitation-service";
 import type { PCService } from "../../../application/pc-service";
 import { campaignMemberMiddleware } from "../../../middleware/campaign-member-middleware";
+import { isMaster } from "../../../middleware/campaign-role-helpers";
 import { userAuthMiddleware } from "../../../middleware/user-auth-middleware";
 import type { Env, Variables } from "../../../types/env";
 import {
@@ -20,11 +21,6 @@ type MemberServiceFactory     = (env: Env) => CampaignMemberService;
 type ReadServiceFactory       = (env: Env) => CampaignReadService;
 type InvitationServiceFactory = (env: Env) => CampaignInvitationService;
 type PcServiceFactory         = (env: Env) => PCService;
-
-function isMaster(c: { get(key: string): unknown }): boolean {
-    const role = c.get("campaignRole") as string | undefined;
-    return role === "master" || role === "super_user";
-}
 
 export function createCampaignHomeRoutes(
     campaignServiceFactory: CampaignServiceFactory,

@@ -55,6 +55,11 @@ export const conflictResponse = {
     description: "Conflito — recurso já existe",
 };
 
+export const tooManyRequestsResponse = {
+    content: { "application/json": { schema: errorResponseSchema } },
+    description: "Limite de requisições excedido",
+};
+
 export const noContentResponse = {
     description: "Sem conteúdo",
 };

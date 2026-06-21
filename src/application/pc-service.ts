@@ -71,6 +71,10 @@ export class PCService {
         await this.pcCommandService.updatePc(pcId, input);
     }
 
+    async deletePc(pcId: number): Promise<void> {
+        await this.pcCommandService.deletePc(pcId);
+    }
+
     async findById(pcId: string): Promise<PcFull | null> {
         return await this.pcQueryService.findById(pcId);
     }

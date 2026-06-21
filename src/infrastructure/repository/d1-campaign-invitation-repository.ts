@@ -1,3 +1,4 @@
+import { INVITATION_TTL_DAYS } from "../../domain/campaigns/invitation";
 import type {
     CampaignInvitation,
     CampaignInvitationSummary,
@@ -15,7 +16,15 @@ type InvitationRow = {
     status: string;
     created_at: string;
     updated_at: string | null;
+    expires_at: string | null;
 };
+
+// Convite pendente cujo expires_at já passou não conta como ativo — permite
+// reenvio (findActiveByCampaignAndInvitee) e some da lista do convidado
+// (findPendingByInviteeId) sem precisar de cron job para "fechar" o status.
+function notExpiredSql(column = "expires_at"): string {
+    return `(${column} IS NULL OR ${column} > datetime('now'))`;
+}
 
 export class D1CampaignInvitationRepository implements CampaignInvitationRepositoryPort {
     constructor(private readonly db: D1Database) {}
@@ -23,9 +32,9 @@ export class D1CampaignInvitationRepository implements CampaignInvitationReposit
     async create(input: CreateInvitationInput): Promise<CampaignInvitation> {
         const result = await this.db
             .prepare(
-                `INSERT INTO campaign_invitations (campaign_id, inviter_id, invitee_id)
-                 VALUES (?, ?, ?)
-                 RETURNING id, campaign_id, inviter_id, invitee_id, status, created_at, updated_at`,
+                `INSERT INTO campaign_invitations (campaign_id, inviter_id, invitee_id, expires_at)
+                 VALUES (?, ?, ?, datetime('now', '+${INVITATION_TTL_DAYS} days'))
+                 RETURNING id, campaign_id, inviter_id, invitee_id, status, created_at, updated_at, expires_at`,
             )
             .bind(input.campaign_id, input.inviter_id, input.invitee_id)
             .first<InvitationRow>();
@@ -37,7 +46,7 @@ export class D1CampaignInvitationRepository implements CampaignInvitationReposit
     async findById(id: number): Promise<CampaignInvitation | null> {
         const result = await this.db
             .prepare(
-                "SELECT id, campaign_id, inviter_id, invitee_id, status, created_at, updated_at FROM campaign_invitations WHERE id = ? LIMIT 1",
+                "SELECT id, campaign_id, inviter_id, invitee_id, status, created_at, updated_at, expires_at FROM campaign_invitations WHERE id = ? LIMIT 1",
             )
             .bind(id)
             .first<InvitationRow>();
@@ -58,7 +67,7 @@ export class D1CampaignInvitationRepository implements CampaignInvitationReposit
                  FROM campaign_invitations ci
                  INNER JOIN campaigns c ON c.id = ci.campaign_id
                  INNER JOIN users     u ON u.id = ci.inviter_id
-                 WHERE ci.invitee_id = ? AND ci.status = 'pending'
+                 WHERE ci.invitee_id = ? AND ci.status = 'pending' AND ${notExpiredSql("ci.expires_at")}
                  ORDER BY ci.created_at DESC`,
             )
             .bind(inviteeId)
@@ -77,7 +86,8 @@ export class D1CampaignInvitationRepository implements CampaignInvitationReposit
                     u.nickname AS invitee_nickname,
                     ci.status,
                     ci.created_at,
-                    ci.updated_at
+                    ci.updated_at,
+                    ci.expires_at
                  FROM campaign_invitations ci
                  INNER JOIN users u ON u.id = ci.invitee_id
                  WHERE ci.campaign_id = ?
@@ -91,9 +101,9 @@ export class D1CampaignInvitationRepository implements CampaignInvitationReposit
     async findActiveByCampaignAndInvitee(campaignId: number, inviteeId: number): Promise<CampaignInvitation | null> {
         const result = await this.db
             .prepare(
-                `SELECT id, campaign_id, inviter_id, invitee_id, status, created_at, updated_at
+                `SELECT id, campaign_id, inviter_id, invitee_id, status, created_at, updated_at, expires_at
                  FROM campaign_invitations
-                 WHERE campaign_id = ? AND invitee_id = ? AND status = 'pending'
+                 WHERE campaign_id = ? AND invitee_id = ? AND status = 'pending' AND ${notExpiredSql()}
                  LIMIT 1`,
             )
             .bind(campaignId, inviteeId)

@@ -75,7 +75,7 @@ src/
 ├── presentation/    # Rotas HTTP, middlewares e formatação de respostas
 ├── composition/     # Factories de injeção de dependência por domínio
 ├── middleware/      # CORS, autenticação, request ID, cache
-├── validation/      # Validadores de entrada por domínio
+├── schemas/         # Validação de entrada/saída por domínio (Zod)
 └── types/           # Tipos globais (Env, Variables)
 ```
 
@@ -218,7 +218,7 @@ O binário do arquivo vai **direto do navegador para o Cloudinary** — nunca pa
 
 **Query param `entity_type`** (opcional): `npc`, `pc`, `monster`, `item`, `location`, `faction` — usado só para organizar pastas no Cloudinary (`fu-wiki/campaigns/:campaignId/:entity_type`); valor inválido/ausente cai em `"misc"`.
 
-Aberto a qualquer membro (não só master), porque PC é criado pelo próprio jogador — a permissão de fato continua sendo validada pelo endpoint de criação/edição de cada entidade, não aqui.
+Aberto a qualquer membro (não só master), porque PC é criado pelo próprio jogador — a permissão de fato continua sendo validada pelo endpoint de criação/edição de cada entidade, não aqui. Como cada assinatura permite um upload real ao Cloudinary mesmo sem vincular a entidade nenhuma, o endpoint tem **rate limit de 10 requisições/minuto por usuário** (binding `UPLOAD_RATE_LIMITER`, configurado em `wrangler.jsonc` → `ratelimits`) — excedido, retorna `429 TOO_MANY_REQUESTS`.
 
 **Resposta (200):**
 
@@ -394,6 +394,9 @@ Cobertura atual:
 - `PcBondResolver` — resolução de vínculos por tipo de alvo
 - `PcFullAssembler` — montagem completa do `PcFull`
 - `buildCloudinarySignature` — assinatura de upload, validada contra uma implementação de referência independente (SHA-1 via `node:crypto`)
+- `handleAppError` — tradução de violação de FOREIGN KEY do D1 para 400, comportamento de `AppError` conhecido e fallback genérico de 500
+- `logAuthorizationDenied` — formato do log estruturado emitido nas negações de autorização
+- `isInvitationExpired` — comparação de `expires_at` (formato SQLite, sem timezone) contra o horário atual, incluindo o caso `null` (convites antigos sem TTL retroativo)
 
 ### Testes de integração
 
@@ -407,6 +410,10 @@ Cobertura atual:
 
 - `D1JobRepository` — criação, leitura, busca por IDs, detecção de duplicata
 - `D1PCBondRepository` — criação e leitura de vínculos com campos `id` e `img_key`
+- Middlewares de autorização (`userAuthMiddleware`, `campaignMemberMiddleware`, `pcOwnerMiddleware`) — autenticação ausente/inválida, usuário não-membro da campanha, edição de PC por quem não é o dono, e a regressão do isolamento entre campanhas no `PUT /v1/campaigns/:campaignId/pcs/:pcId` (um master só pode editar PCs vinculados à própria campanha), incluindo o log estruturado emitido em cada negação
+- Atomicidade de operações multi-tabela — criação de PC com relações reverte por completo se uma falhar (FK inexistente), update de monstro não apaga traits antigos quando o payload novo é inválido
+- Rate limit do endpoint de assinatura de upload — 10 requisições/minuto por usuário, sem afetar outros usuários
+- TTL de convites de campanha — convite expirado não pode ser aceito/recusado, não aparece na lista do convidado e não bloqueia o master de reenviar
 
 ### Checagem de tipos
 
@@ -486,11 +493,12 @@ fudb/
 │   │   ├── error-handler.ts           # Handler global com logging estruturado
 │   │   └── routes/                    # Rotas organizadas por domínio e acesso
 │   ├── composition/                   # Factories de injeção de dependência
-│   ├── validation/                    # Validadores de entrada por domínio
+│   ├── schemas/                       # Validação de entrada/saída por domínio (Zod)
 │   └── utils/
 │       ├── jwt.ts                     # Assinatura/verificação de JWT (Web Crypto)
 │       ├── password.ts                # Hash de senha (PBKDF2)
-│       └── cloudinary-signature.ts    # Assinatura de upload do Cloudinary (SHA-1)
+│       ├── cloudinary-signature.ts    # Assinatura de upload do Cloudinary (SHA-1)
+│       └── security-log.ts            # Log estruturado de negações de autorização (403 cross-tenant)
 ├── test/
 │   ├── unit/                          # Testes unitários com mocks manuais
 │   └── integration/                   # Testes de integração com D1 real (Miniflare)
@@ -921,17 +929,20 @@ Todas as respostas seguem o mesmo envelope JSON:
 
 ### Códigos de status HTTP
 
-| Status | Código           | Quando ocorre                             |
-| ------ | ---------------- | ----------------------------------------- |
-| `200`  | —                | Leitura bem-sucedida                      |
-| `201`  | —                | Criação bem-sucedida                      |
-| `204`  | —                | Deleção bem-sucedida (sem corpo)          |
-| `400`  | `BAD_REQUEST`    | Parâmetro inválido na URL ou query string |
-| `400`  | `BAD_REQUEST`    | Valor de enum inválido no body            |
-| `401`  | `UNAUTHORIZED`   | Token ausente ou inválido                 |
-| `404`  | `NOT_FOUND`      | Recurso não encontrado                    |
-| `409`  | `CONFLICT`       | Recurso já existe (violação de unicidade) |
-| `500`  | `INTERNAL_ERROR` | Erro inesperado no servidor               |
+| Status | Código              | Quando ocorre                                                                           |
+| ------ | ------------------- | --------------------------------------------------------------------------------------- |
+| `200`  | —                   | Leitura bem-sucedida                                                                    |
+| `201`  | —                   | Criação bem-sucedida                                                                    |
+| `204`  | —                   | Deleção bem-sucedida (sem corpo)                                                        |
+| `400`  | `BAD_REQUEST`       | Parâmetro inválido na URL ou query string                                               |
+| `400`  | `BAD_REQUEST`       | Valor de enum inválido no body                                                          |
+| `400`  | `BAD_REQUEST`       | Referência a um ID inexistente (violação de FOREIGN KEY no D1, ex.: `job_id` inválido)  |
+| `400`  | `BAD_REQUEST`       | Convite de campanha expirado (`campaign_invitations.expires_at` passado, TTL de 7 dias) |
+| `401`  | `UNAUTHORIZED`      | Token ausente ou inválido                                                               |
+| `404`  | `NOT_FOUND`         | Recurso não encontrado                                                                  |
+| `409`  | `CONFLICT`          | Recurso já existe (violação de unicidade)                                               |
+| `429`  | `TOO_MANY_REQUESTS` | Rate limit excedido (ex.: assinaturas de upload — ver seção de Upload de Imagens)       |
+| `500`  | `INTERNAL_ERROR`    | Erro inesperado no servidor                                                             |
 
 ---
 

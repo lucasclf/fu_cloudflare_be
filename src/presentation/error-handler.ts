@@ -24,6 +24,27 @@ export function handleAppError(error: Error, c: AppContext): Response {
 		);
 	}
 
+	// Violação de FK do D1/SQLite é erro de input do cliente (ex.: job_id
+	// inexistente), não falha de infraestrutura — traduzido aqui de forma
+	// centralizada porque a maioria dos repositórios só trata UNIQUE
+	// constraint, não FOREIGN KEY, e replicar esse catch em cada um seria
+	// repetitivo. Loga a mensagem original para diagnóstico, mas não a
+	// expõe ao cliente.
+	if (error.message.includes("FOREIGN KEY constraint failed")) {
+		console.error({ requestId, error: error.message, stack: error.stack });
+
+		return c.json(
+			{
+				success: false,
+				error: {
+					code: "BAD_REQUEST",
+					message: "Referência inválida: um dos IDs informados não existe.",
+				},
+			},
+			400,
+		);
+	}
+
 	console.error({
 		requestId,
 		error: error.message,

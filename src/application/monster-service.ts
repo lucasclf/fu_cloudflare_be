@@ -32,19 +32,7 @@ export class MonsterService {
         affinities: CreateAffinityInput | null,
         actions: CreateActionInput[],
     ): Promise<void> {
-        await this.monsterRepository.update(id, input);
-        await this.monsterTraitRepository.deleteByMonsterId(id);
-        for (const trait of traits) {
-            await this.monsterTraitRepository.create(trait);
-        }
-        await this.monsterAffinityRepository.deleteByMonsterId(id);
-        if (affinities) {
-            await this.monsterAffinityRepository.create(affinities);
-        }
-        await this.monsterActionRepository.deleteByMonsterId(id);
-        for (const action of actions) {
-            await this.monsterActionRepository.create(action);
-        }
+        await this.monsterRepository.updateWithRelations(id, input, traits, affinities, actions);
     }
 
     async findAll(): Promise<Monster[]> {

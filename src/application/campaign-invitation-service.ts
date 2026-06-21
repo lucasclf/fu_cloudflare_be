@@ -2,10 +2,12 @@ import { UserNotFoundError } from "../domain/users/user-errors";
 import { MemberAlreadyExistsError } from "../domain/campaigns/campaign-member-errors";
 import {
     InvitationAlreadyExistsError,
+    InvitationExpiredError,
     InvitationForbiddenError,
     InvitationNotFoundError,
     InvitationNotPendingError,
 } from "../domain/campaigns/invitation-errors";
+import { isInvitationExpired } from "../domain/campaigns/invitation";
 import type {
     CampaignInvitation,
     CampaignInvitationSummary,
@@ -72,6 +74,7 @@ export class CampaignInvitationService {
         if (!invitation) throw new InvitationNotFoundError(invitationId);
         if (invitation.invitee_id !== userId) throw new InvitationForbiddenError(invitationId);
         if (invitation.status !== "pending") throw new InvitationNotPendingError(invitationId);
+        if (isInvitationExpired(invitation)) throw new InvitationExpiredError(invitationId);
         await this.invitationRepo.acceptAndCreateMembership(
             invitationId,
             invitation.campaign_id,
@@ -84,6 +87,7 @@ export class CampaignInvitationService {
         if (!invitation) throw new InvitationNotFoundError(invitationId);
         if (invitation.invitee_id !== userId) throw new InvitationForbiddenError(invitationId);
         if (invitation.status !== "pending") throw new InvitationNotPendingError(invitationId);
+        if (isInvitationExpired(invitation)) throw new InvitationExpiredError(invitationId);
         await this.invitationRepo.updateStatus(invitationId, "declined");
     }
 }

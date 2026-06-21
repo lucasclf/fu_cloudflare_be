@@ -1,6 +1,7 @@
 import type { MiddlewareHandler } from "hono";
 import { D1PCRepository } from "../infrastructure/repository/d1-pc-repository";
 import type { Env, Variables } from "../types/env";
+import { logAuthorizationDenied } from "../utils/security-log";
 
 export const pcOwnerMiddleware: MiddlewareHandler<{
     Bindings: Env;
@@ -32,6 +33,7 @@ export const pcOwnerMiddleware: MiddlewareHandler<{
     }
 
     if (pc.user_id !== userId) {
+        logAuthorizationDenied(c.get("requestId"), { userId, pcId, reason: "not_pc_owner" });
         return c.json({ success: false, error: { code: "FORBIDDEN", message: "You can only modify your own PC" } }, 403);
     }
 

@@ -15,6 +15,10 @@ export interface Env {
 	CLOUDINARY_API_KEY: string;
 	CLOUDINARY_API_SECRET: string;
 	CLOUDINARY_UPLOAD_PRESET: string;
+	// Limita quantas assinaturas de upload um usuário pode gerar por minuto
+	// (cada assinatura permite um upload real ao Cloudinary, mesmo sem vincular
+	// a entidade nenhuma — sem isso, qualquer membro podia esgotar a cota gratuita).
+	UPLOAD_RATE_LIMITER: RateLimit;
 }
 
 import type { User } from "../domain/users/user";

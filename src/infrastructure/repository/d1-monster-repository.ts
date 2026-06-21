@@ -1,5 +1,5 @@
-import { CreateMonsterInput, Monster, MonsterSummary, MonsterTrait } from "../../domain/monsters/monster";
-import { MonsterAlreadyExistsError } from "../../domain/monsters/monster-error";
+import { CreateActionInput, CreateAffinityInput, CreateMonsterInput, CreateMonsterTraitInput, Monster, MonsterSummary, MonsterTrait } from "../../domain/monsters/monster";
+import { MonsterActionAlreadyExistsError, MonsterAffinityAlreadyExistsError, MonsterAlreadyExistsError, MonsterTraitAlreadyExistsError } from "../../domain/monsters/monster-error";
 import { BondTargetSummary } from "../../domain/pc/pc";
 import { D1Boolean, fromBoolean, uniqueNumbers, buildInPlaceholders, mapById, toBoolean } from "../d1-utils";
 import { MonsterRow, BondTargetSummaryRow } from "../rows/monster";
@@ -211,6 +211,94 @@ export class D1MonsterRepository {
                 id
             )
             .run();
+    }
+
+    async updateWithRelations(
+        id: number,
+        input: CreateMonsterInput,
+        traits: CreateMonsterTraitInput[],
+        affinities: CreateAffinityInput | null,
+        actions: CreateActionInput[],
+    ): Promise<void> {
+        // Tudo em um único db.batch() (transação atômica do D1): sem isso, uma
+        // falha no meio do processo (ex.: trait duplicada) apagava as relações
+        // antigas sem garantir que as novas fossem todas inseridas — perda de
+        // dados estritamente piorque não fazer nada.
+        const statements: D1PreparedStatement[] = [
+            this.db
+                .prepare(`
+                    UPDATE monsters SET
+                        name = ?, description = ?, monster_type = ?, level = ?,
+                        dexterity_die = ?, insight_die = ?, might_die = ?, willpower_die = ?,
+                        hp = ?, mp = ?, initiative = ?, defense = ?, magic_defense = ?,
+                        equipment = ?, img_key = ?, source_page = ?, is_villain = ?,
+                        ultima_points = ?, strategy = ?, updated_at = datetime('now')
+                    WHERE id = ?
+                `)
+                .bind(
+                    input.name, input.description, input.monster_type, input.level,
+                    input.dexterity_die, input.insight_die, input.might_die, input.willpower_die,
+                    input.hp, input.mp, input.initiative, input.defense, input.magic_defense,
+                    input.equipment, input.img_key, input.source_page, fromBoolean(input.is_villain),
+                    input.ultima_points, input.strategy, id,
+                ),
+            this.db.prepare(`DELETE FROM monster_traits WHERE monster_id = ?`).bind(id),
+            ...traits.map((trait) =>
+                this.db
+                    .prepare(`INSERT INTO monster_traits (monster_id, trait) VALUES (?, ?)`)
+                    .bind(id, trait.trait),
+            ),
+            this.db.prepare(`DELETE FROM monster_affinities WHERE monster_id = ?`).bind(id),
+            ...(affinities
+                ? [
+                    this.db
+                        .prepare(`
+                            INSERT INTO monster_affinities (
+                                monster_id, physical, air, bolt, dark, earth, fire, ice, light, poison
+                            )
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        `)
+                        .bind(
+                            id, affinities.physical, affinities.air, affinities.bolt, affinities.dark,
+                            affinities.earth, affinities.fire, affinities.ice, affinities.light, affinities.poison,
+                        ),
+                ]
+                : []),
+            this.db.prepare(`DELETE FROM monster_actions WHERE monster_id = ?`).bind(id),
+            ...actions.map((action) =>
+                this.db
+                    .prepare(`
+                        INSERT INTO monster_actions (
+                            monster_id, action_type, action_icon, name, description, check_formula,
+                            accuracy_bonus, damage_type, cost, target, duration, is_offensive
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    `)
+                    .bind(
+                        id, action.action_type, action.action_icon, action.name, action.description,
+                        action.check_formula, action.accuracy_bonus, action.damage_type, action.cost,
+                        action.target, action.duration, fromBoolean(action.is_offensive),
+                    ),
+            ),
+        ];
+
+        try {
+            await this.db.batch(statements);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "";
+
+            if (message.includes("monster_traits")) {
+                throw new MonsterTraitAlreadyExistsError(traits[0]?.trait ?? "");
+            }
+            if (message.includes("monster_affinities")) {
+                throw new MonsterAffinityAlreadyExistsError(id);
+            }
+            if (message.includes("monster_actions")) {
+                throw new MonsterActionAlreadyExistsError(actions[0]?.name ?? "");
+            }
+
+            throw error;
+        }
     }
 
     async findBondTargetsByIds(

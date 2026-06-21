@@ -1,6 +1,7 @@
 import type { MiddlewareHandler } from "hono";
 import { D1CampaignMemberRepository } from "../infrastructure/repository/d1-campaign-member-repository";
 import type { Env, Variables } from "../types/env";
+import { logAuthorizationDenied } from "../utils/security-log";
 
 export const campaignMemberMiddleware: MiddlewareHandler<{
     Bindings: Env;
@@ -29,6 +30,7 @@ export const campaignMemberMiddleware: MiddlewareHandler<{
     const member = await memberRepo.findByUserAndCampaign(userId, campaignId);
 
     if (!member) {
+        logAuthorizationDenied(c.get("requestId"), { userId, campaignId, reason: "not_a_member" });
         return c.json({ success: false, error: { code: "FORBIDDEN", message: "Not a member of this campaign" } }, 403);
     }
 
